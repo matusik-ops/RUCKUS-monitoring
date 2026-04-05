@@ -1,0 +1,36 @@
+global:
+  scrape_interval: 60s
+  evaluation_interval: 60s
+
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
+scrape_configs:
+  # SNMP Exporter - scrapes Ruckus R720 APs via SNMP
+  - job_name: snmp
+    scrape_interval: 60s
+    scrape_timeout: 30s
+    file_sd_configs:
+      - files:
+          - /etc/prometheus/targets.yml
+    metrics_path: /snmp
+    params:
+      auth: [ruckus_v2]
+      module: [ruckus_r720]
+    relabel_configs:
+      # Target is the AP address; pass it as __param_target
+      - source_labels: [__address__]
+        target_label: __param_target
+      # Keep the AP address as the "instance" label
+      - source_labels: [__address__]
+        target_label: instance
+      # Route scrape requests to the SNMP exporter
+      - target_label: __address__
+        replacement: snmp-exporter:9116
+
+  # Unleashed REST API Exporter - per-client metrics
+  - job_name: unleashed
+    scrape_interval: 60s
+    static_configs:
+      - targets:
+          - unleashed-exporter:9191

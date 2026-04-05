@@ -1,0 +1,60 @@
+# Ruckus R720 Monitoring Dashboard
+# See README.md for setup instructions
+
+services:
+  snmp-exporter:
+    image: prom/snmp-exporter:latest
+    volumes:
+      - ./snmp-exporter/snmp.yml:/etc/snmp_exporter/snmp.yml:ro
+    ports:
+      - "9116:9116"
+    restart: unless-stopped
+
+  unleashed-exporter:
+    build: ./unleashed-exporter
+    environment:
+      - UNLEASHED_API_URL=${UNLEASHED_API_URL}
+      - UNLEASHED_USERNAME=${UNLEASHED_USERNAME}
+      - UNLEASHED_PASSWORD=${UNLEASHED_PASSWORD}
+      - UNLEASHED_POLL_INTERVAL=${UNLEASHED_POLL_INTERVAL:-60}
+      - UNLEASHED_VERIFY_SSL=${UNLEASHED_VERIFY_SSL:-false}
+      - EXPORTER_PORT=9191
+    ports:
+      - "9191:9191"
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/targets.yml:/etc/prometheus/targets.yml:ro
+      - ./prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d}"
+      - "--web.enable-lifecycle"
+    ports:
+      - "9090:9090"
+    depends_on:
+      - snmp-exporter
+      - unleashed-exporter
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  prometheus_data:
+  grafana_data:

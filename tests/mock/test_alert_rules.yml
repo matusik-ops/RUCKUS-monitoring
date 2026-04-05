@@ -1,0 +1,75 @@
+# promtool test for Prometheus alerting rules
+# Run with: promtool test rules tests/mock/test_alert_rules.yml
+
+rule_files:
+  - ../../prometheus/rules/alerts.yml
+
+evaluation_interval: 1m
+
+tests:
+  # Test: AP unreachable fires after 5 minutes of down
+  - interval: 1m
+    input_series:
+      - series: 'up{job="snmp", instance="10.91.1.109"}'
+        values: "0 0 0 0 0 0"
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: APUnreachable
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              job: snmp
+              instance: 10.91.1.109
+
+  # Test: AP unreachable does NOT fire if AP comes back
+  - interval: 1m
+    input_series:
+      - series: 'up{job="snmp", instance="10.91.1.109"}'
+        values: "0 0 0 1 1 1"
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: APUnreachable
+        exp_alerts: []
+
+  # Test: Poor client signal fires
+  - interval: 1m
+    input_series:
+      - series: 'unleashed_client_rssi_dbm{client_mac="AA:BB:CC:DD:EE:01", ap_name="r720-main", ssid="Corp-WiFi", radio_band="5g", hostname="TestClient"}'
+        values: "-80 -80 -80 -80 -80 -80"
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: PoorClientSignal
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              client_mac: "AA:BB:CC:DD:EE:01"
+              ap_name: r720-main
+              ssid: Corp-WiFi
+              radio_band: 5g
+              hostname: TestClient
+
+  # Test: High CPU fires
+  - interval: 1m
+    input_series:
+      - series: 'ruckusUnleashedSystemStatsCPUUtil{instance="10.91.1.109"}'
+        values: "95 95 95 95 95 95"
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: HighCPUUsage
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: 10.91.1.109
+
+  # Test: High client count fires
+  - interval: 1m
+    input_series:
+      - series: 'ruckusUnleashedSystemStatsAllNumSta{instance="10.91.1.109"}'
+        values: "55 55 55 55 55 55"
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: HighClientCount
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: 10.91.1.109

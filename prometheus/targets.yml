@@ -1,0 +1,6 @@
+# Ruckus R720 AP targets for SNMP polling
+# Add/remove APs here. Prometheus picks up changes on reload.
+- targets:
+    - 10.91.1.109
+  labels:
+    ap_name: r720-main

@@ -1,0 +1,52 @@
+groups:
+  - name: ruckus_ap_alerts
+    rules:
+      # AP unreachable - no successful SNMP scrape
+      - alert: APUnreachable
+        expr: up{job="snmp"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "AP {{ $labels.instance }} is unreachable"
+          description: "SNMP scrape has been failing for {{ $labels.instance }} for more than 5 minutes."
+
+      # High client count
+      - alert: HighClientCount
+        expr: ruckusUnleashedSystemStatsAllNumSta > 50
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High client count on {{ $labels.instance }}"
+          description: "Total clients: {{ $value }} (threshold: 50)."
+
+      # Excessive Tx retries
+      - alert: ExcessiveTxRetries
+        expr: rate(ruckusUnleashedSystemStatsWLANTotalTxRetry[5m]) > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Excessive Tx retries on {{ $labels.instance }}"
+          description: "Tx retry rate is {{ $value }}/s."
+
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: ruckusUnleashedSystemStatsCPUUtil > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU on {{ $labels.instance }}"
+          description: "CPU utilization is {{ $value }}% (threshold: 90%)."
+
+      # Poor client signal (from Unleashed web API exporter)
+      - alert: PoorClientSignal
+        expr: unleashed_client_rssi_dbm < -75
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Poor signal for client {{ $labels.client_mac }} on {{ $labels.ap_name }}"
+          description: "Client RSSI is {{ $value }} dBm (threshold: -75 dBm). SSID: {{ $labels.ssid }}."

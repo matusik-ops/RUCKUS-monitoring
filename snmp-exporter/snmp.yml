@@ -1,0 +1,220 @@
+# SNMP Exporter configuration for Ruckus Unleashed (firmware 200.15+)
+#
+# OID base: 1.3.6.1.4.1.25053.1.15 (ruckusUnleashed)
+# Verified against live R720 running 200.15.6.212
+#
+# Data sources:
+# - RUCKUS-UNLEASHED-SYSTEM-MIB: system info + stats
+# - RUCKUS-UNLEASHED-WLAN-MIB: per-AP table, Ethernet port status
+# - SNMPv2-MIB: sysUpTime, sysDescr, sysName
+# - IF-MIB: Ethernet interface counters
+
+auths:
+  ruckus_v2:
+    community: public
+    version: 2
+
+modules:
+  ruckus_r720:
+    walk:
+      # SNMPv2-MIB
+      - 1.3.6.1.2.1.1.1    # sysDescr
+      - 1.3.6.1.2.1.1.3    # sysUpTime
+      - 1.3.6.1.2.1.1.5    # sysName
+
+      # IF-MIB - Ethernet interface counters
+      - 1.3.6.1.2.1.2.2.1.2   # ifDescr
+      - 1.3.6.1.2.1.2.2.1.8   # ifOperStatus
+      - 1.3.6.1.2.1.2.2.1.10  # ifInOctets
+      - 1.3.6.1.2.1.2.2.1.14  # ifInErrors
+      - 1.3.6.1.2.1.2.2.1.16  # ifOutOctets
+      - 1.3.6.1.2.1.2.2.1.20  # ifOutErrors
+
+      # RUCKUS-UNLEASHED-SYSTEM-MIB - System info
+      - 1.3.6.1.4.1.25053.1.15.1.1.1.1.1   # ruckusUnleashedSystemName
+      - 1.3.6.1.4.1.25053.1.15.1.1.1.1.2   # ruckusUnleashedSystemIPAddr
+      - 1.3.6.1.4.1.25053.1.15.1.1.1.1.8   # ruckusUnleashedSystemUptime
+      - 1.3.6.1.4.1.25053.1.15.1.1.1.1.9   # ruckusUnleashedSystemModel
+      - 1.3.6.1.4.1.25053.1.15.1.1.1.1.15  # ruckusUnleashedSystemSerialNumber
+      - 1.3.6.1.4.1.25053.1.15.1.1.1.1.18  # ruckusUnleashedSystemVersion
+
+      # RUCKUS-UNLEASHED-SYSTEM-MIB - System stats
+      - 1.3.6.1.4.1.25053.1.15.1.1.1.15    # ruckusUnleashedSystemStats subtree
+
+      # RUCKUS-UNLEASHED-WLAN-MIB - AP table
+      - 1.3.6.1.4.1.25053.1.15.2.1.1.2.1.1.3  # ruckusUnleashedWLANAPStatus
+      - 1.3.6.1.4.1.25053.1.15.2.1.1.2.1.1.4  # ruckusUnleashedWLANAPModel
+      - 1.3.6.1.4.1.25053.1.15.2.1.1.2.1.1.6  # ruckusUnleashedWLANAPUptime
+
+      # RUCKUS-UNLEASHED-WLAN-MIB - AP Ethernet port status
+      - 1.3.6.1.4.1.25053.1.15.2.1.1.2.8.1.8  # ruckusUnleashedEthPhyStatus
+      - 1.3.6.1.4.1.25053.1.15.2.1.1.2.8.1.9  # ruckusUnleashedEthPhyIfSpeed
+
+    metrics:
+      # --- SNMPv2-MIB ---
+      - name: sysUpTime
+        oid: 1.3.6.1.2.1.1.3
+        type: gauge
+        help: System uptime in hundredths of a second
+
+      # --- IF-MIB ---
+      - name: ifOperStatus
+        oid: 1.3.6.1.2.1.2.2.1.8
+        type: gauge
+        help: Interface operational status (1=up, 2=down)
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+        lookups:
+          - labels: [ifIndex]
+            labelname: ifDescr
+            oid: 1.3.6.1.2.1.2.2.1.2
+            type: DisplayString
+
+      - name: ifInOctets
+        oid: 1.3.6.1.2.1.2.2.1.10
+        type: counter
+        help: Total octets received on interface
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+        lookups:
+          - labels: [ifIndex]
+            labelname: ifDescr
+            oid: 1.3.6.1.2.1.2.2.1.2
+            type: DisplayString
+
+      - name: ifOutOctets
+        oid: 1.3.6.1.2.1.2.2.1.16
+        type: counter
+        help: Total octets transmitted on interface
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+        lookups:
+          - labels: [ifIndex]
+            labelname: ifDescr
+            oid: 1.3.6.1.2.1.2.2.1.2
+            type: DisplayString
+
+      - name: ifInErrors
+        oid: 1.3.6.1.2.1.2.2.1.14
+        type: counter
+        help: Inbound packets with errors
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+        lookups:
+          - labels: [ifIndex]
+            labelname: ifDescr
+            oid: 1.3.6.1.2.1.2.2.1.2
+            type: DisplayString
+
+      - name: ifOutErrors
+        oid: 1.3.6.1.2.1.2.2.1.20
+        type: counter
+        help: Outbound packets with errors
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+        lookups:
+          - labels: [ifIndex]
+            labelname: ifDescr
+            oid: 1.3.6.1.2.1.2.2.1.2
+            type: DisplayString
+
+      # --- RUCKUS-UNLEASHED-SYSTEM-MIB: System stats ---
+      - name: ruckusUnleashedSystemStatsNumAP
+        oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.1
+        type: gauge
+        help: Number of APs in the Unleashed network
+
+      - name: ruckusUnleashedSystemStatsNumSta
+        oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.2
+        type: gauge
+        help: Number of authorized stations
+
+      - name: ruckusUnleashedSystemStatsWLANTotalRxPkts
+        oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.5
+        type: counter
+        help: Total wireless packets received
+
+      - name: ruckusUnleashedSystemStatsWLANTotalRxBytes
+        oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.6
+        type: counter
+        help: Total wireless bytes received
+
+      - name: ruckusUnleashedSystemStatsWLANTotalRxMulticast
+        oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.7
+        type: counter
+        help: Total wireless Rx multicast
+
+      - name: ruckusUnleashedSystemStatsWLANTotalTxPkts
+        oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.8
+        type: counter
+        help: Total wireless packets transmitted
+
+      - name: ruckusUnleashedSystemStatsWLANTotalTxBytes
+        oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.9
+        type: counter
+        help: Total wireless bytes transmitted
+
+      - name: ruckusUnleashedSystemStatsWLANTotalTxMulticast
+        oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.10
+        type: counter
+        help: Total wireless Tx multicast
+
+      - name: ruckusUnleashedSystemStatsWLANTotalTxFail
+        oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.11
+        type: counter
+        help: Total wireless transmit failures
+
+      - name: ruckusUnleashedSystemStatsWLANTotalTxRetry
+        oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.12
+        type: counter
+        help: Total wireless transmit retries
+
+      - name: ruckusUnleashedSystemStatsCPUUtil
+        oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.13
+        type: gauge
+        help: CPU utilization percentage
+
+      - name: ruckusUnleashedSystemStatsMemoryUtil
+        oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.14
+        type: gauge
+        help: Memory utilization percentage
+
+      - name: ruckusUnleashedSystemStatsNumRegisteredAP
+        oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.15
+        type: gauge
+        help: Number of registered APs
+
+      - name: ruckusUnleashedSystemStatsWLANTotalAssocFail
+        oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.16
+        type: counter
+        help: Total wireless association failures
+
+      - name: ruckusUnleashedSystemStatsWLANTotalRxErrFrm
+        oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.17
+        type: counter
+        help: Total wireless Rx error frames
+
+      - name: ruckusUnleashedSystemStatsWLANTotalTxDroppedPkt
+        oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.19
+        type: counter
+        help: Total wireless Tx dropped packets
+
+      - name: ruckusUnleashedSystemStatsWLANTotalTxErrFrm
+        oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.20
+        type: counter
+        help: Total wireless Tx error frames
+
+      - name: ruckusUnleashedSystemStatsWLANTotalTxDroppedFrm
+        oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.21
+        type: counter
+        help: Total wireless Tx dropped frames
+
+      - name: ruckusUnleashedSystemStatsAllNumSta
+        oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.30
+        type: gauge
+        help: Number of all stations (including unauthorized)
