@@ -1,23 +1,16 @@
 {
   "uid": "ruckus-ap-detail",
   "title": "Ruckus R720 - AP Detail",
-  "tags": [
-    "ruckus",
-    "r720",
-    "detail"
-  ],
+  "tags": ["ruckus", "r720", "detail"],
   "timezone": "browser",
   "refresh": "30s",
-  "time": {
-    "from": "now-1h",
-    "to": "now"
-  },
+  "time": { "from": "now-1h", "to": "now" },
   "templating": {
     "list": [
       {
-        "name": "instance",
+        "name": "ap_name",
         "type": "query",
-        "query": "label_values(up{job=\"snmp\"}, instance)",
+        "query": "label_values(unleashed_radio_num_sta, ap_name)",
         "datasource": "Prometheus",
         "refresh": 2,
         "current": {}
@@ -29,63 +22,33 @@
       "id": 1,
       "title": "System Uptime",
       "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 0,
-        "y": 0
-      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
       "targets": [
         {
-          "expr": "sysUpTime{instance=\"$instance\"} / 100",
+          "expr": "sysUpTime / 100",
           "legendFormat": "Uptime",
           "instant": true,
           "refId": "A"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s"
-        }
-      }
+      "fieldConfig": { "defaults": { "unit": "s" } }
     },
     {
       "id": 2,
       "title": "CPU",
       "type": "gauge",
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 6,
-        "y": 0
-      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
       "targets": [
         {
-          "expr": "ruckusUnleashedSystemStatsCPUUtil{instance=\"$instance\"}",
+          "expr": "ruckusUnleashedSystemStatsCPUUtil",
           "instant": true,
           "refId": "A"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "percent",
-          "max": 100,
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 70,
-                "color": "yellow"
-              },
-              {
-                "value": 90,
-                "color": "red"
-              }
-            ]
-          }
+          "unit": "percent", "max": 100,
+          "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 70, "color": "yellow" }, { "value": 90, "color": "red" }] }
         }
       }
     },
@@ -93,39 +56,18 @@
       "id": 3,
       "title": "Memory",
       "type": "gauge",
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 12,
-        "y": 0
-      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
       "targets": [
         {
-          "expr": "ruckusUnleashedSystemStatsMemoryUtil{instance=\"$instance\"}",
+          "expr": "ruckusUnleashedSystemStatsMemoryUtil",
           "instant": true,
           "refId": "A"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "percent",
-          "max": 100,
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 70,
-                "color": "yellow"
-              },
-              {
-                "value": 90,
-                "color": "red"
-              }
-            ]
-          }
+          "unit": "percent", "max": 100,
+          "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 70, "color": "yellow" }, { "value": 90, "color": "red" }] }
         }
       }
     },
@@ -133,15 +75,10 @@
       "id": 4,
       "title": "Total Clients",
       "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 18,
-        "y": 0
-      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
       "targets": [
         {
-          "expr": "ruckusUnleashedSystemStatsAllNumSta{instance=\"$instance\"}",
+          "expr": "sum(unleashed_radio_num_sta{ap_name=\"$ap_name\"})",
           "instant": true,
           "refId": "A"
         }
@@ -151,123 +88,137 @@
       "id": 5,
       "title": "Clients per Radio",
       "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 4
-      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
       "targets": [
         {
-          "expr": "ruckusRadioStatsNumAuthSta{instance=\"$instance\", radioIndex=\"1\"}",
-          "legendFormat": "2.4GHz Clients",
+          "expr": "unleashed_radio_num_sta{ap_name=\"$ap_name\", radio_band=\"2.4g\"}",
+          "legendFormat": "2.4GHz (ch {{ channel }})",
           "refId": "A"
         },
         {
-          "expr": "ruckusRadioStatsNumAuthSta{instance=\"$instance\", radioIndex=\"2\"}",
-          "legendFormat": "5GHz Clients",
+          "expr": "unleashed_radio_num_sta{ap_name=\"$ap_name\", radio_band=\"5g\"}",
+          "legendFormat": "5GHz (ch {{ channel }})",
           "refId": "B"
         }
       ]
     },
     {
       "id": 6,
-      "title": "Channel Utilization per Radio",
+      "title": "Airtime Utilization",
       "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 4
-      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
       "targets": [
         {
-          "expr": "ruckusRadioStatsResourceUtil{instance=\"$instance\", radioIndex=\"1\"}",
-          "legendFormat": "2.4GHz Util %",
+          "expr": "unleashed_radio_airtime_busy{ap_name=\"$ap_name\", radio_band=\"2.4g\"} / unleashed_radio_airtime_total{ap_name=\"$ap_name\", radio_band=\"2.4g\"} * 100",
+          "legendFormat": "2.4GHz busy %",
           "refId": "A"
         },
         {
-          "expr": "ruckusRadioStatsResourceUtil{instance=\"$instance\", radioIndex=\"2\"}",
-          "legendFormat": "5GHz Util %",
+          "expr": "unleashed_radio_airtime_busy{ap_name=\"$ap_name\", radio_band=\"5g\"} / unleashed_radio_airtime_total{ap_name=\"$ap_name\", radio_band=\"5g\"} * 100",
+          "legendFormat": "5GHz busy %",
           "refId": "B"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "percent",
-          "max": 100
+          "unit": "percent", "min": 0, "max": 100,
+          "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 30, "color": "yellow" }, { "value": 50, "color": "red" }] },
+          "custom": { "thresholdsStyle": { "mode": "line" } }
         }
       }
     },
     {
       "id": 7,
-      "title": "Radio Traffic (Rx)",
+      "title": "Radio Tx Bytes",
       "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 12
-      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
       "targets": [
         {
-          "expr": "rate(ruckusRadioStatsRxBytes{instance=\"$instance\", radioIndex=\"1\"}[5m]) * 8",
-          "legendFormat": "2.4GHz Rx bps",
+          "expr": "unleashed_radio_tx_bytes_total{ap_name=\"$ap_name\", radio_band=\"2.4g\"}",
+          "legendFormat": "2.4GHz Tx",
           "refId": "A"
         },
         {
-          "expr": "rate(ruckusRadioStatsRxBytes{instance=\"$instance\", radioIndex=\"2\"}[5m]) * 8",
-          "legendFormat": "5GHz Rx bps",
+          "expr": "unleashed_radio_tx_bytes_total{ap_name=\"$ap_name\", radio_band=\"5g\"}",
+          "legendFormat": "5GHz Tx",
           "refId": "B"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bps"
-        }
-      }
+      "fieldConfig": { "defaults": { "unit": "decbytes" } }
     },
     {
       "id": 8,
-      "title": "Radio Traffic (Tx)",
+      "title": "Radio Rx Bytes",
       "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 12
-      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
       "targets": [
         {
-          "expr": "rate(ruckusRadioStatsTxBytes{instance=\"$instance\", radioIndex=\"1\"}[5m]) * 8",
-          "legendFormat": "2.4GHz Tx bps",
+          "expr": "unleashed_radio_rx_bytes_total{ap_name=\"$ap_name\", radio_band=\"2.4g\"}",
+          "legendFormat": "2.4GHz Rx",
           "refId": "A"
         },
         {
-          "expr": "rate(ruckusRadioStatsTxBytes{instance=\"$instance\", radioIndex=\"2\"}[5m]) * 8",
-          "legendFormat": "5GHz Tx bps",
+          "expr": "unleashed_radio_rx_bytes_total{ap_name=\"$ap_name\", radio_band=\"5g\"}",
+          "legendFormat": "5GHz Rx",
           "refId": "B"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bps"
-        }
-      }
+      "fieldConfig": { "defaults": { "unit": "decbytes" } }
     },
     {
       "id": 9,
-      "title": "Ethernet Interface Status",
-      "type": "table",
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 20
-      },
+      "title": "Tx Retries per Radio",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
       "targets": [
         {
-          "expr": "ifOperStatus{instance=\"$instance\"}",
+          "expr": "unleashed_radio_retries_total{ap_name=\"$ap_name\", radio_band=\"2.4g\"}",
+          "legendFormat": "2.4GHz retries",
+          "refId": "A"
+        },
+        {
+          "expr": "unleashed_radio_retries_total{ap_name=\"$ap_name\", radio_band=\"5g\"}",
+          "legendFormat": "5GHz retries",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Auth / Assoc Failures",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+      "targets": [
+        {
+          "expr": "unleashed_radio_auth_fail{ap_name=\"$ap_name\", radio_band=\"2.4g\"}",
+          "legendFormat": "2.4GHz auth fail",
+          "refId": "A"
+        },
+        {
+          "expr": "unleashed_radio_auth_fail{ap_name=\"$ap_name\", radio_band=\"5g\"}",
+          "legendFormat": "5GHz auth fail",
+          "refId": "B"
+        },
+        {
+          "expr": "unleashed_radio_assoc_fail{ap_name=\"$ap_name\", radio_band=\"2.4g\"}",
+          "legendFormat": "2.4GHz assoc fail",
+          "refId": "C"
+        },
+        {
+          "expr": "unleashed_radio_assoc_fail{ap_name=\"$ap_name\", radio_band=\"5g\"}",
+          "legendFormat": "5GHz assoc fail",
+          "refId": "D"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Ethernet Interface Status",
+      "type": "table",
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 28 },
+      "targets": [
+        {
+          "expr": "ifOperStatus",
           "legendFormat": "{{ ifDescr }}",
           "instant": true,
           "refId": "A"
@@ -276,19 +227,7 @@
       "fieldConfig": {
         "defaults": {
           "mappings": [
-            {
-              "type": "value",
-              "options": {
-                "1": {
-                  "text": "UP",
-                  "color": "green"
-                },
-                "2": {
-                  "text": "DOWN",
-                  "color": "red"
-                }
-              }
-            }
+            { "type": "value", "options": { "1": { "text": "UP", "color": "green" }, "2": { "text": "DOWN", "color": "red" } } }
           ]
         }
       }

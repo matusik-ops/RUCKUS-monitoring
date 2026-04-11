@@ -76,23 +76,31 @@ Reload Prometheus: `curl -X POST http://localhost:9090/-/reload`
 
 ## Available Metrics
 
-### Via SNMP (RUCKUS-RADIO-MIB, RUCKUS-UNLEASHED-SYSTEM-MIB)
+### Via SNMP (RUCKUS-UNLEASHED-SYSTEM-MIB)
 
-| Metric | Source | Description |
-|---|---|---|
-| `ruckusRadioStatsNumSta` | RADIO-MIB | Associated stations per radio |
-| `ruckusRadioStatsNumAuthSta` | RADIO-MIB | Authenticated stations per radio |
-| `ruckusRadioStatsResourceUtil` | RADIO-MIB | Channel utilization % per radio |
-| `ruckusRadioStatsBusyAirtime` | RADIO-MIB | Busy airtime counter per radio* |
-| `ruckusRadioStatsRxBytes/TxBytes` | RADIO-MIB | Traffic counters per radio |
-| `ruckusRadioStatsAuthFailRate` | RADIO-MIB | Auth failure rate per radio |
-| `ruckusRadioStatsAssocFailRate` | RADIO-MIB | Assoc failure rate per radio |
-| `ruckusUnleashedSystemStatsCPUUtil` | UNLEASHED-MIB | CPU utilization % |
-| `ruckusUnleashedSystemStatsMemoryUtil` | UNLEASHED-MIB | Memory utilization % |
-| `ruckusUnleashedSystemStatsWLANTotalTxRetry` | UNLEASHED-MIB | Aggregate Tx retries |
-| `ruckusUnleashedSystemStatsWLANTotalTxFail` | UNLEASHED-MIB | Aggregate Tx failures |
+| Metric | Description |
+|---|---|
+| `ruckusUnleashedSystemStatsCPUUtil` | CPU utilization % |
+| `ruckusUnleashedSystemStatsMemoryUtil` | Memory utilization % |
+| `ruckusUnleashedSystemStatsNumSta` / `AllNumSta` | Authorized / total client count |
+| `ruckusUnleashedSystemStatsNumAP` | Number of connected APs |
+| `ruckusUnleashedSystemStatsWLANTotalTxRetry` | Aggregate Tx retries |
+| `ruckusUnleashedSystemStatsWLANTotalTxFail` | Aggregate Tx failures |
+| `ruckusUnleashedSystemStatsWLANTotalRx/TxBytes` | Aggregate wireless traffic |
+| `ifInOctets` / `ifOutOctets` | Ethernet interface traffic |
 
-*\*Requires firmware with OID .1.3.6.1.4.1.25053.1.1.12.1.1.1.3.1.51 support*
+### Via Unleashed Web API — Per-Radio
+
+| Metric | Description |
+|---|---|
+| `unleashed_radio_airtime_total/busy/rx/tx` | Radio airtime breakdown |
+| `unleashed_radio_num_sta` | Clients per radio |
+| `unleashed_radio_avg_rssi` | Average client RSSI per radio |
+| `unleashed_radio_retries_total` | Tx retries per radio |
+| `unleashed_radio_tx_fail_total` | Tx failures per radio |
+| `unleashed_radio_auth_fail/success` | Auth results per radio |
+| `unleashed_radio_assoc_fail/success` | Assoc results per radio |
+| `unleashed_radio_channel/tx_power/channelization` | Radio config |
 
 ### Via Unleashed REST API
 
@@ -110,12 +118,12 @@ Reload Prometheus: `curl -X POST http://localhost:9090/-/reload`
 | Alert | Condition | Default Threshold |
 |---|---|---|
 | APUnreachable | SNMP scrape failing | 5 minutes |
-| HighChannelUtilization | Resource util > threshold | 80% |
 | HighClientCount | Total clients > threshold | 50 |
-| AuthFailureSpike | Auth fail rate > threshold | 10 |
 | ExcessiveTxRetries | Tx retry rate > threshold | 1000/s |
 | HighCPUUsage | CPU util > threshold | 90% |
 | PoorClientSignal | Client RSSI < threshold | -75 dBm |
+| HighAirtimeBusy | Radio airtime busy/total > threshold | 50% |
+| RadioAuthFailureSpike | Per-radio auth failures in 5m > threshold | 100 |
 
 ## Testing
 
@@ -138,11 +146,10 @@ make test
 
 ## Known Limitations
 
-- **No per-client metrics via SNMP**: In standalone/Unleashed mode, SNMP only provides aggregate per-radio stats. Per-client data (RSSI, SNR, data rate) comes from the REST API exporter.
-- **No noise floor**: Not available in any Ruckus SNMP MIB or REST API.
-- **No temperature**: Not exposed by the R720.
-- **Airtime OID**: `ruckusRadioStatsBusyAirtime` may not be present on older firmware versions.
-- **REST API sessions**: The Unleashed REST API uses session cookies that may expire. The exporter handles re-authentication automatically.
+- **SNMP is system-level only**: RUCKUS-RADIO-MIB per-radio OIDs don't exist on firmware 200.15. Per-radio data (airtime, client counts, auth/assoc) comes from the web API exporter instead.
+- **No temperature**: Not exposed by any Ruckus interface.
+- **Undocumented web API**: The `_cmdstat.jsp` XML interface is not officially documented and may change between firmware versions. Test fixtures capture expected formats.
+- **Web API sessions**: The Unleashed web API uses `-ejs-session-` cookies + CSRF tokens that expire. The exporter re-authenticates automatically.
 
 ## MIB Files
 

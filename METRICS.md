@@ -65,13 +65,38 @@ Labels: `client_mac`, `ap_name`, `ssid`, `radio_band` (2.4g/5g), `hostname`.
 | `up{job="snmp"}` | gauge | SNMP target reachability (1=up, 0=down) | `up{job="snmp"}` |
 | `up{job="unleashed"}` | gauge | Unleashed exporter reachability | `up{job="unleashed"}` |
 
+## Per-Radio Metrics (via Unleashed Exporter — AP stats query)
+
+Collected from `_cmdstat.jsp` with `<ap LEVEL='1'/>`. Polled every 60s (same cycle as client metrics).
+
+Labels: `ap_name`, `radio_band` (2.4g/5g), `channel`.
+
+| Prometheus Metric | Type | Description | What it tells you | Example PromQL |
+|---|---|---|---|---|
+| `unleashed_radio_airtime_total` | gauge | Radio airtime total | Baseline for computing utilization ratios | `unleashed_radio_airtime_total` |
+| `unleashed_radio_airtime_busy` | gauge | Radio airtime busy (interference/other) | Non-WiFi interference on this radio; high = congested environment | `unleashed_radio_airtime_busy / unleashed_radio_airtime_total * 100` (%) |
+| `unleashed_radio_airtime_rx` | gauge | Radio airtime Rx | Time spent receiving frames | `unleashed_radio_airtime_rx` |
+| `unleashed_radio_airtime_tx` | gauge | Radio airtime Tx | Time spent transmitting frames | `unleashed_radio_airtime_tx` |
+| `unleashed_radio_num_sta` | gauge | Clients connected to this radio | Per-radio client load; identifies band imbalance | `unleashed_radio_num_sta{radio_band="5g"}` |
+| `unleashed_radio_avg_rssi` | gauge | Average client RSSI on this radio | Overall signal quality for clients on this radio | `unleashed_radio_avg_rssi` |
+| `unleashed_radio_tx_bytes_total` | gauge | Radio total Tx bytes | Per-radio egress traffic | `unleashed_radio_tx_bytes_total` |
+| `unleashed_radio_rx_bytes_total` | gauge | Radio total Rx bytes | Per-radio ingress traffic | `unleashed_radio_rx_bytes_total` |
+| `unleashed_radio_tx_pkts_total` | gauge | Radio total Tx packets | Per-radio packet count | `unleashed_radio_tx_pkts_total` |
+| `unleashed_radio_rx_pkts_total` | gauge | Radio total Rx packets | Per-radio packet count | `unleashed_radio_rx_pkts_total` |
+| `unleashed_radio_tx_fail_total` | gauge | Radio total Tx failures | Frames that couldn't be delivered on this radio | `unleashed_radio_tx_fail_total` |
+| `unleashed_radio_retries_total` | gauge | Radio total Tx retries | Re-sent frames on this radio; high = interference or distance | `unleashed_radio_retries_total` |
+| `unleashed_radio_fcs_error_total` | gauge | Radio total FCS errors | Corrupted received frames | `unleashed_radio_fcs_error_total` |
+| `unleashed_radio_auth_fail` | gauge | Radio auth failures | Failed client authentications on this radio | `unleashed_radio_auth_fail` |
+| `unleashed_radio_auth_success` | gauge | Radio auth successes | Successful authentications | `unleashed_radio_auth_success` |
+| `unleashed_radio_assoc_fail` | gauge | Radio assoc failures | Failed associations | `unleashed_radio_assoc_fail` |
+| `unleashed_radio_assoc_success` | gauge | Radio assoc successes | Successful associations | `unleashed_radio_assoc_success` |
+| `unleashed_radio_channel` | gauge | Radio channel number | What channel this radio is on | `unleashed_radio_channel` |
+| `unleashed_radio_tx_power` | gauge | Radio Tx power setting | Configured transmit power | `unleashed_radio_tx_power` |
+| `unleashed_radio_channelization` | gauge | Radio channel width (MHz) | Channel width (20/40/80) | `unleashed_radio_channelization` |
+
 ## Not Available (firmware 200.15 limitations)
 
 | Metric | Why | Workaround |
 |---|---|---|
-| Per-radio channel utilization | RUCKUS-RADIO-MIB OIDs not present on firmware 200.15 | Use per-client RSSI distribution as proxy |
-| Per-radio airtime | Same — not in SNMP tree | None via SNMP; may be available via CLI `get airtime` |
-| Per-radio client counts | Same — only aggregate counts via SNMP | Use `unleashed_clients_per_ap` from web API |
-| Per-radio auth/assoc failure rates | Same — only aggregate counters via SNMP | Monitor `ruckusUnleashedSystemStatsWLANTotalAssocFail` rate |
 | Temperature | Not exposed by any Ruckus interface | None |
 | Per-client data rate (Rx) | Only Tx rate available in interval-stats | Use `unleashed_client_tx_rate_kbps` |

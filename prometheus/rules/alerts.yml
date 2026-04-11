@@ -50,3 +50,23 @@ groups:
         annotations:
           summary: "Poor signal for client {{ $labels.client_mac }} on {{ $labels.ap_name }}"
           description: "Client RSSI is {{ $value }} dBm (threshold: -75 dBm). SSID: {{ $labels.ssid }}."
+
+      # High airtime busy (per-radio, from web API)
+      - alert: HighAirtimeBusy
+        expr: unleashed_radio_airtime_busy / unleashed_radio_airtime_total > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High airtime busy on {{ $labels.ap_name }} {{ $labels.radio_band }}"
+          description: "Airtime busy ratio is {{ $value | humanizePercentage }} on channel {{ $labels.channel }}."
+
+      # Per-radio auth failure spike (from web API)
+      - alert: RadioAuthFailureSpike
+        expr: increase(unleashed_radio_auth_fail[5m]) > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Auth failure spike on {{ $labels.ap_name }} {{ $labels.radio_band }}"
+          description: "{{ $value }} auth failures in 5 minutes on channel {{ $labels.channel }}."

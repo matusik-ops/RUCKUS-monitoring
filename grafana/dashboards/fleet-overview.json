@@ -114,8 +114,8 @@
     },
     {
       "id": 3,
-      "title": "Channel Utilization (2.4GHz)",
-      "type": "gauge",
+      "title": "Airtime Busy (2.4GHz)",
+      "type": "bargauge",
       "gridPos": {
         "h": 8,
         "w": 6,
@@ -124,8 +124,8 @@
       },
       "targets": [
         {
-          "expr": "ruckusRadioStatsResourceUtil{radioIndex=\"1\"}",
-          "legendFormat": "{{ instance }}",
+          "expr": "unleashed_radio_airtime_busy{radio_band=\"2.4g\"} / unleashed_radio_airtime_total{radio_band=\"2.4g\"} * 100",
+          "legendFormat": "{{ ap_name }}",
           "instant": true,
           "refId": "A"
         }
@@ -136,18 +136,9 @@
           "max": 100,
           "thresholds": {
             "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 50,
-                "color": "yellow"
-              },
-              {
-                "value": 80,
-                "color": "red"
-              }
+              { "value": 0, "color": "green" },
+              { "value": 30, "color": "yellow" },
+              { "value": 50, "color": "red" }
             ]
           }
         }
@@ -155,8 +146,8 @@
     },
     {
       "id": 4,
-      "title": "Channel Utilization (5GHz)",
-      "type": "gauge",
+      "title": "Airtime Busy (5GHz)",
+      "type": "bargauge",
       "gridPos": {
         "h": 8,
         "w": 6,
@@ -165,8 +156,8 @@
       },
       "targets": [
         {
-          "expr": "ruckusRadioStatsResourceUtil{radioIndex=\"2\"}",
-          "legendFormat": "{{ instance }}",
+          "expr": "unleashed_radio_airtime_busy{radio_band=\"5g\"} / unleashed_radio_airtime_total{radio_band=\"5g\"} * 100",
+          "legendFormat": "{{ ap_name }}",
           "instant": true,
           "refId": "A"
         }
@@ -177,18 +168,9 @@
           "max": 100,
           "thresholds": {
             "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 50,
-                "color": "yellow"
-              },
-              {
-                "value": 80,
-                "color": "red"
-              }
+              { "value": 0, "color": "green" },
+              { "value": 30, "color": "yellow" },
+              { "value": 50, "color": "red" }
             ]
           }
         }

@@ -1,7 +1,10 @@
-"""Prometheus exporter for Ruckus Unleashed per-client metrics.
+"""Prometheus exporter for Ruckus Unleashed per-client and per-radio metrics.
 
 Uses the _cmdstat.jsp XML/AJAX interface (firmware 200.15+).
 Authentication: login.jsp + CSRF token from _csrfTokenVar.jsp.
+Collects two data sets per poll cycle:
+  1. Per-client stats via <client INTERVAL-STATS='yes'/>
+  2. Per-AP, per-radio stats via <ap LEVEL='1'/>
 """
 
 import logging
@@ -125,6 +128,40 @@ _CLIENT_GAUGES = [
     client_tx_bytes,
     client_assoc_time,
 ]
+
+# ---------------------------------------------------------------------------
+# Per-radio metrics (from <ap LEVEL='1'/> query)
+# ---------------------------------------------------------------------------
+RADIO_LABELS = ["ap_name", "radio_band", "channel"]
+
+radio_airtime_total = Gauge("unleashed_radio_airtime_total", "Radio airtime total", RADIO_LABELS, registry=registry)
+radio_airtime_busy = Gauge("unleashed_radio_airtime_busy", "Radio airtime busy (interference/other)", RADIO_LABELS, registry=registry)
+radio_airtime_rx = Gauge("unleashed_radio_airtime_rx", "Radio airtime Rx", RADIO_LABELS, registry=registry)
+radio_airtime_tx = Gauge("unleashed_radio_airtime_tx", "Radio airtime Tx", RADIO_LABELS, registry=registry)
+radio_num_sta = Gauge("unleashed_radio_num_sta", "Clients per radio", RADIO_LABELS, registry=registry)
+radio_avg_rssi = Gauge("unleashed_radio_avg_rssi", "Average client RSSI per radio", RADIO_LABELS, registry=registry)
+radio_tx_bytes = Gauge("unleashed_radio_tx_bytes_total", "Radio total Tx bytes", RADIO_LABELS, registry=registry)
+radio_rx_bytes = Gauge("unleashed_radio_rx_bytes_total", "Radio total Rx bytes", RADIO_LABELS, registry=registry)
+radio_tx_pkts = Gauge("unleashed_radio_tx_pkts_total", "Radio total Tx packets", RADIO_LABELS, registry=registry)
+radio_rx_pkts = Gauge("unleashed_radio_rx_pkts_total", "Radio total Rx packets", RADIO_LABELS, registry=registry)
+radio_tx_fail = Gauge("unleashed_radio_tx_fail_total", "Radio total Tx failures", RADIO_LABELS, registry=registry)
+radio_retries = Gauge("unleashed_radio_retries_total", "Radio total Tx retries", RADIO_LABELS, registry=registry)
+radio_fcs_err = Gauge("unleashed_radio_fcs_error_total", "Radio total FCS errors", RADIO_LABELS, registry=registry)
+radio_auth_fail = Gauge("unleashed_radio_auth_fail", "Radio auth failures", RADIO_LABELS, registry=registry)
+radio_auth_success = Gauge("unleashed_radio_auth_success", "Radio auth successes", RADIO_LABELS, registry=registry)
+radio_assoc_fail = Gauge("unleashed_radio_assoc_fail", "Radio assoc failures", RADIO_LABELS, registry=registry)
+radio_assoc_success = Gauge("unleashed_radio_assoc_success", "Radio assoc successes", RADIO_LABELS, registry=registry)
+radio_channel_g = Gauge("unleashed_radio_channel", "Radio channel number", ["ap_name", "radio_band"], registry=registry)
+radio_tx_power = Gauge("unleashed_radio_tx_power", "Radio Tx power setting", ["ap_name", "radio_band"], registry=registry)
+radio_channelization = Gauge("unleashed_radio_channelization", "Radio channel width (MHz)", ["ap_name", "radio_band"], registry=registry)
+
+_RADIO_GAUGES = [
+    radio_airtime_total, radio_airtime_busy, radio_airtime_rx, radio_airtime_tx,
+    radio_num_sta, radio_avg_rssi, radio_tx_bytes, radio_rx_bytes,
+    radio_tx_pkts, radio_rx_pkts, radio_tx_fail, radio_retries, radio_fcs_err,
+    radio_auth_fail, radio_auth_success, radio_assoc_fail, radio_assoc_success,
+]
+_RADIO_CONFIG_GAUGES = [radio_channel_g, radio_tx_power, radio_channelization]
 
 
 # ---------------------------------------------------------------------------
@@ -261,6 +298,30 @@ class UnleashedClient:
             return None
 
 
+    def get_ap_stats(self) -> list[dict] | None:
+        """Fetch per-AP, per-radio stats via _cmdstat.jsp."""
+        xml = self._cmdstat(
+            "<ajax-request action='getstat' comp='stamgr' enable-gzip='0'>"
+            "<ap LEVEL='1'/>"
+            "</ajax-request>"
+        )
+        if xml is None:
+            return None
+        try:
+            root = ET.fromstring(xml)
+            aps = []
+            for ap_el in root.iter("ap"):
+                ap_data = {"attrs": dict(ap_el.attrib), "radios": []}
+                for radio_el in ap_el.iter("radio"):
+                    ap_data["radios"].append(dict(radio_el.attrib))
+                aps.append(ap_data)
+            return aps
+        except ET.ParseError as exc:
+            log.error("AP stats XML parse error: %s", exc)
+            poll_errors.labels(type="parse_error").inc()
+            return None
+
+
 # ---------------------------------------------------------------------------
 # Metric update logic
 # ---------------------------------------------------------------------------
@@ -348,6 +409,76 @@ def update_metrics(stations: list[dict]):
              len(stations), len(ssid_counts), len(ap_counts))
 
 
+def _clear_radio_metrics(known_labels: set[tuple]):
+    """Remove radio metrics for APs/radios no longer present."""
+    for gauge in _RADIO_GAUGES:
+        stale = set(gauge._metrics.keys()) - known_labels
+        for key in stale:
+            gauge.remove(*key)
+    # Config gauges use 2 labels (ap_name, radio_band)
+    known_config = {(l[0], l[1]) for l in known_labels}
+    for gauge in _RADIO_CONFIG_GAUGES:
+        stale = set(gauge._metrics.keys()) - known_config
+        for key in stale:
+            gauge.remove(*key)
+
+
+def _set_radio_gauge(gauge, labels, value):
+    """Set a gauge if value is not None and non-empty."""
+    if value is not None and value != "":
+        try:
+            gauge.labels(*labels).set(float(value))
+        except (ValueError, TypeError):
+            pass
+
+
+def update_radio_metrics(aps: list[dict]):
+    """Update per-radio Prometheus metrics from AP stats."""
+    current_labels: set[tuple] = set()
+    radio_count = 0
+
+    for ap_data in aps:
+        attrs = ap_data["attrs"]
+        state = attrs.get("state", "0")
+        if state != "1":
+            continue  # Skip disconnected APs
+
+        ap_name = attrs.get("ap-name", "unknown")
+
+        for radio in ap_data["radios"]:
+            band = radio.get("radio-band", "unknown")
+            ch = radio.get("channel", "0")
+            labels = (ap_name, band, ch)
+            current_labels.add(labels)
+            radio_count += 1
+
+            _set_radio_gauge(radio_airtime_total, labels, radio.get("airtime-total"))
+            _set_radio_gauge(radio_airtime_busy, labels, radio.get("airtime-busy"))
+            _set_radio_gauge(radio_airtime_rx, labels, radio.get("airtime-rx"))
+            _set_radio_gauge(radio_airtime_tx, labels, radio.get("airtime-tx"))
+            _set_radio_gauge(radio_num_sta, labels, radio.get("num-sta"))
+            _set_radio_gauge(radio_avg_rssi, labels, radio.get("avg-rssi"))
+            _set_radio_gauge(radio_tx_bytes, labels, radio.get("radio-total-tx-bytes"))
+            _set_radio_gauge(radio_rx_bytes, labels, radio.get("radio-total-rx-bytes"))
+            _set_radio_gauge(radio_tx_pkts, labels, radio.get("radio-total-tx-pkts"))
+            _set_radio_gauge(radio_rx_pkts, labels, radio.get("radio-total-rx-pkts"))
+            _set_radio_gauge(radio_tx_fail, labels, radio.get("radio-total-tx-fail"))
+            _set_radio_gauge(radio_retries, labels, radio.get("radio-total-retries"))
+            _set_radio_gauge(radio_fcs_err, labels, radio.get("total-fcs-err"))
+            _set_radio_gauge(radio_auth_fail, labels, radio.get("mgmt-auth-fail"))
+            _set_radio_gauge(radio_auth_success, labels, radio.get("mgmt-auth-success"))
+            _set_radio_gauge(radio_assoc_fail, labels, radio.get("mgmt-assoc-fail"))
+            _set_radio_gauge(radio_assoc_success, labels, radio.get("mgmt-assoc-success"))
+
+            config_labels = (ap_name, band)
+            _set_radio_gauge(radio_channel_g, config_labels, ch)
+            _set_radio_gauge(radio_tx_power, config_labels, radio.get("tx-power"))
+            _set_radio_gauge(radio_channelization, config_labels, radio.get("channelization"))
+
+    _clear_radio_metrics(current_labels)
+    log.info("Updated radio metrics for %d radios", radio_count)
+
+
 # ---------------------------------------------------------------------------
 # Main loop
 # ---------------------------------------------------------------------------
@@ -379,6 +510,11 @@ def main():
         stations = client.get_stations()
         if stations is not None:
             update_metrics(stations)
+
+        ap_stats = client.get_ap_stats()
+        if ap_stats is not None:
+            update_radio_metrics(ap_stats)
+
         time.sleep(POLL_INTERVAL)
 
 

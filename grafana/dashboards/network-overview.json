@@ -1,0 +1,394 @@
+{
+  "uid": "ruckus-network-overview",
+  "title": "Ruckus Network Overview",
+  "tags": ["ruckus", "overview", "noc"],
+  "timezone": "browser",
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "templating": { "list": [] },
+  "panels": [
+    {
+      "id": 100,
+      "title": "",
+      "type": "text",
+      "gridPos": { "h": 2, "w": 24, "x": 0, "y": 0 },
+      "options": { "mode": "markdown", "content": "## Network Status" }
+    },
+    {
+      "id": 1,
+      "title": "APs Online",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 2 },
+      "targets": [
+        {
+          "expr": "ruckusUnleashedSystemStatsNumAP",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "steps": [{ "value": 0, "color": "red" }, { "value": 5, "color": "yellow" }, { "value": 7, "color": "green" }] }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Total Clients",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 2 },
+      "targets": [
+        {
+          "expr": "unleashed_client_count",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "steps": [{ "value": 0, "color": "blue" }] }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Master CPU",
+      "type": "gauge",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 2 },
+      "targets": [
+        {
+          "expr": "ruckusUnleashedSystemStatsCPUUtil",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent", "min": 0, "max": 100,
+          "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 70, "color": "yellow" }, { "value": 90, "color": "red" }] }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Master Memory",
+      "type": "gauge",
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 2 },
+      "targets": [
+        {
+          "expr": "ruckusUnleashedSystemStatsMemoryUtil",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent", "min": 0, "max": 100,
+          "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 70, "color": "yellow" }, { "value": 90, "color": "red" }] }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "SNMP Target",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 2 },
+      "targets": [
+        {
+          "expr": "up{job=\"snmp\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [{ "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }]
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Exporter",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 2 },
+      "targets": [
+        {
+          "expr": "up{job=\"unleashed\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [{ "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }]
+        }
+      }
+    },
+
+    {
+      "id": 200,
+      "title": "",
+      "type": "text",
+      "gridPos": { "h": 2, "w": 24, "x": 0, "y": 6 },
+      "options": { "mode": "markdown", "content": "## Per-AP Health — clients, airtime, retries, auth failures" }
+    },
+    {
+      "id": 10,
+      "title": "Clients per AP",
+      "type": "bargauge",
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum by (ap_name) (unleashed_radio_num_sta)",
+          "legendFormat": "{{ ap_name }}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": { "orientation": "horizontal", "displayMode": "gradient" },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 15, "color": "yellow" }, { "value": 30, "color": "red" }] }
+        }
+      }
+    },
+    {
+      "id": 11,
+      "title": "Airtime Busy % (2.4GHz)",
+      "type": "bargauge",
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 8 },
+      "targets": [
+        {
+          "expr": "unleashed_radio_airtime_busy{radio_band=\"2.4g\"} / unleashed_radio_airtime_total{radio_band=\"2.4g\"} * 100",
+          "legendFormat": "{{ ap_name }}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": { "orientation": "horizontal", "displayMode": "gradient" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent", "min": 0, "max": 100,
+          "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 20, "color": "yellow" }, { "value": 40, "color": "red" }] }
+        }
+      }
+    },
+    {
+      "id": 12,
+      "title": "Airtime Busy % (5GHz)",
+      "type": "bargauge",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "unleashed_radio_airtime_busy{radio_band=\"5g\"} / unleashed_radio_airtime_total{radio_band=\"5g\"} * 100",
+          "legendFormat": "{{ ap_name }}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": { "orientation": "horizontal", "displayMode": "gradient" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent", "min": 0, "max": 100,
+          "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 20, "color": "yellow" }, { "value": 40, "color": "red" }] }
+        }
+      }
+    },
+    {
+      "id": 13,
+      "title": "Auth Failures (per radio)",
+      "type": "bargauge",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 8 },
+      "targets": [
+        {
+          "expr": "unleashed_radio_auth_fail > 0",
+          "legendFormat": "{{ ap_name }} {{ radio_band }}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": { "orientation": "horizontal", "displayMode": "gradient" },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 50, "color": "yellow" }, { "value": 200, "color": "red" }] }
+        }
+      }
+    },
+
+    {
+      "id": 300,
+      "title": "",
+      "type": "text",
+      "gridPos": { "h": 2, "w": 24, "x": 0, "y": 16 },
+      "options": { "mode": "markdown", "content": "## Worst Clients — poor signal, low data rate" }
+    },
+    {
+      "id": 20,
+      "title": "Clients with Weak Signal (RSSI < -70 dBm)",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 18 },
+      "targets": [
+        {
+          "expr": "sort(unleashed_client_rssi_dbm < -70)",
+          "legendFormat": "",
+          "instant": true,
+          "format": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Value" },
+            "properties": [
+              { "id": "displayName", "value": "RSSI (dBm)" },
+              { "id": "thresholds", "value": { "steps": [{ "value": -90, "color": "red" }, { "value": -75, "color": "yellow" }, { "value": -60, "color": "green" }] } },
+              { "id": "custom.cellOptions", "value": { "type": "color-background" } }
+            ]
+          }
+        ]
+      },
+      "transformations": [
+        { "id": "organize", "options": { "excludeByName": { "Time": true, "__name__": true, "job": true, "instance": true }, "renameByName": { "client_mac": "MAC", "ap_name": "AP", "ssid": "SSID", "radio_band": "Band", "hostname": "Hostname" } } }
+      ]
+    },
+    {
+      "id": 21,
+      "title": "Lowest Data Rates (Kbps)",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 18 },
+      "targets": [
+        {
+          "expr": "bottomk(10, unleashed_client_tx_rate_kbps)",
+          "legendFormat": "",
+          "instant": true,
+          "format": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Value" },
+            "properties": [
+              { "id": "displayName", "value": "Tx Rate (Kbps)" },
+              { "id": "thresholds", "value": { "steps": [{ "value": 0, "color": "red" }, { "value": 30000, "color": "yellow" }, { "value": 70000, "color": "green" }] } },
+              { "id": "custom.cellOptions", "value": { "type": "color-background" } }
+            ]
+          }
+        ]
+      },
+      "transformations": [
+        { "id": "organize", "options": { "excludeByName": { "Time": true, "__name__": true, "job": true, "instance": true }, "renameByName": { "client_mac": "MAC", "ap_name": "AP", "ssid": "SSID", "radio_band": "Band", "hostname": "Hostname" } } }
+      ]
+    },
+
+    {
+      "id": 400,
+      "title": "",
+      "type": "text",
+      "gridPos": { "h": 2, "w": 24, "x": 0, "y": 26 },
+      "options": { "mode": "markdown", "content": "## Trends — traffic, retries, client count" }
+    },
+    {
+      "id": 30,
+      "title": "Total Clients Over Time",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 28 },
+      "targets": [
+        {
+          "expr": "unleashed_client_count",
+          "legendFormat": "Clients",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "title": "Aggregate Tx Retries/s",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 28 },
+      "targets": [
+        {
+          "expr": "rate(ruckusUnleashedSystemStatsWLANTotalTxRetry[5m])",
+          "legendFormat": "Retries/s",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(ruckusUnleashedSystemStatsWLANTotalTxFail[5m])",
+          "legendFormat": "Failures/s",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "title": "Aggregate Wireless Throughput",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 28 },
+      "targets": [
+        {
+          "expr": "rate(ruckusUnleashedSystemStatsWLANTotalTxBytes[5m]) * 8",
+          "legendFormat": "Tx bps",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(ruckusUnleashedSystemStatsWLANTotalRxBytes[5m]) * 8",
+          "legendFormat": "Rx bps",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "bps" } }
+    },
+
+    {
+      "id": 500,
+      "title": "",
+      "type": "text",
+      "gridPos": { "h": 2, "w": 24, "x": 0, "y": 35 },
+      "options": { "mode": "markdown", "content": "## Clients per SSID / per AP" }
+    },
+    {
+      "id": 40,
+      "title": "Clients per SSID",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 37 },
+      "targets": [
+        {
+          "expr": "unleashed_clients_per_ssid",
+          "legendFormat": "{{ ssid }}",
+          "instant": true,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "title": "Clients per AP",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 37 },
+      "targets": [
+        {
+          "expr": "unleashed_clients_per_ap",
+          "legendFormat": "{{ ap_name }}",
+          "instant": true,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "title": "Clients per Band",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 37 },
+      "targets": [
+        {
+          "expr": "sum by (radio_band) (unleashed_radio_num_sta)",
+          "legendFormat": "{{ radio_band }}",
+          "instant": true,
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}
