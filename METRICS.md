@@ -1,102 +1,206 @@
 # Collected Metrics Reference
 
-All metrics are stored in Prometheus and queryable via PromQL in Grafana.
+This file documents **every measurement value** collected from the Ruckus Unleashed AP via two data sources:
 
-## SNMP Metrics (via Prometheus SNMP Exporter)
+1. **SNMP** — from the master AP at OID base `1.3.6.1.4.1.25053.1.15`
+2. **Web API** — from `_cmdstat.jsp` XML interface (per-client, per-AP/radio, per-rogue)
 
-Collected from the Unleashed master AP via SNMP v2c. OID base: `1.3.6.1.4.1.25053.1.15` (RUCKUS-UNLEASHED-SYSTEM-MIB, firmware 200.15+).
+All metrics are stored in Prometheus and queryable via PromQL in Grafana. Both sources are polled every 60 seconds.
 
-Scraped every 60s (configurable). Labels: `instance` (AP IP address).
+---
 
-| Prometheus Metric | Type | Description | What it tells you | Example PromQL |
-|---|---|---|---|---|
-| `sysUpTime` | gauge | System uptime in hundredths of a second | How long the AP has been running; drops indicate reboots | `sysUpTime / 100 / 86400` (uptime in days) |
-| `ruckusUnleashedSystemStatsNumAP` | gauge | Number of APs in the Unleashed network | Fleet size; drop means an AP disconnected | `ruckusUnleashedSystemStatsNumAP` |
-| `ruckusUnleashedSystemStatsNumRegisteredAP` | gauge | Number of registered/approved APs | Should match NumAP; mismatch means pending APs | `ruckusUnleashedSystemStatsNumRegisteredAP` |
-| `ruckusUnleashedSystemStatsNumSta` | gauge | Number of authorized (authenticated) clients | Active users on the network | `ruckusUnleashedSystemStatsNumSta` |
-| `ruckusUnleashedSystemStatsAllNumSta` | gauge | Number of all clients (including unauthorized) | Total wireless associations; gap with NumSta = auth issues | `ruckusUnleashedSystemStatsAllNumSta` |
-| `ruckusUnleashedSystemStatsCPUUtil` | gauge | CPU utilization (%) | AP processing load; sustained >80% = overloaded | `ruckusUnleashedSystemStatsCPUUtil` |
-| `ruckusUnleashedSystemStatsMemoryUtil` | gauge | Memory utilization (%) | RAM pressure; high values may cause instability | `ruckusUnleashedSystemStatsMemoryUtil` |
-| `ruckusUnleashedSystemStatsWLANTotalRxPkts` | counter | Total wireless packets received | Wireless inbound volume | `rate(ruckusUnleashedSystemStatsWLANTotalRxPkts[5m])` |
-| `ruckusUnleashedSystemStatsWLANTotalRxBytes` | counter | Total wireless bytes received | Wireless inbound throughput | `rate(ruckusUnleashedSystemStatsWLANTotalRxBytes[5m]) * 8` (bps) |
-| `ruckusUnleashedSystemStatsWLANTotalTxPkts` | counter | Total wireless packets transmitted | Wireless outbound volume | `rate(ruckusUnleashedSystemStatsWLANTotalTxPkts[5m])` |
-| `ruckusUnleashedSystemStatsWLANTotalTxBytes` | counter | Total wireless bytes transmitted | Wireless outbound throughput | `rate(ruckusUnleashedSystemStatsWLANTotalTxBytes[5m]) * 8` (bps) |
-| `ruckusUnleashedSystemStatsWLANTotalTxFail` | counter | Total wireless transmit failures | Frames that could not be delivered; sustained increase = RF issues | `rate(ruckusUnleashedSystemStatsWLANTotalTxFail[5m])` |
-| `ruckusUnleashedSystemStatsWLANTotalTxRetry` | counter | Total wireless transmit retries | Frames re-sent due to no ACK; high rate = interference or distance | `rate(ruckusUnleashedSystemStatsWLANTotalTxRetry[5m])` |
-| `ruckusUnleashedSystemStatsWLANTotalRxMulticast` | counter | Total wireless Rx multicast frames | Multicast traffic volume | `rate(ruckusUnleashedSystemStatsWLANTotalRxMulticast[5m])` |
-| `ruckusUnleashedSystemStatsWLANTotalTxMulticast` | counter | Total wireless Tx multicast frames | Multicast traffic volume | `rate(ruckusUnleashedSystemStatsWLANTotalTxMulticast[5m])` |
-| `ruckusUnleashedSystemStatsWLANTotalAssocFail` | counter | Total wireless association failures | Clients failing to connect; spike = capacity or config issue | `rate(ruckusUnleashedSystemStatsWLANTotalAssocFail[5m])` |
-| `ruckusUnleashedSystemStatsWLANTotalRxErrFrm` | counter | Total wireless Rx error frames | Corrupted inbound frames; high rate = interference | `rate(ruckusUnleashedSystemStatsWLANTotalRxErrFrm[5m])` |
-| `ruckusUnleashedSystemStatsWLANTotalTxDroppedPkt` | counter | Total wireless Tx dropped packets | Frames dropped before transmission | `rate(ruckusUnleashedSystemStatsWLANTotalTxDroppedPkt[5m])` |
-| `ruckusUnleashedSystemStatsWLANTotalTxErrFrm` | counter | Total wireless Tx error frames | Transmission errors | `rate(ruckusUnleashedSystemStatsWLANTotalTxErrFrm[5m])` |
-| `ruckusUnleashedSystemStatsWLANTotalTxDroppedFrm` | counter | Total wireless Tx dropped frames | Frames dropped (queue full, etc.) | `rate(ruckusUnleashedSystemStatsWLANTotalTxDroppedFrm[5m])` |
-| `ifInOctets` | counter | Ethernet interface bytes received | Wired ingress throughput per interface | `rate(ifInOctets{ifDescr="eth0"}[5m]) * 8` (bps) |
-| `ifOutOctets` | counter | Ethernet interface bytes transmitted | Wired egress throughput per interface | `rate(ifOutOctets{ifDescr="eth0"}[5m]) * 8` (bps) |
-| `ifInErrors` | counter | Ethernet interface inbound errors | Wired Rx errors; non-zero = cable or switch issue | `rate(ifInErrors{ifDescr="eth0"}[5m])` |
-| `ifOutErrors` | counter | Ethernet interface outbound errors | Wired Tx errors | `rate(ifOutErrors{ifDescr="eth0"}[5m])` |
-| `ifOperStatus` | gauge | Ethernet interface operational status (1=up, 2=down) | Whether each Ethernet port is linked | `ifOperStatus{ifDescr="eth0"}` |
+## SOURCE 1: SNMP (RUCKUS-UNLEASHED-SYSTEM-MIB + standard MIBs)
 
-## Web API Metrics (via Unleashed Exporter)
+Polled directly from the master AP at 10.91.1.109 via SNMP v2c.
+OID base: `1.3.6.1.4.1.25053.1.15` (RUCKUS-UNLEASHED-SYSTEM-MIB, firmware 200.15+)
+Labels: `instance` (AP IP)
 
-Collected from the Unleashed _cmdstat.jsp XML interface with `INTERVAL-STATS='yes'`. Polled every 60s (configurable).
+### System Info (from RUCKUS-UNLEASHED-SYSTEM-MIB)
 
-Labels: `client_mac`, `ap_name`, `ssid`, `radio_band` (2.4g/5g), `hostname`.
-
-| Prometheus Metric | Type | Description | What it tells you | Example PromQL |
-|---|---|---|---|---|
-| `unleashed_client_rssi_dbm` | gauge | Client received signal strength (dBm) | Signal quality; below -75 = poor, below -80 = very poor | `unleashed_client_rssi_dbm{ap_name="AP01"}` |
-| `unleashed_client_snr_db` | gauge | Client SNR (AP-reported RSSI value) | Signal-to-noise ratio; higher is better | `unleashed_client_snr_db` |
-| `unleashed_client_noise_floor_dbm` | gauge | Client noise floor (dBm) | RF environment noise; typically -96; higher = more interference | `unleashed_client_noise_floor_dbm` |
-| `unleashed_client_tx_rate_kbps` | gauge | Client Tx data rate (Kbps) | Negotiated PHY rate; e.g., 135000 = 135 Mbps. Low rate = poor signal or old client | `unleashed_client_tx_rate_kbps / 1000` (Mbps) |
-| `unleashed_client_rx_bytes_total` | gauge | Client total received bytes | Cumulative download traffic per client | `unleashed_client_rx_bytes_total{client_mac="aa:bb:cc:dd:ee:01"}` |
-| `unleashed_client_tx_bytes_total` | gauge | Client total transmitted bytes | Cumulative upload traffic per client | `unleashed_client_tx_bytes_total` |
-| `unleashed_client_assoc_time_seconds` | gauge | Client association start time (unix timestamp) | When client connected; `time() - metric` = session duration | `time() - unleashed_client_assoc_time_seconds` (duration) |
-| `unleashed_client_channel` | gauge | Wireless channel the client is on | Which channel/radio the client uses; helps identify band distribution | `count by (channel) (unleashed_client_channel)` |
-| `unleashed_client_count` | gauge | Total number of connected clients | Quick client count without label cardinality | `unleashed_client_count` |
-| `unleashed_clients_per_ssid` | gauge | Client count per SSID | Load distribution across SSIDs | `unleashed_clients_per_ssid` |
-| `unleashed_clients_per_ap` | gauge | Client count per AP | Load distribution across APs; imbalance = sticky clients or coverage gap | `unleashed_clients_per_ap` |
-
-## Exporter Health Metrics
-
-| Prometheus Metric | Type | Description | Example PromQL |
+| Prometheus Metric | OID Suffix | Type | Description |
 |---|---|---|---|
-| `unleashed_exporter_polls_total` | counter | Total successful polls | `rate(unleashed_exporter_polls_total[5m])` |
-| `unleashed_exporter_errors_total` | counter | Total poll errors (labeled by type: auth_failure, connection_error, api_error, parse_error, csrf_failure) | `unleashed_exporter_errors_total` |
-| `up{job="snmp"}` | gauge | SNMP target reachability (1=up, 0=down) | `up{job="snmp"}` |
-| `up{job="unleashed"}` | gauge | Unleashed exporter reachability | `up{job="unleashed"}` |
+| `sysUpTime` | 1.3.6.1.2.1.1.3 | gauge | System uptime (1/100s) |
+| `ruckusUnleashedSystemStatsNumAP` | .15.1 | gauge | Number of APs in network |
+| `ruckusUnleashedSystemStatsNumRegisteredAP` | .15.15 | gauge | Number of registered APs |
 
-## Per-Radio Metrics (via Unleashed Exporter — AP stats query)
+### Client Counts
 
-Collected from `_cmdstat.jsp` with `<ap LEVEL='1'/>`. Polled every 60s (same cycle as client metrics).
+| Prometheus Metric | OID Suffix | Type | Description |
+|---|---|---|---|
+| `ruckusUnleashedSystemStatsNumSta` | .15.2 | gauge | Authenticated clients |
+| `ruckusUnleashedSystemStatsAllNumSta` | .15.30 | gauge | All clients incl. unauthorized |
 
-Labels: `ap_name`, `radio_band` (2.4g/5g), `channel`.
+### System Resources
 
-| Prometheus Metric | Type | Description | What it tells you | Example PromQL |
-|---|---|---|---|---|
-| `unleashed_radio_airtime_total` | gauge | Radio airtime total | Baseline for computing utilization ratios | `unleashed_radio_airtime_total` |
-| `unleashed_radio_airtime_busy` | gauge | Radio airtime busy (interference/other) | Non-WiFi interference on this radio; high = congested environment | `unleashed_radio_airtime_busy / unleashed_radio_airtime_total * 100` (%) |
-| `unleashed_radio_airtime_rx` | gauge | Radio airtime Rx | Time spent receiving frames | `unleashed_radio_airtime_rx` |
-| `unleashed_radio_airtime_tx` | gauge | Radio airtime Tx | Time spent transmitting frames | `unleashed_radio_airtime_tx` |
-| `unleashed_radio_num_sta` | gauge | Clients connected to this radio | Per-radio client load; identifies band imbalance | `unleashed_radio_num_sta{radio_band="5g"}` |
-| `unleashed_radio_avg_rssi` | gauge | Average client RSSI on this radio | Overall signal quality for clients on this radio | `unleashed_radio_avg_rssi` |
-| `unleashed_radio_tx_bytes_total` | gauge | Radio total Tx bytes | Per-radio egress traffic | `unleashed_radio_tx_bytes_total` |
-| `unleashed_radio_rx_bytes_total` | gauge | Radio total Rx bytes | Per-radio ingress traffic | `unleashed_radio_rx_bytes_total` |
-| `unleashed_radio_tx_pkts_total` | gauge | Radio total Tx packets | Per-radio packet count | `unleashed_radio_tx_pkts_total` |
-| `unleashed_radio_rx_pkts_total` | gauge | Radio total Rx packets | Per-radio packet count | `unleashed_radio_rx_pkts_total` |
-| `unleashed_radio_tx_fail_total` | gauge | Radio total Tx failures | Frames that couldn't be delivered on this radio | `unleashed_radio_tx_fail_total` |
-| `unleashed_radio_retries_total` | gauge | Radio total Tx retries | Re-sent frames on this radio; high = interference or distance | `unleashed_radio_retries_total` |
-| `unleashed_radio_fcs_error_total` | gauge | Radio total FCS errors | Corrupted received frames | `unleashed_radio_fcs_error_total` |
-| `unleashed_radio_auth_fail` | gauge | Radio auth failures | Failed client authentications on this radio | `unleashed_radio_auth_fail` |
-| `unleashed_radio_auth_success` | gauge | Radio auth successes | Successful authentications | `unleashed_radio_auth_success` |
-| `unleashed_radio_assoc_fail` | gauge | Radio assoc failures | Failed associations | `unleashed_radio_assoc_fail` |
-| `unleashed_radio_assoc_success` | gauge | Radio assoc successes | Successful associations | `unleashed_radio_assoc_success` |
-| `unleashed_radio_channel` | gauge | Radio channel number | What channel this radio is on | `unleashed_radio_channel` |
-| `unleashed_radio_tx_power` | gauge | Radio Tx power setting | Configured transmit power | `unleashed_radio_tx_power` |
-| `unleashed_radio_channelization` | gauge | Radio channel width (MHz) | Channel width (20/40/80) | `unleashed_radio_channelization` |
+| Prometheus Metric | OID Suffix | Type | Description |
+|---|---|---|---|
+| `ruckusUnleashedSystemStatsCPUUtil` | .15.13 | gauge | CPU utilization (%) |
+| `ruckusUnleashedSystemStatsMemoryUtil` | .15.14 | gauge | Memory utilization (%) |
 
-## Not Available (firmware 200.15 limitations)
+### Aggregate WLAN Traffic Counters
+
+| Prometheus Metric | OID Suffix | Type | Description |
+|---|---|---|---|
+| `ruckusUnleashedSystemStatsWLANTotalRxPkts` | .15.5 | counter | Total wireless Rx packets |
+| `ruckusUnleashedSystemStatsWLANTotalRxBytes` | .15.6 | counter | Total wireless Rx bytes |
+| `ruckusUnleashedSystemStatsWLANTotalTxPkts` | .15.8 | counter | Total wireless Tx packets |
+| `ruckusUnleashedSystemStatsWLANTotalTxBytes` | .15.9 | counter | Total wireless Tx bytes |
+| `ruckusUnleashedSystemStatsWLANTotalRxMulticast` | .15.7 | counter | Total Rx multicast |
+| `ruckusUnleashedSystemStatsWLANTotalTxMulticast` | .15.10 | counter | Total Tx multicast |
+| `ruckusUnleashedSystemStatsWLANTotalTxFail` | .15.11 | counter | Total Tx failures |
+| `ruckusUnleashedSystemStatsWLANTotalTxRetry` | .15.12 | counter | Total Tx retries |
+| `ruckusUnleashedSystemStatsWLANTotalAssocFail` | .15.16 | counter | Total assoc failures |
+| `ruckusUnleashedSystemStatsWLANTotalRxErrFrm` | .15.17 | counter | Total Rx error frames |
+| `ruckusUnleashedSystemStatsWLANTotalTxDroppedPkt` | .15.19 | counter | Total Tx dropped packets |
+| `ruckusUnleashedSystemStatsWLANTotalTxErrFrm` | .15.20 | counter | Total Tx error frames |
+| `ruckusUnleashedSystemStatsWLANTotalTxDroppedFrm` | .15.21 | counter | Total Tx dropped frames |
+
+### Ethernet Interface Counters (from IF-MIB)
+
+Labels: `ifDescr` (interface name like `eth0`, `wifi0`, `wlan0`, `br0`)
+
+| Prometheus Metric | OID | Type | Description |
+|---|---|---|---|
+| `ifInOctets` | 1.3.6.1.2.1.2.2.1.10 | counter | Bytes received on interface |
+| `ifOutOctets` | 1.3.6.1.2.1.2.2.1.16 | counter | Bytes transmitted on interface |
+| `ifInErrors` | 1.3.6.1.2.1.2.2.1.14 | counter | Inbound errors |
+| `ifOutErrors` | 1.3.6.1.2.1.2.2.1.20 | counter | Outbound errors |
+| `ifOperStatus` | 1.3.6.1.2.1.2.2.1.8 | gauge | Interface up (1) / down (2) |
+
+---
+
+## SOURCE 2: Web API — Per-Client (`_cmdstat.jsp <client INTERVAL-STATS='yes'/>`)
+
+Polled per AP via XML POST. Each client appears once per poll.
+Labels: `client_mac`, `ap_name`, `ssid`, `radio_band` (2.4g/5g), `hostname`
+
+### Signal & Channel Info
+
+| Prometheus Metric | XML Field | Type | Description |
+|---|---|---|---|
+| `unleashed_client_rssi_dbm` | `received-signal-strength` | gauge | Received signal strength (dBm) |
+| `unleashed_client_snr_db` | `rssi` | gauge | SNR (AP-reported scaled value) |
+| `unleashed_client_noise_floor_dbm` | `noise-floor` | gauge | Noise floor (dBm), typically -96 |
+| `unleashed_client_channel` | `channel` | gauge | Channel the client is on |
+
+### Performance
+
+| Prometheus Metric | XML Field | Type | Description |
+|---|---|---|---|
+| `unleashed_client_tx_rate_kbps` | `tx-rate` (interval-stats) | gauge | Negotiated PHY rate (Kbps) |
+| `unleashed_client_rx_bytes_total` | `total-rx-bytes` | gauge | Cumulative bytes received |
+| `unleashed_client_tx_bytes_total` | `total-tx-bytes` | gauge | Cumulative bytes transmitted |
+
+### Session
+
+| Prometheus Metric | XML Field | Type | Description |
+|---|---|---|---|
+| `unleashed_client_assoc_time_seconds` | `first-assoc` | gauge | Association start time (unix ts) |
+
+### Derived Aggregates (no extra label, computed from client list)
+
+| Prometheus Metric | Computed From | Type | Description |
+|---|---|---|---|
+| `unleashed_client_count` | count of clients | gauge | Total connected clients |
+| `unleashed_clients_per_ssid{ssid}` | count by SSID | gauge | Clients per SSID |
+| `unleashed_clients_per_ap{ap_name}` | count by AP | gauge | Clients per AP |
+
+---
+
+## SOURCE 3: Web API — Per-AP / Per-Radio (`_cmdstat.jsp <ap LEVEL='1'/>`)
+
+Polled per AP. Each AP has 2 radios (2.4GHz, 5GHz).
+Labels: `ap_name`, `radio_band` (2.4g/5g), `channel`
+
+### Airtime Counters (cumulative since AP boot/reset)
+
+These four are related: `total = busy + rx + tx`
+
+| Prometheus Metric | XML Field | Type | Description |
+|---|---|---|---|
+| `unleashed_radio_airtime_total` | `airtime-total` | gauge | Total observed airtime (=busy+rx+tx) |
+| `unleashed_radio_airtime_busy` | `airtime-busy` | gauge | Time busy from interference / other-BSS traffic |
+| `unleashed_radio_airtime_rx` | `airtime-rx` | gauge | Time spent receiving |
+| `unleashed_radio_airtime_tx` | `airtime-tx` | gauge | Time spent transmitting |
+
+### Client Activity
+
+| Prometheus Metric | XML Field | Type | Description |
+|---|---|---|---|
+| `unleashed_radio_num_sta` | `num-sta` | gauge | Clients connected to this radio |
+| `unleashed_radio_avg_rssi` | `avg-rssi` | gauge | Average client RSSI on this radio |
+
+### Traffic Counters
+
+| Prometheus Metric | XML Field | Type | Description |
+|---|---|---|---|
+| `unleashed_radio_tx_bytes_total` | `radio-total-tx-bytes` | gauge | Total Tx bytes |
+| `unleashed_radio_rx_bytes_total` | `radio-total-rx-bytes` | gauge | Total Rx bytes |
+| `unleashed_radio_tx_pkts_total` | `radio-total-tx-pkts` | gauge | Total Tx packets |
+| `unleashed_radio_rx_pkts_total` | `radio-total-rx-pkts` | gauge | Total Rx packets |
+
+### Errors & Quality
+
+| Prometheus Metric | XML Field | Type | Description |
+|---|---|---|---|
+| `unleashed_radio_tx_fail_total` | `radio-total-tx-fail` | gauge | Tx failures (frames not delivered) |
+| `unleashed_radio_retries_total` | `radio-total-retries` | gauge | Tx retries |
+| `unleashed_radio_fcs_error_total` | `total-fcs-err` | gauge | Frame checksum errors (corrupted Rx) |
+
+### Auth/Assoc Counters
+
+| Prometheus Metric | XML Field | Type | Description |
+|---|---|---|---|
+| `unleashed_radio_auth_fail` | `mgmt-auth-fail` | gauge | Failed auth attempts |
+| `unleashed_radio_auth_success` | `mgmt-auth-success` | gauge | Successful auth |
+| `unleashed_radio_assoc_fail` | `mgmt-assoc-fail` | gauge | Failed assoc |
+| `unleashed_radio_assoc_success` | `mgmt-assoc-success` | gauge | Successful assoc |
+
+### Radio Configuration
+
+| Prometheus Metric | XML Field | Type | Description |
+|---|---|---|---|
+| `unleashed_radio_channel` | `channel` | gauge | Current channel number |
+| `unleashed_radio_tx_power` | `tx-power` | gauge | Transmit power setting |
+| `unleashed_radio_channelization` | `channelization` | gauge | Channel width in MHz (20/40/80) |
+
+---
+
+## SOURCE 4: Web API — Rogue Detection (`_cmdstat.jsp <rogue/>`)
+
+Polled per AP. Returns rogue APs detected by our APs.
+Labels on `unleashed_rogue_rssi_dbm`: `rogue_mac`, `rogue_ssid`, `rogue_channel`, `rogue_band`, `rogue_type`, `is_malicious`, `detector_ap`
+
+| Prometheus Metric | XML Source | Type | Description |
+|---|---|---|---|
+| `unleashed_rogue_rssi_dbm` | per `<detection>` element | gauge | Signal strength of rogue as seen by our AP |
+| `unleashed_rogue_count` | count of unique rogue MACs | gauge | Total unique rogue APs |
+| `unleashed_rogue_malicious_count` | count of "malicious AP (Same-Network)" | gauge | **Security risk** — rogues impersonating our SSID |
+| `unleashed_rogue_count_by_band{radio_band}` | grouped by band | gauge | Rogues per band |
+| `unleashed_rogue_count_by_channel{channel, radio_band}` | grouped by channel | gauge | Rogues per channel |
+
+---
+
+## Exporter Health (operational metrics, not from AP)
+
+| Prometheus Metric | Type | Description |
+|---|---|---|
+| `unleashed_exporter_polls_total` | counter | Successful polls of the API |
+| `unleashed_exporter_errors_total{type}` | counter | Errors by type: auth_failure, connection_error, api_error, parse_error, csrf_failure |
+| `up{job="snmp"}` | gauge | SNMP target reachable (1/0) |
+| `up{job="unleashed"}` | gauge | Web API exporter reachable (1/0) |
+
+---
+
+## NOT Available
+
+These are commonly desired but not exposed by either source on firmware 200.15:
 
 | Metric | Why | Workaround |
 |---|---|---|
+| Channel utilization vs idle time | API only gives busy+rx+tx breakdown that always sums to total | Use per-component values (busy %, rx %, tx %) or AP CLI `get airtime` (requires SSH) |
 | Temperature | Not exposed by any Ruckus interface | None |
-| Per-client data rate (Rx) | Only Tx rate available in interval-stats | Use `unleashed_client_tx_rate_kbps` |
+| Per-client Rx data rate | Only Tx rate available in interval-stats | Use `unleashed_client_tx_rate_kbps` |
+| Per-client retries | Not in the client XML (only in AP-level counters) | Use `unleashed_radio_retries_total` for AP-wide view |
+| Connect/disconnect events | Event log API format unknown / not implemented | Track via Prometheus rate of `unleashed_client_count` change |
+| DFS radar events | Would require event log | None |

@@ -102,6 +102,15 @@ Reload Prometheus: `curl -X POST http://localhost:9090/-/reload`
 | `unleashed_radio_assoc_fail/success` | Assoc results per radio |
 | `unleashed_radio_channel/tx_power/channelization` | Radio config |
 
+### Via Unleashed Web API — Rogue Detection
+
+| Metric | Description |
+|---|---|
+| `unleashed_rogue_rssi_dbm` | Rogue AP signal strength per detector |
+| `unleashed_rogue_count` | Total unique rogues detected |
+| `unleashed_rogue_malicious_count` | Same-network impersonator APs (security concern) |
+| `unleashed_rogue_count_by_band/channel` | Rogue distribution |
+
 ### Via Unleashed REST API
 
 | Metric | Description |

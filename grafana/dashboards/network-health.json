@@ -1,0 +1,3953 @@
+{
+  "uid": "ruckus-network-health",
+  "title": "Ruckus Network Health",
+  "tags": [
+    "ruckus",
+    "health",
+    "comprehensive"
+  ],
+  "timezone": "browser",
+  "refresh": "30s",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "ap_name",
+        "type": "query",
+        "query": "label_values(unleashed_radio_num_sta, ap_name)",
+        "datasource": "Prometheus",
+        "refresh": 2,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        }
+      },
+      {
+        "name": "radio_band",
+        "type": "custom",
+        "query": "2.4g,5g",
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "options": [
+          {
+            "text": "All",
+            "value": "$__all",
+            "selected": true
+          },
+          {
+            "text": "2.4 GHz",
+            "value": "2.4g"
+          },
+          {
+            "text": "5 GHz",
+            "value": "5g"
+          }
+        ]
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Overview",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 10,
+      "title": "Clients with Good Signal %",
+      "type": "gauge",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 1
+      },
+      "targets": [
+        {
+          "expr": "count(unleashed_client_rssi_dbm > -65) / clamp_min(count(unleashed_client_rssi_dbm), 1) * 100",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "red"
+              },
+              {
+                "value": 60,
+                "color": "yellow"
+              },
+              {
+                "value": 80,
+                "color": "green"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 11,
+      "title": "APs Online",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 1
+      },
+      "targets": [
+        {
+          "expr": "ruckusUnleashedSystemStatsNumAP",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "none",
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "red"
+              },
+              {
+                "value": 5,
+                "color": "yellow"
+              },
+              {
+                "value": 7,
+                "color": "green"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 12,
+      "title": "Total Clients",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 1
+      },
+      "targets": [
+        {
+          "expr": "unleashed_client_count",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "area",
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "blue"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 13,
+      "title": "Avg Client RSSI",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 1
+      },
+      "targets": [
+        {
+          "expr": "avg(unleashed_client_rssi_dbm)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "none",
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dBm",
+          "thresholds": {
+            "steps": [
+              {
+                "value": -90,
+                "color": "red"
+              },
+              {
+                "value": -75,
+                "color": "yellow"
+              },
+              {
+                "value": -60,
+                "color": "green"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 14,
+      "title": "Active Alerts",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 1
+      },
+      "targets": [
+        {
+          "expr": "(count(unleashed_client_rssi_dbm < -75) or vector(0)) + (count(increase(unleashed_radio_airtime_busy[5m]) / clamp_min(increase(unleashed_radio_airtime_total[5m]), 1) > 0.5) or vector(0)) + (count(sum by (ap_name) (increase(unleashed_radio_auth_fail[5m])) / clamp_min(sum by (ap_name) (increase(unleashed_radio_auth_fail[5m]) + increase(unleashed_radio_auth_success[5m])), 1) > 0.5) or vector(0)) + (unleashed_rogue_malicious_count or vector(0))",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "none",
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 1,
+                "color": "yellow"
+              },
+              {
+                "value": 5,
+                "color": "red"
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "ALL OK",
+                  "color": "green"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": 15,
+      "title": "Max Clients (in range)",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 5
+      },
+      "targets": [
+        {
+          "expr": "max_over_time(unleashed_client_count[$__range])",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "none",
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "blue"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 16,
+      "title": "Weak Signal Clients",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 5
+      },
+      "targets": [
+        {
+          "expr": "count(unleashed_client_rssi_dbm < -75) or vector(0)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "none",
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 1,
+                "color": "yellow"
+              },
+              {
+                "value": 5,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 17,
+      "title": "Congested Radios",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 5
+      },
+      "targets": [
+        {
+          "expr": "count(increase(unleashed_radio_airtime_busy[5m]) / clamp_min(increase(unleashed_radio_airtime_total[5m]), 1) > 0.5) or vector(0)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "none",
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 1,
+                "color": "yellow"
+              },
+              {
+                "value": 3,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 18,
+      "title": "Malicious Rogues",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 5
+      },
+      "targets": [
+        {
+          "expr": "unleashed_rogue_malicious_count or vector(0)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "none",
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 1,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 225,
+      "title": "Ch 1 (2.4 GHz) \u2014 AP01, AP06, AP10",
+      "type": "gauge",
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 0,
+        "y": 12
+      },
+      "targets": [
+        {
+          "expr": "avg(unleashed_radio_airtime_busy{channel!=\"0\",channel=\"1\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_airtime_total{channel!=\"0\",channel=\"1\", radio_band=\"2.4g\"}, 1) * 100)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showThresholdMarkers": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 30,
+                "color": "yellow"
+              },
+              {
+                "value": 50,
+                "color": "red"
+              }
+            ]
+          },
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "id": 226,
+      "title": "Ch 6 (2.4 GHz) \u2014 AP02",
+      "type": "gauge",
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 8,
+        "y": 12
+      },
+      "targets": [
+        {
+          "expr": "avg(unleashed_radio_airtime_busy{channel!=\"0\",channel=\"6\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_airtime_total{channel!=\"0\",channel=\"6\", radio_band=\"2.4g\"}, 1) * 100)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showThresholdMarkers": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 30,
+                "color": "yellow"
+              },
+              {
+                "value": 50,
+                "color": "red"
+              }
+            ]
+          },
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "id": 227,
+      "title": "Ch 11 (2.4 GHz) \u2014 AP05",
+      "type": "gauge",
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 12
+      },
+      "targets": [
+        {
+          "expr": "avg(unleashed_radio_airtime_busy{channel!=\"0\",channel=\"11\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_airtime_total{channel!=\"0\",channel=\"11\", radio_band=\"2.4g\"}, 1) * 100)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showThresholdMarkers": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 30,
+                "color": "yellow"
+              },
+              {
+                "value": 50,
+                "color": "red"
+              }
+            ]
+          },
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "id": 228,
+      "title": "Ch 40 (5 GHz) \u2014 AP01, AP09-sales",
+      "type": "gauge",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 0,
+        "y": 17
+      },
+      "targets": [
+        {
+          "expr": "avg(unleashed_radio_airtime_busy{channel!=\"0\",channel=\"40\", radio_band=\"5g\"} / clamp_min(unleashed_radio_airtime_total{channel!=\"0\",channel=\"40\", radio_band=\"5g\"}, 1) * 100)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showThresholdMarkers": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 30,
+                "color": "yellow"
+              },
+              {
+                "value": 50,
+                "color": "red"
+              }
+            ]
+          },
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "id": 229,
+      "title": "Ch 56 (5 GHz) \u2014 AP05",
+      "type": "gauge",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 4,
+        "y": 17
+      },
+      "targets": [
+        {
+          "expr": "avg(unleashed_radio_airtime_busy{channel!=\"0\",channel=\"56\", radio_band=\"5g\"} / clamp_min(unleashed_radio_airtime_total{channel!=\"0\",channel=\"56\", radio_band=\"5g\"}, 1) * 100)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showThresholdMarkers": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 30,
+                "color": "yellow"
+              },
+              {
+                "value": 50,
+                "color": "red"
+              }
+            ]
+          },
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "id": 230,
+      "title": "Ch 124 (5 GHz) \u2014 AP06",
+      "type": "gauge",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 8,
+        "y": 17
+      },
+      "targets": [
+        {
+          "expr": "avg(unleashed_radio_airtime_busy{channel!=\"0\",channel=\"124\", radio_band=\"5g\"} / clamp_min(unleashed_radio_airtime_total{channel!=\"0\",channel=\"124\", radio_band=\"5g\"}, 1) * 100)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showThresholdMarkers": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 30,
+                "color": "yellow"
+              },
+              {
+                "value": 50,
+                "color": "red"
+              }
+            ]
+          },
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "id": 231,
+      "title": "Ch 153 (5 GHz) \u2014 AP02",
+      "type": "gauge",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 12,
+        "y": 17
+      },
+      "targets": [
+        {
+          "expr": "avg(unleashed_radio_airtime_busy{channel!=\"0\",channel=\"153\", radio_band=\"5g\"} / clamp_min(unleashed_radio_airtime_total{channel!=\"0\",channel=\"153\", radio_band=\"5g\"}, 1) * 100)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showThresholdMarkers": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 30,
+                "color": "yellow"
+              },
+              {
+                "value": 50,
+                "color": "red"
+              }
+            ]
+          },
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "id": 232,
+      "title": "Ch 157 (5 GHz) \u2014 AP08",
+      "type": "gauge",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 16,
+        "y": 17
+      },
+      "targets": [
+        {
+          "expr": "avg(unleashed_radio_airtime_busy{channel!=\"0\",channel=\"157\", radio_band=\"5g\"} / clamp_min(unleashed_radio_airtime_total{channel!=\"0\",channel=\"157\", radio_band=\"5g\"}, 1) * 100)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showThresholdMarkers": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 30,
+                "color": "yellow"
+              },
+              {
+                "value": 50,
+                "color": "red"
+              }
+            ]
+          },
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "id": 233,
+      "title": "Ch 161 (5 GHz) \u2014 AP10",
+      "type": "gauge",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 20,
+        "y": 17
+      },
+      "targets": [
+        {
+          "expr": "avg(unleashed_radio_airtime_busy{channel!=\"0\",channel=\"161\", radio_band=\"5g\"} / clamp_min(unleashed_radio_airtime_total{channel!=\"0\",channel=\"161\", radio_band=\"5g\"}, 1) * 100)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showThresholdMarkers": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 30,
+                "color": "yellow"
+              },
+              {
+                "value": 50,
+                "color": "red"
+              }
+            ]
+          },
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "id": 216,
+      "title": "Total Throughput (SNMP - master-reported)",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "targets": [
+        {
+          "expr": "rate(ruckusUnleashedSystemStatsWLANTotalTxBytes[5m]) * 8 + rate(ruckusUnleashedSystemStatsWLANTotalRxBytes[5m]) * 8",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "area",
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bps",
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "blue"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 217,
+      "title": "AP01 Throughput",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 28
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(unleashed_radio_tx_bytes_total{ap_name=\"AP01\"}[5m]) + rate(unleashed_radio_rx_bytes_total{ap_name=\"AP01\"}[5m])) * 8",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "area",
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bps",
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "blue"
+              },
+              {
+                "value": 10000000,
+                "color": "yellow"
+              },
+              {
+                "value": 100000000,
+                "color": "green"
+              }
+            ]
+          },
+          "decimals": 2
+        }
+      }
+    },
+    {
+      "id": 218,
+      "title": "AP02 Throughput",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 28
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(unleashed_radio_tx_bytes_total{ap_name=\"AP02\"}[5m]) + rate(unleashed_radio_rx_bytes_total{ap_name=\"AP02\"}[5m])) * 8",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "area",
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bps",
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "blue"
+              },
+              {
+                "value": 10000000,
+                "color": "yellow"
+              },
+              {
+                "value": 100000000,
+                "color": "green"
+              }
+            ]
+          },
+          "decimals": 2
+        }
+      }
+    },
+    {
+      "id": 219,
+      "title": "AP05 Throughput",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 28
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(unleashed_radio_tx_bytes_total{ap_name=\"AP05\"}[5m]) + rate(unleashed_radio_rx_bytes_total{ap_name=\"AP05\"}[5m])) * 8",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "area",
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bps",
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "blue"
+              },
+              {
+                "value": 10000000,
+                "color": "yellow"
+              },
+              {
+                "value": 100000000,
+                "color": "green"
+              }
+            ]
+          },
+          "decimals": 2
+        }
+      }
+    },
+    {
+      "id": 220,
+      "title": "AP06 Throughput",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 12,
+        "y": 28
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(unleashed_radio_tx_bytes_total{ap_name=\"AP06\"}[5m]) + rate(unleashed_radio_rx_bytes_total{ap_name=\"AP06\"}[5m])) * 8",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "area",
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bps",
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "blue"
+              },
+              {
+                "value": 10000000,
+                "color": "yellow"
+              },
+              {
+                "value": 100000000,
+                "color": "green"
+              }
+            ]
+          },
+          "decimals": 2
+        }
+      }
+    },
+    {
+      "id": 221,
+      "title": "AP08 Throughput",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 15,
+        "y": 28
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(unleashed_radio_tx_bytes_total{ap_name=\"AP08\"}[5m]) + rate(unleashed_radio_rx_bytes_total{ap_name=\"AP08\"}[5m])) * 8",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "area",
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bps",
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "blue"
+              },
+              {
+                "value": 10000000,
+                "color": "yellow"
+              },
+              {
+                "value": 100000000,
+                "color": "green"
+              }
+            ]
+          },
+          "decimals": 2
+        }
+      }
+    },
+    {
+      "id": 222,
+      "title": "AP09-sales Throughput",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 18,
+        "y": 28
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(unleashed_radio_tx_bytes_total{ap_name=\"AP09-sales\"}[5m]) + rate(unleashed_radio_rx_bytes_total{ap_name=\"AP09-sales\"}[5m])) * 8",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "area",
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bps",
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "blue"
+              },
+              {
+                "value": 10000000,
+                "color": "yellow"
+              },
+              {
+                "value": 100000000,
+                "color": "green"
+              }
+            ]
+          },
+          "decimals": 2
+        }
+      }
+    },
+    {
+      "id": 223,
+      "title": "AP10 Throughput",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 21,
+        "y": 28
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(unleashed_radio_tx_bytes_total{ap_name=\"AP10\"}[5m]) + rate(unleashed_radio_rx_bytes_total{ap_name=\"AP10\"}[5m])) * 8",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "area",
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bps",
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "blue"
+              },
+              {
+                "value": 10000000,
+                "color": "yellow"
+              },
+              {
+                "value": 100000000,
+                "color": "green"
+              }
+            ]
+          },
+          "decimals": 2
+        }
+      }
+    },
+    {
+      "id": 19,
+      "title": "Client Count Trend (peak hour visible)",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 34
+      },
+      "targets": [
+        {
+          "expr": "unleashed_client_count",
+          "legendFormat": "Clients",
+          "refId": "A"
+        },
+        {
+          "expr": "max_over_time(unleashed_client_count[$__range])",
+          "legendFormat": "Peak",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {}
+      }
+    },
+    {
+      "id": 2,
+      "title": "RF Environment",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "collapsed": true,
+      "panels": [
+        {
+          "id": 200,
+          "title": "2.4 GHz Radios",
+          "type": "table",
+          "gridPos": {
+            "h": 12,
+            "w": 24,
+            "x": 0,
+            "y": 41
+          },
+          "targets": [
+            {
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_channel{ap_name=~\"$ap_name\", radio_band=\"2.4g\"})",
+              "instant": true,
+              "format": "table",
+              "refId": "channel"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_channelization{ap_name=~\"$ap_name\", radio_band=\"2.4g\"})",
+              "instant": true,
+              "format": "table",
+              "refId": "width"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_num_sta{ap_name=~\"$ap_name\", radio_band=\"2.4g\"})",
+              "instant": true,
+              "format": "table",
+              "refId": "clients"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_avg_rssi{ap_name=~\"$ap_name\", radio_band=\"2.4g\"})",
+              "instant": true,
+              "format": "table",
+              "refId": "rssi"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_noise_floor_dbm{ap_name=~\"$ap_name\", radio_band=\"2.4g\", channel!=\"0\"})",
+              "instant": true,
+              "format": "table",
+              "refId": "noise"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_phy_err{ap_name=~\"$ap_name\", radio_band=\"2.4g\", channel!=\"0\"})",
+              "instant": true,
+              "format": "table",
+              "refId": "phyerr"
+            },
+            {
+              "expr": "avg by (ap_name) ((unleashed_client_rssi_dbm{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}) - (unleashed_client_noise_floor_dbm{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}))",
+              "instant": true,
+              "format": "table",
+              "refId": "snr"
+            },
+            {
+              "expr": "clamp_max(sum by (ap_name, radio_band) (unleashed_radio_airtime_busy{ap_name=~\"$ap_name\", radio_band=\"2.4g\", channel!=\"0\"}) / clamp_min(sum by (ap_name, radio_band) (unleashed_radio_airtime_total{ap_name=~\"$ap_name\", radio_band=\"2.4g\", channel!=\"0\"}), 1) * 100, 100)",
+              "instant": true,
+              "format": "table",
+              "refId": "busy"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (rate(unleashed_radio_rx_bytes_total{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m])) * 8 / 1000000",
+              "instant": true,
+              "format": "table",
+              "refId": "rxpct"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (rate(unleashed_radio_tx_bytes_total{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m])) * 8 / 1000000",
+              "instant": true,
+              "format": "table",
+              "refId": "txpct"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_retries_total{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m]))",
+              "instant": true,
+              "format": "table",
+              "refId": "retries"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_tx_fail_total{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m]))",
+              "instant": true,
+              "format": "table",
+              "refId": "txfail"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_fcs_error_total{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m]))",
+              "instant": true,
+              "format": "table",
+              "refId": "fcs"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_auth_fail{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m])) / clamp_min(sum by (ap_name, radio_band) (increase(unleashed_radio_auth_fail{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m]) + increase(unleashed_radio_auth_success{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m])), 1) * 100",
+              "instant": true,
+              "format": "table",
+              "refId": "authfail"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "merge"
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true,
+                  "radio_band": true
+                },
+                "renameByName": {
+                  "ap_name": "AP",
+                  "Value #channel": "Channel",
+                  "Value #width": "Width",
+                  "Value #clients": "Clients",
+                  "Value #rssi": "Avg RSSI",
+                  "Value #busy": "Airtime Busy %",
+                  "Value #rxpct": "Rx Mbps",
+                  "Value #txpct": "Tx Mbps",
+                  "Value #retries": "Tx Retries (5m)",
+                  "Value #txfail": "Tx Fails (5m)",
+                  "Value #fcs": "FCS Errs (5m)",
+                  "Value #authfail": "Auth Fail %",
+                  "Value #noise": "Noise Floor (dBm)",
+                  "Value #phyerr": "PHY Err",
+                  "Value #snr": "Avg Client SNR (dB)"
+                }
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Avg RSSI"
+                },
+                "properties": [
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": -90,
+                          "color": "red"
+                        },
+                        {
+                          "value": -75,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": -60,
+                          "color": "green"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Airtime Busy %"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "percent"
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "green"
+                        },
+                        {
+                          "value": 30,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": 50,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Rx Mbps"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "none"
+                  },
+                  {
+                    "id": "decimals",
+                    "value": 2
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "blue"
+                        },
+                        {
+                          "value": 50,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": 200,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Tx Mbps"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "none"
+                  },
+                  {
+                    "id": "decimals",
+                    "value": 2
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "blue"
+                        },
+                        {
+                          "value": 50,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": 200,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Auth Fail %"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "percent"
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "green"
+                        },
+                        {
+                          "value": 5,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": 20,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Tx Retries (5m)"
+                },
+                "properties": [
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "green"
+                        },
+                        {
+                          "value": 1000,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": 5000,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Noise Floor (dBm)"
+                },
+                "properties": [
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": -120,
+                          "color": "green"
+                        },
+                        {
+                          "value": -95,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": -85,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "PHY Err"
+                },
+                "properties": [
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "green"
+                        },
+                        {
+                          "value": 100,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": 1000,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Avg Client SNR (dB)"
+                },
+                "properties": [
+                  {
+                    "id": "decimals",
+                    "value": 1
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "red"
+                        },
+                        {
+                          "value": 20,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": 30,
+                          "color": "green"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": 201,
+          "title": "5 GHz Radios",
+          "type": "table",
+          "gridPos": {
+            "h": 12,
+            "w": 24,
+            "x": 0,
+            "y": 53
+          },
+          "targets": [
+            {
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_channel{ap_name=~\"$ap_name\", radio_band=\"5g\"})",
+              "instant": true,
+              "format": "table",
+              "refId": "channel"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_channelization{ap_name=~\"$ap_name\", radio_band=\"5g\"})",
+              "instant": true,
+              "format": "table",
+              "refId": "width"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_num_sta{ap_name=~\"$ap_name\", radio_band=\"5g\"})",
+              "instant": true,
+              "format": "table",
+              "refId": "clients"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_avg_rssi{ap_name=~\"$ap_name\", radio_band=\"5g\"})",
+              "instant": true,
+              "format": "table",
+              "refId": "rssi"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_noise_floor_dbm{ap_name=~\"$ap_name\", radio_band=\"5g\", channel!=\"0\"})",
+              "instant": true,
+              "format": "table",
+              "refId": "noise"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_phy_err{ap_name=~\"$ap_name\", radio_band=\"5g\", channel!=\"0\"})",
+              "instant": true,
+              "format": "table",
+              "refId": "phyerr"
+            },
+            {
+              "expr": "avg by (ap_name) ((unleashed_client_rssi_dbm{ap_name=~\"$ap_name\", radio_band=\"5g\"}) - (unleashed_client_noise_floor_dbm{ap_name=~\"$ap_name\", radio_band=\"5g\"}))",
+              "instant": true,
+              "format": "table",
+              "refId": "snr"
+            },
+            {
+              "expr": "clamp_max(sum by (ap_name, radio_band) (unleashed_radio_airtime_busy{ap_name=~\"$ap_name\", radio_band=\"5g\", channel!=\"0\"}) / clamp_min(sum by (ap_name, radio_band) (unleashed_radio_airtime_total{ap_name=~\"$ap_name\", radio_band=\"5g\", channel!=\"0\"}), 1) * 100, 100)",
+              "instant": true,
+              "format": "table",
+              "refId": "busy"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (rate(unleashed_radio_rx_bytes_total{ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m])) * 8 / 1000000",
+              "instant": true,
+              "format": "table",
+              "refId": "rxpct"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (rate(unleashed_radio_tx_bytes_total{ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m])) * 8 / 1000000",
+              "instant": true,
+              "format": "table",
+              "refId": "txpct"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_retries_total{ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m]))",
+              "instant": true,
+              "format": "table",
+              "refId": "retries"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_tx_fail_total{ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m]))",
+              "instant": true,
+              "format": "table",
+              "refId": "txfail"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_fcs_error_total{ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m]))",
+              "instant": true,
+              "format": "table",
+              "refId": "fcs"
+            },
+            {
+              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_auth_fail{ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m])) / clamp_min(sum by (ap_name, radio_band) (increase(unleashed_radio_auth_fail{ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m]) + increase(unleashed_radio_auth_success{ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m])), 1) * 100",
+              "instant": true,
+              "format": "table",
+              "refId": "authfail"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "merge"
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true,
+                  "radio_band": true
+                },
+                "renameByName": {
+                  "ap_name": "AP",
+                  "Value #channel": "Channel",
+                  "Value #width": "Width",
+                  "Value #clients": "Clients",
+                  "Value #rssi": "Avg RSSI",
+                  "Value #busy": "Airtime Busy %",
+                  "Value #rxpct": "Rx Mbps",
+                  "Value #txpct": "Tx Mbps",
+                  "Value #retries": "Tx Retries (5m)",
+                  "Value #txfail": "Tx Fails (5m)",
+                  "Value #fcs": "FCS Errs (5m)",
+                  "Value #authfail": "Auth Fail %",
+                  "Value #noise": "Noise Floor (dBm)",
+                  "Value #phyerr": "PHY Err",
+                  "Value #snr": "Avg Client SNR (dB)"
+                }
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Avg RSSI"
+                },
+                "properties": [
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": -90,
+                          "color": "red"
+                        },
+                        {
+                          "value": -75,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": -60,
+                          "color": "green"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Airtime Busy %"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "percent"
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "green"
+                        },
+                        {
+                          "value": 30,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": 50,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Rx Mbps"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "none"
+                  },
+                  {
+                    "id": "decimals",
+                    "value": 2
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "blue"
+                        },
+                        {
+                          "value": 50,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": 200,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Tx Mbps"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "none"
+                  },
+                  {
+                    "id": "decimals",
+                    "value": 2
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "blue"
+                        },
+                        {
+                          "value": 50,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": 200,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Auth Fail %"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "percent"
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "green"
+                        },
+                        {
+                          "value": 5,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": 20,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Tx Retries (5m)"
+                },
+                "properties": [
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "green"
+                        },
+                        {
+                          "value": 1000,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": 5000,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Noise Floor (dBm)"
+                },
+                "properties": [
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": -120,
+                          "color": "green"
+                        },
+                        {
+                          "value": -95,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": -85,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "PHY Err"
+                },
+                "properties": [
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "green"
+                        },
+                        {
+                          "value": 100,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": 1000,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Avg Client SNR (dB)"
+                },
+                "properties": [
+                  {
+                    "id": "decimals",
+                    "value": 1
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "red"
+                        },
+                        {
+                          "value": 20,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": 30,
+                          "color": "green"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Airtime & Throughput History",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 61
+      },
+      "collapsed": true,
+      "panels": [
+        {
+          "id": 237,
+          "title": "Airtime Busy % per Channel (2.4GHz) over time",
+          "type": "timeseries",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 62
+          },
+          "targets": [
+            {
+              "expr": "avg by (channel) (unleashed_radio_airtime_busy{radio_band=\"2.4g\", channel!=\"0\"} / clamp_min(unleashed_radio_airtime_total{radio_band=\"2.4g\", channel!=\"0\"}, 1) * 100)",
+              "legendFormat": "Ch {{ channel }}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            }
+          }
+        },
+        {
+          "id": 238,
+          "title": "Airtime Busy % per Channel (5GHz) over time",
+          "type": "timeseries",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 62
+          },
+          "targets": [
+            {
+              "expr": "avg by (channel) (unleashed_radio_airtime_busy{radio_band=\"5g\", channel!=\"0\"} / clamp_min(unleashed_radio_airtime_total{radio_band=\"5g\", channel!=\"0\"}, 1) * 100)",
+              "legendFormat": "Ch {{ channel }}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            }
+          }
+        },
+        {
+          "id": 239,
+          "title": "Total Throughput over time",
+          "type": "timeseries",
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 70
+          },
+          "targets": [
+            {
+              "expr": "sum (rate(unleashed_radio_tx_bytes_total[5m]) + rate(unleashed_radio_rx_bytes_total[5m])) * 8",
+              "legendFormat": "Total",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bps"
+            }
+          }
+        },
+        {
+          "id": 240,
+          "title": "Throughput per AP over time",
+          "type": "timeseries",
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 70
+          },
+          "targets": [
+            {
+              "expr": "sum by (ap_name) (rate(unleashed_radio_tx_bytes_total{ap_name=~\"$ap_name\"}[5m]) + rate(unleashed_radio_rx_bytes_total{ap_name=~\"$ap_name\"}[5m])) * 8",
+              "legendFormat": "{{ ap_name }}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bps"
+            }
+          }
+        },
+        {
+          "id": 241,
+          "title": "Airtime Busy % per AP over time",
+          "type": "timeseries",
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 77
+          },
+          "targets": [
+            {
+              "expr": "max by (ap_name, radio_band) (unleashed_radio_airtime_busy{ap_name=~\"$ap_name\", radio_band=~\"$radio_band\", channel!=\"0\"} / clamp_min(unleashed_radio_airtime_total{ap_name=~\"$ap_name\", radio_band=~\"$radio_band\", channel!=\"0\"}, 1) * 100)",
+              "legendFormat": "{{ ap_name }} {{ radio_band }}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            }
+          }
+        },
+        {
+          "id": 242,
+          "title": "Rx Throughput per AP/Band over time (Mbps)",
+          "type": "timeseries",
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 77
+          },
+          "targets": [
+            {
+              "expr": "sum by (ap_name, radio_band) (rate(unleashed_radio_rx_bytes_total{ap_name=~\"$ap_name\", radio_band=~\"$radio_band\"}[5m])) * 8 / 1000000",
+              "legendFormat": "{{ ap_name }} {{ radio_band }}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 2
+            }
+          }
+        },
+        {
+          "id": 243,
+          "title": "Tx Throughput per AP/Band over time (Mbps)",
+          "type": "timeseries",
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 84
+          },
+          "targets": [
+            {
+              "expr": "sum by (ap_name, radio_band) (rate(unleashed_radio_tx_bytes_total{ap_name=~\"$ap_name\", radio_band=~\"$radio_band\"}[5m])) * 8 / 1000000",
+              "legendFormat": "{{ ap_name }} {{ radio_band }}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 2
+            }
+          }
+        },
+        {
+          "id": 244,
+          "title": "Aggregate WLAN Throughput (SNMP) over time",
+          "type": "timeseries",
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 84
+          },
+          "targets": [
+            {
+              "expr": "rate(ruckusUnleashedSystemStatsWLANTotalTxBytes[5m]) * 8",
+              "legendFormat": "Tx",
+              "refId": "A"
+            },
+            {
+              "expr": "rate(ruckusUnleashedSystemStatsWLANTotalRxBytes[5m]) * 8",
+              "legendFormat": "Rx",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bps"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Channel History",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 78
+      },
+      "collapsed": true,
+      "panels": [
+        {
+          "id": 40,
+          "title": "Channel over time",
+          "type": "timeseries",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 79
+          },
+          "targets": [
+            {
+              "expr": "unleashed_radio_channel{ap_name=~\"$ap_name\", radio_band=~\"$radio_band\"}",
+              "legendFormat": "{{ ap_name }} {{ radio_band }}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {}
+          }
+        },
+        {
+          "id": 41,
+          "title": "Tx Power over time",
+          "type": "timeseries",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 79
+          },
+          "targets": [
+            {
+              "expr": "unleashed_radio_tx_power{ap_name=~\"$ap_name\", radio_band=~\"$radio_band\"}",
+              "legendFormat": "{{ ap_name }} {{ radio_band }}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Rogue Devices",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 87
+      },
+      "collapsed": true,
+      "panels": [
+        {
+          "id": 50,
+          "title": "Total Rogues",
+          "type": "stat",
+          "gridPos": {
+            "h": 5,
+            "w": 6,
+            "x": 0,
+            "y": 88
+          },
+          "targets": [
+            {
+              "expr": "unleashed_rogue_count",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "options": {
+            "textMode": "value",
+            "graphMode": "none",
+            "colorMode": "value",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "steps": [
+                  {
+                    "value": 0,
+                    "color": "blue"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": 51,
+          "title": "Malicious Rogues",
+          "type": "stat",
+          "gridPos": {
+            "h": 5,
+            "w": 6,
+            "x": 6,
+            "y": 88
+          },
+          "targets": [
+            {
+              "expr": "unleashed_rogue_malicious_count",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "options": {
+            "textMode": "value",
+            "graphMode": "none",
+            "colorMode": "value",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "steps": [
+                  {
+                    "value": 0,
+                    "color": "green"
+                  },
+                  {
+                    "value": 1,
+                    "color": "red"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": 52,
+          "title": "Strongest Rogue",
+          "type": "stat",
+          "gridPos": {
+            "h": 5,
+            "w": 6,
+            "x": 12,
+            "y": 88
+          },
+          "targets": [
+            {
+              "expr": "max(unleashed_rogue_rssi_dbm)",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "options": {
+            "textMode": "value",
+            "graphMode": "none",
+            "colorMode": "value",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "dBm",
+              "thresholds": {
+                "steps": [
+                  {
+                    "value": -90,
+                    "color": "green"
+                  },
+                  {
+                    "value": -60,
+                    "color": "yellow"
+                  },
+                  {
+                    "value": -40,
+                    "color": "red"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": 53,
+          "title": "Rogues 2.4GHz / 5GHz",
+          "type": "stat",
+          "gridPos": {
+            "h": 5,
+            "w": 6,
+            "x": 18,
+            "y": 88
+          },
+          "targets": [
+            {
+              "expr": "unleashed_rogue_count_by_band",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "options": {
+            "textMode": "value",
+            "graphMode": "none",
+            "colorMode": "value",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "steps": [
+                  {
+                    "value": 0,
+                    "color": "blue"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": 54,
+          "title": "Rogues by Channel (2.4GHz)",
+          "type": "barchart",
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 93
+          },
+          "targets": [
+            {
+              "expr": "unleashed_rogue_count_by_channel{radio_band=\"2.4g\"}",
+              "legendFormat": "ch {{ channel }}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {}
+          }
+        },
+        {
+          "id": 55,
+          "title": "Rogues by Channel (5GHz)",
+          "type": "barchart",
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 93
+          },
+          "targets": [
+            {
+              "expr": "unleashed_rogue_count_by_channel{radio_band=\"5g\"}",
+              "legendFormat": "ch {{ channel }}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {}
+          }
+        },
+        {
+          "id": 56,
+          "title": "All Rogue APs (sorted by signal strength)",
+          "type": "table",
+          "gridPos": {
+            "h": 12,
+            "w": 24,
+            "x": 0,
+            "y": 100
+          },
+          "targets": [
+            {
+              "expr": "unleashed_rogue_rssi_dbm",
+              "instant": true,
+              "format": "table",
+              "refId": "A"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true
+                },
+                "renameByName": {
+                  "rogue_mac": "MAC",
+                  "rogue_ssid": "SSID",
+                  "rogue_channel": "Channel",
+                  "rogue_band": "Band",
+                  "rogue_type": "Type",
+                  "is_malicious": "Malicious",
+                  "detector_ap": "Detected By",
+                  "Value": "RSSI (dBm)"
+                }
+              }
+            },
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "field": "RSSI (dBm)",
+                    "desc": true
+                  }
+                ]
+              }
+            }
+          ],
+          "fieldConfig": {
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "RSSI (dBm)"
+                },
+                "properties": [
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": -90,
+                          "color": "green"
+                        },
+                        {
+                          "value": -60,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": -40,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Malicious"
+                },
+                "properties": [
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "type": "value",
+                        "options": {
+                          "true": {
+                            "text": "YES",
+                            "color": "red"
+                          },
+                          "false": {
+                            "text": "no",
+                            "color": "green"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 234,
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "### \ud83d\udce1 Channel Airtime Busy %"
+      }
+    },
+    {
+      "id": 235,
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "### \ud83d\udcca Throughput"
+      }
+    },
+    {
+      "id": 236,
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "### \ud83d\udcc8 Trends"
+      }
+    },
+    {
+      "id": 247,
+      "title": "Access Points",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 113
+      },
+      "collapsed": true,
+      "panels": [
+        {
+          "id": 249,
+          "title": "AP Inventory",
+          "type": "table",
+          "gridPos": {
+            "h": 11,
+            "w": 24,
+            "x": 0,
+            "y": 114
+          },
+          "targets": [
+            {
+              "expr": "unleashed_ap_info",
+              "instant": true,
+              "format": "table",
+              "refId": "A"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true,
+                  "Value": true
+                },
+                "indexByName": {
+                  "ap_name": 0,
+                  "model": 1,
+                  "ip": 2,
+                  "mac": 3,
+                  "serial_number": 4,
+                  "firmware_version": 5,
+                  "poe_mode": 6,
+                  "role": 7,
+                  "last_reboot_reason": 8,
+                  "last_rejoin_reason": 9
+                },
+                "renameByName": {
+                  "ap_name": "AP",
+                  "model": "Model",
+                  "ip": "IP",
+                  "mac": "MAC",
+                  "serial_number": "Serial",
+                  "firmware_version": "Firmware",
+                  "poe_mode": "PoE Mode",
+                  "role": "Role",
+                  "last_reboot_reason": "Last Reboot Reason",
+                  "last_rejoin_reason": "Last Rejoin Reason"
+                }
+              }
+            },
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "field": "AP",
+                    "desc": false
+                  }
+                ]
+              }
+            }
+          ],
+          "fieldConfig": {
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Last Reboot Reason"
+                },
+                "properties": [
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "type": "value",
+                        "options": {
+                          "kernel panic": {
+                            "text": "kernel panic",
+                            "color": "red"
+                          },
+                          "application reboot": {
+                            "text": "application reboot",
+                            "color": "yellow"
+                          },
+                          "power cycle": {
+                            "text": "power cycle",
+                            "color": "yellow"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-text"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Firmware"
+                },
+                "properties": [
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "type": "regex",
+                        "options": {
+                          "pattern": "^200\\.7\\.",
+                          "result": {
+                            "text": "OUTDATED",
+                            "color": "red"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "footer": {
+              "show": false
+            },
+            "cellHeight": "sm"
+          }
+        },
+        {
+          "id": 250,
+          "title": "AP Live Stats",
+          "type": "table",
+          "gridPos": {
+            "h": 11,
+            "w": 24,
+            "x": 0,
+            "y": 123
+          },
+          "targets": [
+            {
+              "expr": "unleashed_ap_state",
+              "instant": true,
+              "format": "table",
+              "refId": "state"
+            },
+            {
+              "expr": "unleashed_ap_cpu_util",
+              "instant": true,
+              "format": "table",
+              "refId": "cpu"
+            },
+            {
+              "expr": "unleashed_ap_mem_used_pct",
+              "instant": true,
+              "format": "table",
+              "refId": "mem"
+            },
+            {
+              "expr": "unleashed_ap_uptime_seconds",
+              "instant": true,
+              "format": "table",
+              "refId": "uptime"
+            },
+            {
+              "expr": "unleashed_ap_connected_time_seconds",
+              "instant": true,
+              "format": "table",
+              "refId": "conntime"
+            },
+            {
+              "expr": "unleashed_ap_num_sta",
+              "instant": true,
+              "format": "table",
+              "refId": "clients"
+            },
+            {
+              "expr": "unleashed_ap_num_vap",
+              "instant": true,
+              "format": "table",
+              "refId": "vaps"
+            },
+            {
+              "expr": "unleashed_ap_temperature",
+              "instant": true,
+              "format": "table",
+              "refId": "temp"
+            },
+            {
+              "expr": "unleashed_ap_join_counter",
+              "instant": true,
+              "format": "table",
+              "refId": "joins"
+            },
+            {
+              "expr": "unleashed_ap_kernel_panics_total",
+              "instant": true,
+              "format": "table",
+              "refId": "kpanic"
+            },
+            {
+              "expr": "unleashed_ap_total_reboots",
+              "instant": true,
+              "format": "table",
+              "refId": "totboot"
+            },
+            {
+              "expr": "unleashed_ap_crashfile_flag",
+              "instant": true,
+              "format": "table",
+              "refId": "crash"
+            },
+            {
+              "expr": "rate(unleashed_ap_lan_rx_bytes_total[5m]) * 8",
+              "instant": true,
+              "format": "table",
+              "refId": "lan_rx"
+            },
+            {
+              "expr": "rate(unleashed_ap_lan_tx_bytes_total[5m]) * 8",
+              "instant": true,
+              "format": "table",
+              "refId": "lan_tx"
+            },
+            {
+              "expr": "increase(unleashed_ap_lan_dropped_total[5m])",
+              "instant": true,
+              "format": "table",
+              "refId": "lan_drop"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "joinByField",
+              "options": {
+                "byField": "ap_name",
+                "mode": "outer"
+              }
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time 1": true,
+                  "Time 2": true,
+                  "Time 3": true,
+                  "Time 4": true,
+                  "Time 5": true,
+                  "Time 6": true,
+                  "Time 7": true,
+                  "Time 8": true,
+                  "Time 9": true,
+                  "Time 10": true,
+                  "Time 11": true,
+                  "Time 12": true,
+                  "Time 13": true,
+                  "Time 14": true,
+                  "Time 15": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true
+                },
+                "indexByName": {
+                  "ap_name": 0,
+                  "Value #state": 1,
+                  "Value #clients": 2,
+                  "Value #vaps": 3,
+                  "Value #cpu": 4,
+                  "Value #mem": 5,
+                  "Value #temp": 6,
+                  "Value #lan_rx": 7,
+                  "Value #lan_tx": 8,
+                  "Value #lan_drop": 9,
+                  "Value #uptime": 10,
+                  "Value #conntime": 11,
+                  "Value #joins": 12,
+                  "Value #kpanic": 13,
+                  "Value #totboot": 14,
+                  "Value #crash": 15
+                },
+                "renameByName": {
+                  "ap_name": "AP",
+                  "Value #state": "Status",
+                  "Value #clients": "Clients",
+                  "Value #vaps": "Active SSIDs",
+                  "Value #cpu": "CPU %",
+                  "Value #mem": "Memory %",
+                  "Value #temp": "Temp",
+                  "Value #lan_rx": "Wired Rx",
+                  "Value #lan_tx": "Wired Tx",
+                  "Value #lan_drop": "Wired Drops/5m",
+                  "Value #uptime": "Uptime",
+                  "Value #conntime": "Total Connected Time",
+                  "Value #joins": "Rejoin Count",
+                  "Value #kpanic": "Kernel Panics",
+                  "Value #totboot": "Total Boots",
+                  "Value #crash": "Crashfile?"
+                }
+              }
+            },
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "field": "AP",
+                    "desc": false
+                  }
+                ]
+              }
+            }
+          ],
+          "fieldConfig": {
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Status"
+                },
+                "properties": [
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "type": "value",
+                        "options": {
+                          "1": {
+                            "text": "UP",
+                            "color": "green"
+                          },
+                          "0": {
+                            "text": "DOWN",
+                            "color": "red"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "CPU %"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "percent"
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "green"
+                        },
+                        {
+                          "value": 70,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": 90,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Memory %"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "percent"
+                  },
+                  {
+                    "id": "decimals",
+                    "value": 0
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "green"
+                        },
+                        {
+                          "value": 70,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": 90,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Uptime"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "s"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Total Connected Time"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "s"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Wired Rx"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bps"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Wired Tx"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bps"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Wired Drops/5m"
+                },
+                "properties": [
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "green"
+                        },
+                        {
+                          "value": 100,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": 1000,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Temp"
+                },
+                "properties": [
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "type": "value",
+                        "options": {
+                          "-999": {
+                            "text": "N/A"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "unit",
+                    "value": "celsius"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Rejoin Count"
+                },
+                "properties": [
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "green"
+                        },
+                        {
+                          "value": 5,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": 20,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Kernel Panics"
+                },
+                "properties": [
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "green"
+                        },
+                        {
+                          "value": 1,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Crashfile?"
+                },
+                "properties": [
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "type": "value",
+                        "options": {
+                          "0": {
+                            "text": "no",
+                            "color": "green"
+                          },
+                          "1": {
+                            "text": "YES",
+                            "color": "red"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 260,
+      "title": "Master AP",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 9
+      },
+      "targets": [
+        {
+          "expr": "count(unleashed_ap_info{role=\"master\"}) or vector(0)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value_and_name",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "yellow"
+              },
+              {
+                "value": 1,
+                "color": "green"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 270,
+      "title": "SSIDs & Network Events",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 135
+      },
+      "collapsed": true,
+      "panels": [
+        {
+          "id": 271,
+          "title": "Per-SSID Stats",
+          "type": "table",
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 136
+          },
+          "targets": [
+            {
+              "expr": "unleashed_wlan_num_sta",
+              "instant": true,
+              "format": "table",
+              "refId": "sta"
+            },
+            {
+              "expr": "rate(unleashed_wlan_tx_bytes_total[5m]) * 8",
+              "instant": true,
+              "format": "table",
+              "refId": "tx"
+            },
+            {
+              "expr": "rate(unleashed_wlan_rx_bytes_total[5m]) * 8",
+              "instant": true,
+              "format": "table",
+              "refId": "rx"
+            },
+            {
+              "expr": "unleashed_wlan_auth_success_total",
+              "instant": true,
+              "format": "table",
+              "refId": "auths"
+            },
+            {
+              "expr": "unleashed_wlan_auth_fail_total",
+              "instant": true,
+              "format": "table",
+              "refId": "authf"
+            },
+            {
+              "expr": "unleashed_wlan_assoc_fail_total",
+              "instant": true,
+              "format": "table",
+              "refId": "assocf"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "joinByField",
+              "options": {
+                "byField": "ssid",
+                "mode": "outer"
+              }
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time 1": true,
+                  "Time 2": true,
+                  "Time 3": true,
+                  "Time 4": true,
+                  "Time 5": true,
+                  "Time 6": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true,
+                  "state 1": true,
+                  "state 2": true,
+                  "state 3": true,
+                  "state 4": true,
+                  "state 5": true,
+                  "state 6": true,
+                  "vlan_id 1": true,
+                  "vlan_id 2": true,
+                  "vlan_id 3": true,
+                  "vlan_id 4": true,
+                  "vlan_id 5": true,
+                  "vlan_id 6": true
+                },
+                "indexByName": {
+                  "ssid": 0,
+                  "state": 1,
+                  "vlan_id": 2,
+                  "Value #sta": 3,
+                  "Value #tx": 4,
+                  "Value #rx": 5,
+                  "Value #auths": 6,
+                  "Value #authf": 7,
+                  "Value #assocf": 8
+                },
+                "renameByName": {
+                  "ssid": "SSID",
+                  "state": "State",
+                  "vlan_id": "VLAN",
+                  "Value #sta": "Clients",
+                  "Value #tx": "Tx bps",
+                  "Value #rx": "Rx bps",
+                  "Value #auths": "Auth Success",
+                  "Value #authf": "Auth Fail",
+                  "Value #assocf": "Assoc Fail"
+                }
+              }
+            },
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "field": "SSID",
+                    "desc": false
+                  }
+                ]
+              }
+            }
+          ],
+          "fieldConfig": {
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Tx bps"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bps"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Rx bps"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bps"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "State"
+                },
+                "properties": [
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "type": "value",
+                        "options": {
+                          "enabled": {
+                            "text": "enabled",
+                            "color": "green"
+                          },
+                          "disabled": {
+                            "text": "disabled",
+                            "color": "yellow"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-text"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Auth Fail"
+                },
+                "properties": [
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        {
+                          "value": 0,
+                          "color": "green"
+                        },
+                        {
+                          "value": 100,
+                          "color": "yellow"
+                        },
+                        {
+                          "value": 1000,
+                          "color": "red"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": 272,
+          "title": "AP Disconnect/Reconnect Events (state changes over time)",
+          "type": "timeseries",
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 144
+          },
+          "targets": [
+            {
+              "expr": "changes(unleashed_ap_state[1h])",
+              "legendFormat": "{{ ap_name }}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 10
+              }
+            }
+          }
+        },
+        {
+          "id": 273,
+          "title": "Channel Changes per AP (1h window)",
+          "type": "timeseries",
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 144
+          },
+          "targets": [
+            {
+              "expr": "changes(unleashed_radio_channel{radio_band=\"5g\"}[1h])",
+              "legendFormat": "{{ ap_name }} 5g",
+              "refId": "A"
+            },
+            {
+              "expr": "changes(unleashed_radio_channel{radio_band=\"2.4g\"}[1h])",
+              "legendFormat": "{{ ap_name }} 2.4g",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 10
+              }
+            }
+          }
+        },
+        {
+          "id": 274,
+          "title": "",
+          "type": "text",
+          "gridPos": {
+            "h": 5,
+            "w": 24,
+            "x": 0,
+            "y": 151
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "### WAN / Uplink Monitoring\n\nThe Ruckus API does **not** expose WAN/Internet reachability metrics. To monitor your WAN uplink:\n\n**Option 1 \u2014 Add blackbox_exporter** (recommended):\n```yaml\n# Add to docker-compose.yml\nblackbox-exporter:\n  image: prom/blackbox-exporter\n  ports: [\"9115:9115\"]\n```\nThen scrape ping targets (e.g., 8.8.8.8, gateway IP) from Prometheus.\n\n**Option 2 \u2014 Use AP Ethernet stats** (indirect): The master AP's `ifInOctets`/`ifOutOctets` on its Ethernet interface reflects WAN-side traffic. Seen in the *RF Environment* wired columns.\n\n**Currently we can see**:\n- Master AP uptime (above)\n- Aggregate WLAN throughput (SNMP)\n- Per-AP wired Rx/Tx (for troubleshooting local wired issues)\n\nTo add true WAN monitoring, deploy blackbox_exporter and add ping/HTTP probes to Prometheus targets."
+          }
+        }
+      ]
+    }
+  ]
+}

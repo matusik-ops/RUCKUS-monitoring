@@ -2,9 +2,10 @@
 
 Uses the _cmdstat.jsp XML/AJAX interface (firmware 200.15+).
 Authentication: login.jsp + CSRF token from _csrfTokenVar.jsp.
-Collects two data sets per poll cycle:
+Collects three data sets per poll cycle:
   1. Per-client stats via <client INTERVAL-STATS='yes'/>
   2. Per-AP, per-radio stats via <ap LEVEL='1'/>
+  3. Rogue AP detections via <rogue/>
 """
 
 import logging
@@ -154,14 +155,117 @@ radio_assoc_success = Gauge("unleashed_radio_assoc_success", "Radio assoc succes
 radio_channel_g = Gauge("unleashed_radio_channel", "Radio channel number", ["ap_name", "radio_band"], registry=registry)
 radio_tx_power = Gauge("unleashed_radio_tx_power", "Radio Tx power setting", ["ap_name", "radio_band"], registry=registry)
 radio_channelization = Gauge("unleashed_radio_channelization", "Radio channel width (MHz)", ["ap_name", "radio_band"], registry=registry)
+radio_noise_floor = Gauge("unleashed_radio_noise_floor_dbm", "Radio noise floor in dBm", RADIO_LABELS, registry=registry)
+radio_phy_err = Gauge("unleashed_radio_phy_err", "Radio PHY-layer errors (cumulative)", RADIO_LABELS, registry=registry)
+
+# ---------------------------------------------------------------------------
+# Per-AP metrics (numeric stats)
+# ---------------------------------------------------------------------------
+AP_NUMERIC_LABELS = ["ap_name"]
+ap_cpu = Gauge("unleashed_ap_cpu_util", "AP CPU utilization (%)", AP_NUMERIC_LABELS, registry=registry)
+ap_mem_total = Gauge("unleashed_ap_mem_total", "AP total memory (KB)", AP_NUMERIC_LABELS, registry=registry)
+ap_mem_avail = Gauge("unleashed_ap_mem_avail", "AP available memory (KB)", AP_NUMERIC_LABELS, registry=registry)
+ap_mem_used_pct = Gauge("unleashed_ap_mem_used_pct", "AP memory used percentage", AP_NUMERIC_LABELS, registry=registry)
+ap_uptime = Gauge("unleashed_ap_uptime_seconds", "AP uptime in seconds", AP_NUMERIC_LABELS, registry=registry)
+ap_num_sta = Gauge("unleashed_ap_num_sta", "AP total clients", AP_NUMERIC_LABELS, registry=registry)
+ap_num_vap = Gauge("unleashed_ap_num_vap", "AP active VAPs (SSIDs broadcasting)", AP_NUMERIC_LABELS, registry=registry)
+ap_temperature = Gauge("unleashed_ap_temperature", "AP temperature (or -999 if unavailable)", AP_NUMERIC_LABELS, registry=registry)
+ap_app_reboots = Gauge("unleashed_ap_app_reboots_total", "AP application reboot counter", AP_NUMERIC_LABELS, registry=registry)
+ap_kernel_panics = Gauge("unleashed_ap_kernel_panics_total", "AP kernel panic counter", AP_NUMERIC_LABELS, registry=registry)
+ap_powercycle_reboots = Gauge("unleashed_ap_powercycle_reboots_total", "AP power-cycle reboot counter", AP_NUMERIC_LABELS, registry=registry)
+ap_total_reboots = Gauge("unleashed_ap_total_reboots", "AP total boot counter", AP_NUMERIC_LABELS, registry=registry)
+ap_connected_time = Gauge("unleashed_ap_connected_time_seconds", "AP cumulative connected time (seconds)", AP_NUMERIC_LABELS, registry=registry)
+ap_join_counter = Gauge("unleashed_ap_join_counter", "AP rejoin counter (how many times AP has rejoined)", AP_NUMERIC_LABELS, registry=registry)
+ap_crashfile = Gauge("unleashed_ap_crashfile_flag", "AP has saved crashfile (1=yes, 0=no)", AP_NUMERIC_LABELS, registry=registry)
+ap_lan_rx_bytes = Gauge("unleashed_ap_lan_rx_bytes_total", "AP wired Ethernet Rx bytes", AP_NUMERIC_LABELS, registry=registry)
+ap_lan_tx_bytes = Gauge("unleashed_ap_lan_tx_bytes_total", "AP wired Ethernet Tx bytes", AP_NUMERIC_LABELS, registry=registry)
+ap_lan_rx_pkts = Gauge("unleashed_ap_lan_rx_pkts_total", "AP wired Ethernet Rx packets", AP_NUMERIC_LABELS, registry=registry)
+ap_lan_tx_pkts = Gauge("unleashed_ap_lan_tx_pkts_total", "AP wired Ethernet Tx packets", AP_NUMERIC_LABELS, registry=registry)
+ap_lan_dropped = Gauge("unleashed_ap_lan_dropped_total", "AP wired Ethernet dropped packets", AP_NUMERIC_LABELS, registry=registry)
+
+# AP info — uses labels for textual fields (IP, MAC, model, firmware, etc.)
+AP_INFO_LABELS = ["ap_name", "ip", "mac", "model", "serial_number",
+                  "firmware_version", "poe_mode", "last_reboot_reason",
+                  "last_rejoin_reason", "role"]
+ap_info = Gauge("unleashed_ap_info", "AP inventory info (always 1)", AP_INFO_LABELS, registry=registry)
+
+ap_state = Gauge("unleashed_ap_state", "AP state (1=connected, 0=disconnected)", AP_NUMERIC_LABELS, registry=registry)
+
+_AP_NUMERIC_GAUGES = [
+    ap_cpu, ap_mem_total, ap_mem_avail, ap_mem_used_pct,
+    ap_uptime, ap_num_sta, ap_num_vap, ap_temperature,
+    ap_app_reboots, ap_kernel_panics, ap_powercycle_reboots, ap_total_reboots,
+    ap_state, ap_connected_time, ap_join_counter, ap_crashfile,
+    ap_lan_rx_bytes, ap_lan_tx_bytes, ap_lan_rx_pkts, ap_lan_tx_pkts, ap_lan_dropped,
+]
+
+# ---------------------------------------------------------------------------
+# Per-WLAN (SSID) metrics — from <wlan LEVEL='1'/>
+# ---------------------------------------------------------------------------
+WLAN_LABELS = ["ssid", "vlan_id", "state"]
+
+wlan_num_sta = Gauge("unleashed_wlan_num_sta", "Clients on this WLAN/SSID", WLAN_LABELS, registry=registry)
+wlan_num_vap = Gauge("unleashed_wlan_num_vap", "Number of VAP instances for this SSID", WLAN_LABELS, registry=registry)
+wlan_rx_bytes = Gauge("unleashed_wlan_rx_bytes_total", "WLAN total Rx bytes", WLAN_LABELS, registry=registry)
+wlan_tx_bytes = Gauge("unleashed_wlan_tx_bytes_total", "WLAN total Tx bytes", WLAN_LABELS, registry=registry)
+wlan_rx_pkts = Gauge("unleashed_wlan_rx_pkts_total", "WLAN total Rx packets", WLAN_LABELS, registry=registry)
+wlan_tx_pkts = Gauge("unleashed_wlan_tx_pkts_total", "WLAN total Tx packets", WLAN_LABELS, registry=registry)
+wlan_auth_success = Gauge("unleashed_wlan_auth_success_total", "WLAN total auth successes", WLAN_LABELS, registry=registry)
+wlan_auth_fail = Gauge("unleashed_wlan_auth_fail_total", "WLAN total auth failures", WLAN_LABELS, registry=registry)
+wlan_assoc_success = Gauge("unleashed_wlan_assoc_success_total", "WLAN total assoc successes", WLAN_LABELS, registry=registry)
+wlan_assoc_fail = Gauge("unleashed_wlan_assoc_fail_total", "WLAN total assoc failures", WLAN_LABELS, registry=registry)
+wlan_total_auth = Gauge("unleashed_wlan_total_auth", "WLAN total auth attempts", WLAN_LABELS, registry=registry)
+wlan_total_assoc = Gauge("unleashed_wlan_total_assoc", "WLAN total assoc attempts", WLAN_LABELS, registry=registry)
+
+_WLAN_GAUGES = [
+    wlan_num_sta, wlan_num_vap, wlan_rx_bytes, wlan_tx_bytes, wlan_rx_pkts, wlan_tx_pkts,
+    wlan_auth_success, wlan_auth_fail, wlan_assoc_success, wlan_assoc_fail,
+    wlan_total_auth, wlan_total_assoc,
+]
 
 _RADIO_GAUGES = [
     radio_airtime_total, radio_airtime_busy, radio_airtime_rx, radio_airtime_tx,
     radio_num_sta, radio_avg_rssi, radio_tx_bytes, radio_rx_bytes,
     radio_tx_pkts, radio_rx_pkts, radio_tx_fail, radio_retries, radio_fcs_err,
     radio_auth_fail, radio_auth_success, radio_assoc_fail, radio_assoc_success,
+    radio_noise_floor, radio_phy_err,
 ]
 _RADIO_CONFIG_GAUGES = [radio_channel_g, radio_tx_power, radio_channelization]
+
+# ---------------------------------------------------------------------------
+# Rogue AP metrics (from <rogue/> query)
+# ---------------------------------------------------------------------------
+ROGUE_LABELS = ["rogue_mac", "rogue_ssid", "rogue_channel", "rogue_band",
+                "rogue_type", "is_malicious", "detector_ap"]
+
+rogue_rssi = Gauge(
+    "unleashed_rogue_rssi_dbm",
+    "Rogue AP signal strength in dBm as detected by one of our APs",
+    ROGUE_LABELS,
+    registry=registry,
+)
+rogue_count = Gauge(
+    "unleashed_rogue_count",
+    "Total number of unique rogue APs detected",
+    registry=registry,
+)
+rogue_malicious_count = Gauge(
+    "unleashed_rogue_malicious_count",
+    "Total number of malicious (same-network) rogue APs detected",
+    registry=registry,
+)
+rogue_count_by_band = Gauge(
+    "unleashed_rogue_count_by_band",
+    "Number of rogues per radio band",
+    ["radio_band"],
+    registry=registry,
+)
+rogue_count_by_channel = Gauge(
+    "unleashed_rogue_count_by_channel",
+    "Number of rogues per channel",
+    ["channel", "radio_band"],
+    registry=registry,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -298,6 +402,57 @@ class UnleashedClient:
             return None
 
 
+    def get_wlans(self) -> list[dict] | None:
+        """Fetch per-SSID/WLAN stats via _cmdstat.jsp."""
+        xml = self._cmdstat(
+            "<ajax-request action='getstat' comp='stamgr'>"
+            "<wlan LEVEL='1'/>"
+            "</ajax-request>"
+        )
+        if xml is None:
+            return None
+        try:
+            root = ET.fromstring(xml)
+            wlans = []
+            for wlan_el in root.iter("wlan"):
+                wlans.append(dict(wlan_el.attrib))
+            return wlans
+        except ET.ParseError as exc:
+            log.error("WLAN XML parse error: %s", exc)
+            poll_errors.labels(type="parse_error").inc()
+            return None
+
+    def get_rogues(self) -> list[dict] | None:
+        """Fetch rogue AP detections via _cmdstat.jsp.
+
+        Returns a list of dicts, each representing one rogue+detector pair.
+        Each rogue can be detected by multiple of our APs, producing one entry per detector.
+        """
+        xml = self._cmdstat(
+            "<ajax-request action='getstat' comp='stamgr' enable-gzip='0'>"
+            "<rogue/>"
+            "</ajax-request>"
+        )
+        if xml is None:
+            return None
+        try:
+            root = ET.fromstring(xml)
+            entries = []
+            for rogue_el in root.iter("rogue"):
+                rogue_attrs = dict(rogue_el.attrib)
+                detections = list(rogue_el.iter("detection"))
+                if not detections:
+                    # Rogue with no detection child — still record with empty detector
+                    entries.append({"rogue": rogue_attrs, "detection": {}})
+                else:
+                    for det in detections:
+                        entries.append({"rogue": rogue_attrs, "detection": dict(det.attrib)})
+            return entries
+        except ET.ParseError as exc:
+            log.error("Rogue XML parse error: %s", exc)
+            poll_errors.labels(type="parse_error").inc()
+            return None
+
     def get_ap_stats(self) -> list[dict] | None:
         """Fetch per-AP, per-radio stats via _cmdstat.jsp."""
         xml = self._cmdstat(
@@ -432,6 +587,94 @@ def _set_radio_gauge(gauge, labels, value):
             pass
 
 
+def update_ap_info_metrics(aps: list[dict]):
+    """Update per-AP inventory + numeric metrics from AP stats."""
+    current_ap_names: set[str] = set()
+    current_info_labels: set[tuple] = set()
+
+    for ap_data in aps:
+        attrs = ap_data["attrs"]
+        ap_name = attrs.get("ap-name", "")
+        if not ap_name:
+            continue
+
+        current_ap_names.add(ap_name)
+        labels = (ap_name,)
+
+        # State
+        try:
+            ap_state.labels(*labels).set(1 if attrs.get("state") == "1" else 0)
+        except (ValueError, TypeError):
+            pass
+
+        # Numeric metrics — only set if value is meaningful
+        _set_radio_gauge(ap_cpu, labels, attrs.get("cpu_util"))
+        _set_radio_gauge(ap_mem_total, labels, attrs.get("mem_total"))
+        _set_radio_gauge(ap_mem_avail, labels, attrs.get("mem_avail"))
+
+        try:
+            mt = float(attrs.get("mem_total") or 0)
+            ma = float(attrs.get("mem_avail") or 0)
+            if mt > 0:
+                used_pct = (mt - ma) / mt * 100
+                ap_mem_used_pct.labels(*labels).set(used_pct)
+        except (ValueError, TypeError):
+            pass
+
+        _set_radio_gauge(ap_uptime, labels, attrs.get("uptime"))
+        _set_radio_gauge(ap_num_sta, labels, attrs.get("num-sta"))
+        _set_radio_gauge(ap_num_vap, labels, attrs.get("num-vap"))
+        _set_radio_gauge(ap_app_reboots, labels, attrs.get("application-reboot-counter"))
+        _set_radio_gauge(ap_kernel_panics, labels, attrs.get("kernel-panic-reboot-counter"))
+        _set_radio_gauge(ap_powercycle_reboots, labels, attrs.get("powercycle-reboot-counter"))
+        _set_radio_gauge(ap_total_reboots, labels, attrs.get("total-boot-counter"))
+        _set_radio_gauge(ap_connected_time, labels, attrs.get("amount-connected-time"))
+        _set_radio_gauge(ap_join_counter, labels, attrs.get("ap-join-counter"))
+        _set_radio_gauge(ap_crashfile, labels, attrs.get("ap-crashfile-flag"))
+        _set_radio_gauge(ap_lan_rx_bytes, labels, attrs.get("lan_stats_rx_byte"))
+        _set_radio_gauge(ap_lan_tx_bytes, labels, attrs.get("lan_stats_tx_byte"))
+        _set_radio_gauge(ap_lan_rx_pkts, labels, attrs.get("lan_stats_rx_pkt_succ"))
+        _set_radio_gauge(ap_lan_tx_pkts, labels, attrs.get("lan_stats_tx_pkt"))
+        _set_radio_gauge(ap_lan_dropped, labels, attrs.get("lan_stats_dropped"))
+
+        # Temperature
+        temp = attrs.get("current-temperature")
+        if temp and temp != "unavailable":
+            try:
+                ap_temperature.labels(*labels).set(float(temp))
+            except (ValueError, TypeError):
+                ap_temperature.labels(*labels).set(-999)
+        else:
+            ap_temperature.labels(*labels).set(-999)
+
+        # Info gauge with text labels
+        info_labels = (
+            ap_name,
+            attrs.get("ip", ""),
+            attrs.get("mac", ""),
+            attrs.get("display-model", attrs.get("model", "")),
+            attrs.get("serial-number", ""),
+            attrs.get("firmware-version", ""),
+            attrs.get("poe-mode-str", ""),
+            attrs.get("last-reboot-reason", ""),
+            attrs.get("last-rejoin-reason", ""),
+            attrs.get("role", ""),
+        )
+        current_info_labels.add(info_labels)
+        ap_info.labels(*info_labels).set(1)
+
+    # Cleanup numeric gauges for APs that disappeared
+    for gauge in _AP_NUMERIC_GAUGES:
+        stale = set(gauge._metrics.keys()) - {(n,) for n in current_ap_names}
+        for key in stale:
+            gauge.remove(*key)
+
+    # Cleanup info gauge
+    stale_info = set(ap_info._metrics.keys()) - current_info_labels
+    for key in stale_info:
+        ap_info.remove(*key)
+
+
 def update_radio_metrics(aps: list[dict]):
     """Update per-radio Prometheus metrics from AP stats."""
     current_labels: set[tuple] = set()
@@ -469,6 +712,8 @@ def update_radio_metrics(aps: list[dict]):
             _set_radio_gauge(radio_auth_success, labels, radio.get("mgmt-auth-success"))
             _set_radio_gauge(radio_assoc_fail, labels, radio.get("mgmt-assoc-fail"))
             _set_radio_gauge(radio_assoc_success, labels, radio.get("mgmt-assoc-success"))
+            _set_radio_gauge(radio_noise_floor, labels, radio.get("noisefloor"))
+            _set_radio_gauge(radio_phy_err, labels, radio.get("phyerr"))
 
             config_labels = (ap_name, band)
             _set_radio_gauge(radio_channel_g, config_labels, ch)
@@ -477,6 +722,107 @@ def update_radio_metrics(aps: list[dict]):
 
     _clear_radio_metrics(current_labels)
     log.info("Updated radio metrics for %d radios", radio_count)
+
+
+def update_wlan_metrics(wlans: list[dict]):
+    """Update per-WLAN (SSID) Prometheus metrics."""
+    current_labels: set[tuple] = set()
+
+    for w in wlans:
+        ssid = w.get("ssid", "unknown")
+        vlan_id = w.get("vlan-id", "")
+        state = w.get("state", "")
+        labels = (ssid, vlan_id, state)
+        current_labels.add(labels)
+
+        _set_radio_gauge(wlan_num_sta, labels, w.get("num-sta"))
+        _set_radio_gauge(wlan_num_vap, labels, w.get("num-vap"))
+        _set_radio_gauge(wlan_rx_bytes, labels, w.get("rx-bytes"))
+        _set_radio_gauge(wlan_tx_bytes, labels, w.get("tx-bytes"))
+        _set_radio_gauge(wlan_rx_pkts, labels, w.get("rx-pkts"))
+        _set_radio_gauge(wlan_tx_pkts, labels, w.get("tx-pkts"))
+        _set_radio_gauge(wlan_auth_success, labels, w.get("mgmt-auth-success"))
+        _set_radio_gauge(wlan_auth_fail, labels, w.get("mgmt-auth-fail"))
+        _set_radio_gauge(wlan_assoc_success, labels, w.get("mgmt-assoc-success"))
+        _set_radio_gauge(wlan_assoc_fail, labels, w.get("mgmt-assoc-fail"))
+        _set_radio_gauge(wlan_total_auth, labels, w.get("total-auth"))
+        _set_radio_gauge(wlan_total_assoc, labels, w.get("total-assoc"))
+
+    # Cleanup stale
+    for gauge in _WLAN_GAUGES:
+        stale = set(gauge._metrics.keys()) - current_labels
+        for key in stale:
+            gauge.remove(*key)
+
+    log.info("Updated WLAN metrics for %d SSIDs", len(wlans))
+
+
+def update_rogue_metrics(entries: list[dict]):
+    """Update per-rogue Prometheus metrics from rogue detections.
+
+    `entries` is a list of {"rogue": {...}, "detection": {...}} dicts,
+    one per rogue+detector pair.
+    """
+    current_labels: set[tuple] = set()
+    unique_rogues: set[str] = set()
+    malicious_rogues: set[str] = set()
+    band_counts: dict[str, set] = {}  # band -> set of rogue MACs
+    channel_counts: dict[tuple, set] = {}  # (channel, band) -> set of rogue MACs
+
+    for entry in entries:
+        rogue = entry["rogue"]
+        detection = entry["detection"]
+
+        mac = rogue.get("mac", "unknown")
+        ssid = rogue.get("ssid", "")
+        channel = rogue.get("channel", "0")
+        band = rogue.get("radio-band", "unknown")
+        rogue_type = rogue.get("rogue-type", "unknown")
+        is_malicious = "true" if "malicious" in rogue_type.lower() else "false"
+        detector = detection.get("sys-name", "unknown")
+        rssi_raw = detection.get("rssi")
+
+        labels = (mac, ssid, channel, band, rogue_type, is_malicious, detector)
+        current_labels.add(labels)
+
+        # RSSI is reported as positive in the API (e.g., 49 = -49 dBm)
+        if rssi_raw is not None:
+            try:
+                rssi_dbm = -float(rssi_raw)
+                rogue_rssi.labels(*labels).set(rssi_dbm)
+            except (ValueError, TypeError):
+                pass
+
+        # Aggregations (count unique rogues, not detector pairs)
+        unique_rogues.add(mac)
+        if is_malicious == "true":
+            malicious_rogues.add(mac)
+        band_counts.setdefault(band, set()).add(mac)
+        channel_counts.setdefault((channel, band), set()).add(mac)
+
+    # Remove stale rogue+detector samples
+    stale = set(rogue_rssi._metrics.keys()) - current_labels
+    for key in stale:
+        rogue_rssi.remove(*key)
+
+    # Update summary gauges
+    rogue_count.set(len(unique_rogues))
+    rogue_malicious_count.set(len(malicious_rogues))
+
+    stale_bands = set(rogue_count_by_band._metrics.keys()) - {(b,) for b in band_counts}
+    for key in stale_bands:
+        rogue_count_by_band.remove(*key)
+    for band, macs in band_counts.items():
+        rogue_count_by_band.labels(radio_band=band).set(len(macs))
+
+    stale_channels = set(rogue_count_by_channel._metrics.keys()) - {(c, b) for (c, b) in channel_counts}
+    for key in stale_channels:
+        rogue_count_by_channel.remove(*key)
+    for (channel, band), macs in channel_counts.items():
+        rogue_count_by_channel.labels(channel=channel, radio_band=band).set(len(macs))
+
+    log.info("Updated rogue metrics: %d rogues (%d malicious) across %d bands",
+             len(unique_rogues), len(malicious_rogues), len(band_counts))
 
 
 # ---------------------------------------------------------------------------
@@ -514,6 +860,15 @@ def main():
         ap_stats = client.get_ap_stats()
         if ap_stats is not None:
             update_radio_metrics(ap_stats)
+            update_ap_info_metrics(ap_stats)
+
+        rogues = client.get_rogues()
+        if rogues is not None:
+            update_rogue_metrics(rogues)
+
+        wlans = client.get_wlans()
+        if wlans is not None:
+            update_wlan_metrics(wlans)
 
         time.sleep(POLL_INTERVAL)
 
