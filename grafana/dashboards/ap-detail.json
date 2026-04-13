@@ -109,12 +109,12 @@
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
       "targets": [
         {
-          "expr": "unleashed_radio_airtime_busy{ap_name=\"$ap_name\", radio_band=\"2.4g\"} / unleashed_radio_airtime_total{ap_name=\"$ap_name\", radio_band=\"2.4g\"} * 100",
+          "expr": "increase(unleashed_radio_airtime_busy{ap_name=\"$ap_name\", radio_band=\"2.4g\"}[5m]) / clamp_min(increase(unleashed_radio_airtime_total{ap_name=\"$ap_name\", radio_band=\"2.4g\"}[5m]), 1) * 100",
           "legendFormat": "2.4GHz busy %",
           "refId": "A"
         },
         {
-          "expr": "unleashed_radio_airtime_busy{ap_name=\"$ap_name\", radio_band=\"5g\"} / unleashed_radio_airtime_total{ap_name=\"$ap_name\", radio_band=\"5g\"} * 100",
+          "expr": "increase(unleashed_radio_airtime_busy{ap_name=\"$ap_name\", radio_band=\"5g\"}[5m]) / clamp_min(increase(unleashed_radio_airtime_total{ap_name=\"$ap_name\", radio_band=\"5g\"}[5m]), 1) * 100",
           "legendFormat": "5GHz busy %",
           "refId": "B"
         }

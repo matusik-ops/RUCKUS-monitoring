@@ -40,7 +40,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
       "targets": [
         {
-          "expr": "unleashed_radio_airtime_busy{ap_name=~\"$ap_name\", radio_band=~\"$radio_band\"} / unleashed_radio_airtime_total{ap_name=~\"$ap_name\", radio_band=~\"$radio_band\"} * 100",
+          "expr": "increase(unleashed_radio_airtime_busy{ap_name=~\"$ap_name\", radio_band=~\"$radio_band\"}[5m]) / clamp_min(increase(unleashed_radio_airtime_total{ap_name=~\"$ap_name\", radio_band=~\"$radio_band\"}[5m]), 1) * 100",
           "legendFormat": "{{ ap_name }} {{ radio_band }}",
           "refId": "A"
         }
