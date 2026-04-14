@@ -980,7 +980,7 @@
     },
     {
       "id": 31,
-      "title": "Tx Retries & Failures /s",
+      "title": "WLAN Error Rates /s",
       "type": "timeseries",
       "gridPos": {
         "h": 7,
@@ -998,6 +998,21 @@
           "expr": "rate(ruckusUnleashedSystemStatsWLANTotalTxFail[5m])",
           "legendFormat": "Failures/s",
           "refId": "B"
+        },
+        {
+          "expr": "rate(ruckusUnleashedSystemStatsWLANTotalTxErrFrm[5m])",
+          "legendFormat": "Tx Errors/s",
+          "refId": "C"
+        },
+        {
+          "expr": "rate(ruckusUnleashedSystemStatsWLANTotalTxDroppedPkt[5m])",
+          "legendFormat": "Tx Dropped/s",
+          "refId": "D"
+        },
+        {
+          "expr": "rate(ruckusUnleashedSystemStatsWLANTotalRxErrFrm[5m])",
+          "legendFormat": "Rx Errors/s",
+          "refId": "E"
         }
       ]
     },
