@@ -1,5 +1,5 @@
 global:
-  scrape_interval: 60s
+  scrape_interval: 30s
   evaluation_interval: 60s
 
 rule_files:
@@ -8,7 +8,7 @@ rule_files:
 scrape_configs:
   # SNMP Exporter - scrapes Ruckus R720 APs via SNMP
   - job_name: snmp
-    scrape_interval: 60s
+    scrape_interval: 30s
     scrape_timeout: 30s
     file_sd_configs:
       - files:
@@ -30,7 +30,7 @@ scrape_configs:
 
   # Unleashed REST API Exporter - per-client metrics
   - job_name: unleashed
-    scrape_interval: 60s
+    scrape_interval: 30s
     static_configs:
       - targets:
           - unleashed-exporter:9191

@@ -119,6 +119,55 @@ client_count = Gauge(
     registry=registry,
 )
 
+client_retries = Gauge(
+    "unleashed_client_retries_total",
+    "Client total Tx retries",
+    CLIENT_LABELS,
+    registry=registry,
+)
+client_retry_bytes = Gauge(
+    "unleashed_client_retry_bytes_total",
+    "Client total retry bytes",
+    CLIENT_LABELS,
+    registry=registry,
+)
+client_rx_pkts = Gauge(
+    "unleashed_client_rx_pkts_total",
+    "Client total received packets",
+    CLIENT_LABELS,
+    registry=registry,
+)
+client_tx_pkts = Gauge(
+    "unleashed_client_tx_pkts_total",
+    "Client total transmitted packets",
+    CLIENT_LABELS,
+    registry=registry,
+)
+client_min_rssi = Gauge(
+    "unleashed_client_min_rssi_dbm",
+    "Client min RSSI over interval-stats window (dBm)",
+    CLIENT_LABELS,
+    registry=registry,
+)
+client_max_rssi = Gauge(
+    "unleashed_client_max_rssi_dbm",
+    "Client max RSSI over interval-stats window (dBm)",
+    CLIENT_LABELS,
+    registry=registry,
+)
+
+# Info gauge with textual labels (IP, VLAN, OS, etc.)
+CLIENT_INFO_LABELS = [
+    "client_mac", "apz_device", "hostname", "ip", "vlan", "ap_name", "ssid",
+    "radio_band", "auth_method", "encryption", "dvctype", "model_os"
+]
+client_info = Gauge(
+    "unleashed_client_info",
+    "Client inventory info (always 1); labels contain identity/config",
+    CLIENT_INFO_LABELS,
+    registry=registry,
+)
+
 _CLIENT_GAUGES = [
     client_rssi,
     client_noise_floor,
@@ -128,6 +177,12 @@ _CLIENT_GAUGES = [
     client_rx_bytes,
     client_tx_bytes,
     client_assoc_time,
+    client_retries,
+    client_retry_bytes,
+    client_rx_pkts,
+    client_tx_pkts,
+    client_min_rssi,
+    client_max_rssi,
 ]
 
 # ---------------------------------------------------------------------------
@@ -480,6 +535,62 @@ class UnleashedClient:
 # ---------------------------------------------------------------------------
 # Metric update logic
 # ---------------------------------------------------------------------------
+def _detect_device_groups(stations: list[dict]) -> dict[str, str]:
+    """Detect dual-radio devices by finding sequential MAC addresses.
+
+    If two clients share the same MAC prefix (first 5 octets) and differ
+    only in the last octet by 1-2, they're likely the same physical device
+    with two WiFi NICs.
+
+    Returns: dict mapping MAC → apz_device (hostname of the "best" NIC).
+    """
+    mac_to_prefix: dict[str, tuple] = {}
+    for sta in stations:
+        mac = sta.get("mac", "")
+        if len(mac) == 17:
+            prefix = mac[:14]  # first 5 octets "aa:bb:cc:dd:ee"
+            last_byte = int(mac[15:17], 16)
+            mac_to_prefix[mac] = (prefix, last_byte)
+
+    # Group MACs by prefix
+    from collections import defaultdict
+    by_prefix: dict[str, list] = defaultdict(list)
+    for mac, (prefix, last_byte) in mac_to_prefix.items():
+        by_prefix[prefix].append((mac, last_byte))
+
+    # Find groups where MACs differ by 1-2 in last byte
+    mac_to_device: dict[str, str] = {}
+    for prefix, members in by_prefix.items():
+        if len(members) < 2:
+            continue
+        members.sort(key=lambda x: x[1])
+        # Check if consecutive MACs are within 2 of each other
+        group = [members[0]]
+        for i in range(1, len(members)):
+            if members[i][1] - members[i-1][1] <= 2:
+                group.append(members[i])
+
+        if len(group) >= 2:
+            # Find the best hostname for this device group
+            group_macs = {m[0] for m in group}
+            best_hostname = ""
+            for sta in stations:
+                if sta.get("mac") in group_macs:
+                    h = sta.get("hostname", "")
+                    # Prefer a real hostname over MAC-as-hostname
+                    if h and ":" not in h and (not best_hostname or ":" in best_hostname):
+                        best_hostname = h
+                    elif not best_hostname:
+                        best_hostname = h
+            if not best_hostname:
+                best_hostname = group[0][0]
+
+            for mac, _ in group:
+                mac_to_device[mac] = best_hostname
+
+    return mac_to_device
+
+
 def _clear_client_metrics(known_labels: set[tuple]):
     """Remove metrics for clients no longer present."""
     for gauge in _CLIENT_GAUGES:
@@ -494,6 +605,9 @@ def update_metrics(stations: list[dict]):
     ssid_counts: dict[str, int] = {}
     ap_counts: dict[str, int] = {}
 
+    current_info_labels: set[tuple] = set()
+    mac_to_device = _detect_device_groups(stations)
+
     for sta in stations:
         mac = sta.get("mac", "unknown")
         ap = sta.get("ap-name", "unknown")
@@ -502,6 +616,25 @@ def update_metrics(stations: list[dict]):
         hostname = sta.get("hostname", sta.get("oldname", mac))
         labels = (mac, ap, ssid, band, hostname)
         current_labels.add(labels)
+
+        # Info gauge with all textual/identity labels
+        apz_device = mac_to_device.get(mac, "")  # empty = single-NIC device
+        info_labels = (
+            mac,
+            apz_device,
+            hostname,
+            sta.get("ip", ""),
+            sta.get("vlan", ""),
+            ap,
+            ssid,
+            band,
+            sta.get("auth-method", ""),
+            sta.get("encryption", ""),
+            sta.get("dvctype", ""),
+            sta.get("model", ""),
+        )
+        current_info_labels.add(info_labels)
+        client_info.labels(*info_labels).set(1)
 
         # received-signal-strength is the dBm value (e.g., -54)
         rss = sta.get("received-signal-strength")
@@ -538,11 +671,46 @@ def update_metrics(stations: list[dict]):
         if assoc is not None:
             client_assoc_time.labels(*labels).set(float(assoc))
 
+        retries = sta.get("total-retries")
+        if retries is not None:
+            client_retries.labels(*labels).set(float(retries))
+
+        retry_bytes = sta.get("total-retry-bytes")
+        if retry_bytes is not None:
+            client_retry_bytes.labels(*labels).set(float(retry_bytes))
+
+        rx_pkts = sta.get("total-rx-pkts")
+        if rx_pkts is not None:
+            client_rx_pkts.labels(*labels).set(float(rx_pkts))
+
+        tx_pkts = sta.get("total-tx-pkts")
+        if tx_pkts is not None:
+            client_tx_pkts.labels(*labels).set(float(tx_pkts))
+
+        min_rssi = sta.get("min-received-signal-strength")
+        if min_rssi is not None:
+            try:
+                client_min_rssi.labels(*labels).set(float(min_rssi))
+            except (ValueError, TypeError):
+                pass
+
+        max_rssi = sta.get("max-received-signal-strength")
+        if max_rssi is not None:
+            try:
+                client_max_rssi.labels(*labels).set(float(max_rssi))
+            except (ValueError, TypeError):
+                pass
+
         ssid_counts[ssid] = ssid_counts.get(ssid, 0) + 1
         ap_counts[ap] = ap_counts.get(ap, 0) + 1
 
     # Remove stale clients
     _clear_client_metrics(current_labels)
+
+    # Cleanup client_info gauge
+    stale_info = set(client_info._metrics.keys()) - current_info_labels
+    for key in stale_info:
+        client_info.remove(*key)
 
     # Per-SSID counts
     stale_ssids = set(clients_per_ssid._metrics.keys()) - {(s,) for s in ssid_counts}
@@ -785,10 +953,11 @@ def update_rogue_metrics(entries: list[dict]):
         labels = (mac, ssid, channel, band, rogue_type, is_malicious, detector)
         current_labels.add(labels)
 
-        # RSSI is reported as positive in the API (e.g., 49 = -49 dBm)
+        # RSSI is a scaled value (0-100, same as client rssi field)
+        # Convert to approximate dBm: dBm ≈ rssi - 96
         if rssi_raw is not None:
             try:
-                rssi_dbm = -float(rssi_raw)
+                rssi_dbm = float(rssi_raw) - 96
                 rogue_rssi.labels(*labels).set(rssi_dbm)
             except (ValueError, TypeError):
                 pass

@@ -36,9 +36,18 @@ def exporter_module():
 
 
 def _parse_stations(xml_text):
-    """Helper: parse XML to list of dicts like the exporter does."""
+    """Helper: parse XML to list of dicts like the exporter does (merges interval-stats)."""
     root = ET.fromstring(xml_text)
-    return [dict(el.attrib) for el in root.iter("client")]
+    clients = []
+    for client_el in root.iter("client"):
+        attrs = dict(client_el.attrib)
+        for child in client_el:
+            if child.tag == "interval-stats":
+                for k, v in child.attrib.items():
+                    if k not in attrs:
+                        attrs[k] = v
+        clients.append(attrs)
+    return clients
 
 
 class TestUnleashedClient:
@@ -203,3 +212,77 @@ class TestUpdateMetrics:
 
         assert len(exporter_module.client_rssi._metrics) == 0
         assert exporter_module.client_count._value.get() == 0
+
+    def test_retries_collected(self, exporter_module):
+        stations = _parse_stations(STATIONS_3_CLIENTS_XML)
+        exporter_module.update_metrics(stations)
+
+        labels_01 = ("aa:bb:cc:dd:ee:01", "AP01", "Corp-WiFi", "5g", "Seabiscuit")
+        labels_02 = ("aa:bb:cc:dd:ee:02", "AP01", "Guest-WiFi", "2.4g", "Galaxy-Tab")
+        assert exporter_module.client_retries.labels(*labels_01)._value.get() == 50.0
+        assert exporter_module.client_retries.labels(*labels_02)._value.get() == 1500.0
+
+    def test_retry_bytes_collected(self, exporter_module):
+        stations = _parse_stations(STATIONS_3_CLIENTS_XML)
+        exporter_module.update_metrics(stations)
+
+        labels = ("aa:bb:cc:dd:ee:01", "AP01", "Corp-WiFi", "5g", "Seabiscuit")
+        assert exporter_module.client_retry_bytes.labels(*labels)._value.get() == 500000.0
+
+    def test_rx_tx_pkts_collected(self, exporter_module):
+        stations = _parse_stations(STATIONS_3_CLIENTS_XML)
+        exporter_module.update_metrics(stations)
+
+        labels = ("aa:bb:cc:dd:ee:01", "AP01", "Corp-WiFi", "5g", "Seabiscuit")
+        assert exporter_module.client_rx_pkts.labels(*labels)._value.get() == 10000.0
+        assert exporter_module.client_tx_pkts.labels(*labels)._value.get() == 15000.0
+
+    def test_min_max_rssi_collected(self, exporter_module):
+        stations = _parse_stations(STATIONS_3_CLIENTS_XML)
+        exporter_module.update_metrics(stations)
+
+        labels = ("aa:bb:cc:dd:ee:01", "AP01", "Corp-WiFi", "5g", "Seabiscuit")
+        assert exporter_module.client_min_rssi.labels(*labels)._value.get() == -57.0
+        assert exporter_module.client_max_rssi.labels(*labels)._value.get() == -52.0
+
+    def test_client_info_gauge(self, exporter_module):
+        stations = _parse_stations(STATIONS_3_CLIENTS_XML)
+        exporter_module.update_metrics(stations)
+
+        # Client 01: Laptop, Windows, IP 10.91.2.100, VLAN 2
+        info_labels = ("aa:bb:cc:dd:ee:01", "Seabiscuit", "Seabiscuit", "10.91.2.100", "2",
+                       "AP01", "Corp-WiFi", "5g", "Open", "WPA2", "Laptop", "Windows 10/11")
+        assert exporter_module.client_info.labels(*info_labels)._value.get() == 1.0
+
+    def test_client_info_includes_smartphone(self, exporter_module):
+        stations = _parse_stations(STATIONS_3_CLIENTS_XML)
+        exporter_module.update_metrics(stations)
+
+        info_labels = ("aa:bb:cc:dd:ee:02", "Seabiscuit", "Galaxy-Tab", "10.91.4.50", "4",
+                       "AP01", "Guest-WiFi", "2.4g", "Open FT", "WPA2",
+                       "Smartphone", "Android 10.0.0")
+        assert exporter_module.client_info.labels(*info_labels)._value.get() == 1.0
+
+    def test_client_info_stale_cleanup(self, exporter_module):
+        exporter_module.update_metrics(_parse_stations(STATIONS_3_CLIENTS_XML))
+        # 3 clients with info
+        assert len(exporter_module.client_info._metrics) == 3
+
+        # After client 03 disconnects
+        exporter_module.update_metrics(_parse_stations(STATIONS_2_CLIENTS_XML))
+        assert len(exporter_module.client_info._metrics) == 2
+        # Client 03 labels should be gone
+        client_03_macs = [k for k in exporter_module.client_info._metrics
+                          if k[0] == "aa:bb:cc:dd:ee:03"]
+        assert len(client_03_macs) == 0
+
+    def test_new_metrics_stale_cleanup(self, exporter_module):
+        """Ensure new per-client gauges are cleaned up on disconnect."""
+        exporter_module.update_metrics(_parse_stations(STATIONS_3_CLIENTS_XML))
+        labels_03 = ("aa:bb:cc:dd:ee:03", "AP02", "Corp-WiFi", "5g", "Alonso")
+        assert labels_03 in exporter_module.client_retries._metrics
+        assert labels_03 in exporter_module.client_min_rssi._metrics
+
+        exporter_module.update_metrics(_parse_stations(STATIONS_2_CLIENTS_XML))
+        assert labels_03 not in exporter_module.client_retries._metrics
+        assert labels_03 not in exporter_module.client_min_rssi._metrics

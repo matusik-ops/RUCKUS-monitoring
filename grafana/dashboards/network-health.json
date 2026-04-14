@@ -487,456 +487,6 @@
       }
     },
     {
-      "id": 225,
-      "title": "Ch 1 (2.4 GHz) \u2014 AP01, AP06, AP10",
-      "type": "gauge",
-      "gridPos": {
-        "h": 5,
-        "w": 8,
-        "x": 0,
-        "y": 12
-      },
-      "targets": [
-        {
-          "expr": "avg(unleashed_radio_airtime_busy{channel!=\"0\",channel=\"1\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_airtime_total{channel!=\"0\",channel=\"1\", radio_band=\"2.4g\"}, 1) * 100)",
-          "instant": true,
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "showThresholdMarkers": true,
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "max": 100,
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 30,
-                "color": "yellow"
-              },
-              {
-                "value": 50,
-                "color": "red"
-              }
-            ]
-          },
-          "decimals": 0
-        }
-      }
-    },
-    {
-      "id": 226,
-      "title": "Ch 6 (2.4 GHz) \u2014 AP02",
-      "type": "gauge",
-      "gridPos": {
-        "h": 5,
-        "w": 8,
-        "x": 8,
-        "y": 12
-      },
-      "targets": [
-        {
-          "expr": "avg(unleashed_radio_airtime_busy{channel!=\"0\",channel=\"6\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_airtime_total{channel!=\"0\",channel=\"6\", radio_band=\"2.4g\"}, 1) * 100)",
-          "instant": true,
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "showThresholdMarkers": true,
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "max": 100,
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 30,
-                "color": "yellow"
-              },
-              {
-                "value": 50,
-                "color": "red"
-              }
-            ]
-          },
-          "decimals": 0
-        }
-      }
-    },
-    {
-      "id": 227,
-      "title": "Ch 11 (2.4 GHz) \u2014 AP05",
-      "type": "gauge",
-      "gridPos": {
-        "h": 5,
-        "w": 8,
-        "x": 16,
-        "y": 12
-      },
-      "targets": [
-        {
-          "expr": "avg(unleashed_radio_airtime_busy{channel!=\"0\",channel=\"11\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_airtime_total{channel!=\"0\",channel=\"11\", radio_band=\"2.4g\"}, 1) * 100)",
-          "instant": true,
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "showThresholdMarkers": true,
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "max": 100,
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 30,
-                "color": "yellow"
-              },
-              {
-                "value": 50,
-                "color": "red"
-              }
-            ]
-          },
-          "decimals": 0
-        }
-      }
-    },
-    {
-      "id": 228,
-      "title": "Ch 40 (5 GHz) \u2014 AP01, AP09-sales",
-      "type": "gauge",
-      "gridPos": {
-        "h": 5,
-        "w": 4,
-        "x": 0,
-        "y": 17
-      },
-      "targets": [
-        {
-          "expr": "avg(unleashed_radio_airtime_busy{channel!=\"0\",channel=\"40\", radio_band=\"5g\"} / clamp_min(unleashed_radio_airtime_total{channel!=\"0\",channel=\"40\", radio_band=\"5g\"}, 1) * 100)",
-          "instant": true,
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "showThresholdMarkers": true,
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "max": 100,
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 30,
-                "color": "yellow"
-              },
-              {
-                "value": 50,
-                "color": "red"
-              }
-            ]
-          },
-          "decimals": 0
-        }
-      }
-    },
-    {
-      "id": 229,
-      "title": "Ch 56 (5 GHz) \u2014 AP05",
-      "type": "gauge",
-      "gridPos": {
-        "h": 5,
-        "w": 4,
-        "x": 4,
-        "y": 17
-      },
-      "targets": [
-        {
-          "expr": "avg(unleashed_radio_airtime_busy{channel!=\"0\",channel=\"56\", radio_band=\"5g\"} / clamp_min(unleashed_radio_airtime_total{channel!=\"0\",channel=\"56\", radio_band=\"5g\"}, 1) * 100)",
-          "instant": true,
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "showThresholdMarkers": true,
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "max": 100,
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 30,
-                "color": "yellow"
-              },
-              {
-                "value": 50,
-                "color": "red"
-              }
-            ]
-          },
-          "decimals": 0
-        }
-      }
-    },
-    {
-      "id": 230,
-      "title": "Ch 124 (5 GHz) \u2014 AP06",
-      "type": "gauge",
-      "gridPos": {
-        "h": 5,
-        "w": 4,
-        "x": 8,
-        "y": 17
-      },
-      "targets": [
-        {
-          "expr": "avg(unleashed_radio_airtime_busy{channel!=\"0\",channel=\"124\", radio_band=\"5g\"} / clamp_min(unleashed_radio_airtime_total{channel!=\"0\",channel=\"124\", radio_band=\"5g\"}, 1) * 100)",
-          "instant": true,
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "showThresholdMarkers": true,
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "max": 100,
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 30,
-                "color": "yellow"
-              },
-              {
-                "value": 50,
-                "color": "red"
-              }
-            ]
-          },
-          "decimals": 0
-        }
-      }
-    },
-    {
-      "id": 231,
-      "title": "Ch 153 (5 GHz) \u2014 AP02",
-      "type": "gauge",
-      "gridPos": {
-        "h": 5,
-        "w": 4,
-        "x": 12,
-        "y": 17
-      },
-      "targets": [
-        {
-          "expr": "avg(unleashed_radio_airtime_busy{channel!=\"0\",channel=\"153\", radio_band=\"5g\"} / clamp_min(unleashed_radio_airtime_total{channel!=\"0\",channel=\"153\", radio_band=\"5g\"}, 1) * 100)",
-          "instant": true,
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "showThresholdMarkers": true,
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "max": 100,
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 30,
-                "color": "yellow"
-              },
-              {
-                "value": 50,
-                "color": "red"
-              }
-            ]
-          },
-          "decimals": 0
-        }
-      }
-    },
-    {
-      "id": 232,
-      "title": "Ch 157 (5 GHz) \u2014 AP08",
-      "type": "gauge",
-      "gridPos": {
-        "h": 5,
-        "w": 4,
-        "x": 16,
-        "y": 17
-      },
-      "targets": [
-        {
-          "expr": "avg(unleashed_radio_airtime_busy{channel!=\"0\",channel=\"157\", radio_band=\"5g\"} / clamp_min(unleashed_radio_airtime_total{channel!=\"0\",channel=\"157\", radio_band=\"5g\"}, 1) * 100)",
-          "instant": true,
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "showThresholdMarkers": true,
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "max": 100,
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 30,
-                "color": "yellow"
-              },
-              {
-                "value": 50,
-                "color": "red"
-              }
-            ]
-          },
-          "decimals": 0
-        }
-      }
-    },
-    {
-      "id": 233,
-      "title": "Ch 161 (5 GHz) \u2014 AP10",
-      "type": "gauge",
-      "gridPos": {
-        "h": 5,
-        "w": 4,
-        "x": 20,
-        "y": 17
-      },
-      "targets": [
-        {
-          "expr": "avg(unleashed_radio_airtime_busy{channel!=\"0\",channel=\"161\", radio_band=\"5g\"} / clamp_min(unleashed_radio_airtime_total{channel!=\"0\",channel=\"161\", radio_band=\"5g\"}, 1) * 100)",
-          "instant": true,
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "showThresholdMarkers": true,
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "max": 100,
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 30,
-                "color": "yellow"
-              },
-              {
-                "value": 50,
-                "color": "red"
-              }
-            ]
-          },
-          "decimals": 0
-        }
-      }
-    },
-    {
       "id": 216,
       "title": "Total Throughput (SNMP - master-reported)",
       "type": "stat",
@@ -944,7 +494,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 20
       },
       "targets": [
         {
@@ -985,7 +535,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 28
+        "y": 24
       },
       "targets": [
         {
@@ -1035,7 +585,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 28
+        "y": 24
       },
       "targets": [
         {
@@ -1085,7 +635,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 28
+        "y": 24
       },
       "targets": [
         {
@@ -1135,7 +685,7 @@
         "h": 4,
         "w": 3,
         "x": 12,
-        "y": 28
+        "y": 24
       },
       "targets": [
         {
@@ -1185,7 +735,7 @@
         "h": 4,
         "w": 3,
         "x": 15,
-        "y": 28
+        "y": 24
       },
       "targets": [
         {
@@ -1235,7 +785,7 @@
         "h": 4,
         "w": 3,
         "x": 18,
-        "y": 28
+        "y": 24
       },
       "targets": [
         {
@@ -1285,7 +835,7 @@
         "h": 4,
         "w": 3,
         "x": 21,
-        "y": 28
+        "y": 24
       },
       "targets": [
         {
@@ -1335,7 +885,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 34
+        "y": 30
       },
       "targets": [
         {
@@ -2931,7 +2481,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 22
+        "y": 18
       },
       "options": {
         "mode": "markdown",
@@ -2946,7 +2496,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 28
       },
       "options": {
         "mode": "markdown",
@@ -3948,6 +3498,110 @@
           }
         }
       ]
+    },
+    {
+      "id": 275,
+      "title": "2.4 GHz \u2014 Airtime Busy % per Channel",
+      "type": "bargauge",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      },
+      "targets": [
+        {
+          "expr": "avg by (channel) (unleashed_radio_airtime_busy{radio_band=\"2.4g\", channel!=\"0\"} / clamp_min(unleashed_radio_airtime_total{radio_band=\"2.4g\", channel!=\"0\"}, 1) * 100)",
+          "legendFormat": "Ch {{ channel }}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 30,
+                "color": "yellow"
+              },
+              {
+                "value": 50,
+                "color": "red"
+              }
+            ]
+          },
+          "links": [
+            {
+              "title": "Radio Health",
+              "url": "/d/ruckus-radio-health?var-radio_band=2.4g"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": 276,
+      "title": "5 GHz \u2014 Airtime Busy % per Channel",
+      "type": "bargauge",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "targets": [
+        {
+          "expr": "avg by (channel) (unleashed_radio_airtime_busy{radio_band=\"5g\", channel!=\"0\"} / clamp_min(unleashed_radio_airtime_total{radio_band=\"5g\", channel!=\"0\"}, 1) * 100)",
+          "legendFormat": "Ch {{ channel }}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 30,
+                "color": "yellow"
+              },
+              {
+                "value": 50,
+                "color": "red"
+              }
+            ]
+          },
+          "links": [
+            {
+              "title": "Radio Health",
+              "url": "/d/ruckus-radio-health?var-radio_band=5g"
+            }
+          ]
+        }
+      }
     }
   ]
 }

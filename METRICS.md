@@ -97,6 +97,46 @@ Labels: `client_mac`, `ap_name`, `ssid`, `radio_band` (2.4g/5g), `hostname`
 |---|---|---|---|
 | `unleashed_client_assoc_time_seconds` | `first-assoc` | gauge | Association start time (unix ts) |
 
+### Inventory (client_info gauge — textual labels)
+
+The `unleashed_client_info` gauge has value `1` for each connected client and carries identity/config as labels:
+
+| Label | XML Field | Description |
+|---|---|---|
+| `client_mac` | `mac` | Client MAC address |
+| `hostname` | `hostname` | Client hostname |
+| `ip` | `ip` | Client IP |
+| `vlan` | `vlan` | Client VLAN |
+| `ap_name` | `ap-name` | AP client is on |
+| `ssid` | `ssid` | SSID client is connected to |
+| `radio_band` | `radio-band` | 2.4g / 5g |
+| `auth_method` | `auth-method` | Authentication method (Open, Open FT, etc.) |
+| `encryption` | `encryption` | Encryption type (WPA2, WPA3, etc.) |
+| `dvctype` | `dvctype` | Device type (Laptop, Smartphone, etc.) |
+| `model_os` | `model` | OS / device model string |
+
+### Retries & packet counters
+
+| Prometheus Metric | XML Field | Description |
+|---|---|---|
+| `unleashed_client_retries_total` | `total-retries` | Client Tx retries (MAC-layer) |
+| `unleashed_client_retry_bytes_total` | `total-retry-bytes` | Bytes re-sent due to retries |
+| `unleashed_client_rx_pkts_total` | `total-rx-pkts` | Total Rx packets |
+| `unleashed_client_tx_pkts_total` | `total-tx-pkts` | Total Tx packets |
+
+**Retry Rate** (WiFi packet-loss proxy):
+```
+rate(unleashed_client_retries_total[5m]) / clamp_min(rate(unleashed_client_tx_pkts_total[5m]), 1) * 100
+```
+0-2% excellent, 2-10% acceptable, >10% degraded.
+
+### Signal history
+
+| Prometheus Metric | XML Field | Description |
+|---|---|---|
+| `unleashed_client_min_rssi_dbm` | `min-received-signal-strength` | Min RSSI in interval-stats window |
+| `unleashed_client_max_rssi_dbm` | `max-received-signal-strength` | Max RSSI in interval-stats window |
+
 ### Derived Aggregates (no extra label, computed from client list)
 
 | Prometheus Metric | Computed From | Type | Description |

@@ -72,7 +72,10 @@ Reload Prometheus: `curl -X POST http://localhost:9090/-/reload`
 | **Fleet Overview** | All APs at a glance: status, client count, channel utilization, CPU, Tx errors |
 | **AP Detail** | Per-AP drill-down: radio clients, traffic, channel util, CPU/memory, Ethernet status |
 | **Radio Health** | Per-radio: channel utilization, airtime, auth/assoc failure rates, Tx retries, Rx errors |
-| **Client Health** | Per-client: RSSI, SNR, data rate, association time, traffic (from REST API) |
+| **Clients Overview** | Inventory + live traffic: hostname, MAC, OS, IP, VLAN, AP, SSID, signal, link speed, bytes, retries, connected since |
+| **Client Health** | Signal quality + problem clients: RSSI, SNR, retry rate (WiFi packet-loss proxy), link speed, throughput per client |
+| **Network Overview** | NOC-style single-pane view of overall network status |
+| **Network Health** | Comprehensive 7-section drill-down: Overview, RF Environment, Airtime/Throughput History, Channel History, Rogue Devices, Access Points, SSIDs & Events |
 
 ## Available Metrics
 

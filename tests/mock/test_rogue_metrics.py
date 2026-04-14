@@ -74,14 +74,14 @@ class TestGetRogues:
 class TestUpdateRogueMetrics:
     """Tests for update_rogue_metrics()."""
 
-    def test_rssi_is_negated(self, exporter_module):
-        """API returns positive RSSI (e.g., 49) which means -49 dBm."""
+    def test_rssi_converted_to_dbm(self, exporter_module):
+        """API rssi=7 converts to 7-96 = -89 dBm (approx)."""
         entries = _parse_rogues(ROGUE_XML)
         exporter_module.update_rogue_metrics(entries)
 
         labels = ("48:a9:8a:ff:12:77", "gafaauto", "44", "5g", "AP", "false", "AP08")
         val = exporter_module.rogue_rssi.labels(*labels)._value.get()
-        assert val == -7.0
+        assert val == -89.0
 
     def test_malicious_classification(self, exporter_module):
         entries = _parse_rogues(ROGUE_XML)
@@ -91,7 +91,7 @@ class TestUpdateRogueMetrics:
         labels = ("d0:21:f9:5d:48:3a", "Photoneo-Playhouse", "11", "2.4g",
                   "malicious AP (Same-Network)", "true", "AP02")
         val = exporter_module.rogue_rssi.labels(*labels)._value.get()
-        assert val == -49.0
+        assert val == -47.0
 
     def test_unique_rogue_count(self, exporter_module):
         entries = _parse_rogues(ROGUE_XML)
@@ -126,7 +126,7 @@ class TestUpdateRogueMetrics:
         exporter_module.update_rogue_metrics(entries)
 
         # The Photoneo-Playhouse on ch1/2.4g is detected by AP05, AP02, AP06
-        for detector, expected_rssi in [("AP05", -39.0), ("AP02", -28.0), ("AP06", -14.0)]:
+        for detector, expected_rssi in [("AP05", -57.0), ("AP02", -68.0), ("AP06", -82.0)]:
             labels = ("d0:21:f9:5c:c1:34", "Photoneo-Playhouse", "1", "2.4g",
                       "AP", "false", detector)
             val = exporter_module.rogue_rssi.labels(*labels)._value.get()

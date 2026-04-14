@@ -1,10 +1,10 @@
 {
   "uid": "ruckus-client-health",
-  "title": "Ruckus R720 - Client Health",
+  "title": "Ruckus Client Health",
   "tags": [
     "ruckus",
-    "r720",
-    "client"
+    "clients",
+    "health"
   ],
   "timezone": "browser",
   "refresh": "30s",
@@ -41,9 +41,48 @@
         }
       },
       {
+        "name": "radio_band",
+        "type": "custom",
+        "query": "2.4g,5g",
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "options": [
+          {
+            "text": "All",
+            "value": "$__all",
+            "selected": true
+          },
+          {
+            "text": "2.4 GHz",
+            "value": "2.4g"
+          },
+          {
+            "text": "5 GHz",
+            "value": "5g"
+          }
+        ]
+      },
+      {
+        "name": "hostname",
+        "type": "query",
+        "query": "label_values(unleashed_client_rssi_dbm{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\"}, hostname)",
+        "datasource": "Prometheus",
+        "refresh": 2,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        }
+      },
+      {
         "name": "client_mac",
         "type": "query",
-        "query": "label_values(unleashed_client_rssi_dbm{ap_name=~\"$ap_name\", ssid=~\"$ssid\"}, client_mac)",
+        "query": "label_values(unleashed_client_rssi_dbm{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\"}, client_mac)",
         "datasource": "Prometheus",
         "refresh": 2,
         "includeAll": true,
@@ -57,60 +96,299 @@
   },
   "panels": [
     {
-      "id": 1,
-      "title": "Connected Clients",
-      "type": "table",
+      "id": 100,
+      "type": "text",
+      "title": "",
       "gridPos": {
-        "h": 10,
+        "h": 2,
         "w": 24,
         "x": 0,
         "y": 0
       },
+      "options": {
+        "mode": "markdown",
+        "content": "## Fleet Signal Health"
+      }
+    },
+    {
+      "id": 1,
+      "title": "Total Clients",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 0,
+        "y": 2
+      },
       "targets": [
         {
-          "expr": "unleashed_client_rssi_dbm{ap_name=~\"$ap_name\", ssid=~\"$ssid\", client_mac=~\"$client_mac\"}",
-          "legendFormat": "",
+          "expr": "count(unleashed_client_rssi_dbm)",
           "instant": true,
-          "format": "table",
-          "refId": "rssi"
-        },
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "blue"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Clients with Good Signal %",
+      "type": "gauge",
+      "gridPos": {
+        "h": 5,
+        "w": 5,
+        "x": 4,
+        "y": 2
+      },
+      "targets": [
         {
-          "expr": "unleashed_client_snr_db{ap_name=~\"$ap_name\", ssid=~\"$ssid\", client_mac=~\"$client_mac\"}",
+          "expr": "count(unleashed_client_rssi_dbm > -65) / clamp_min(count(unleashed_client_rssi_dbm), 1) * 100",
           "instant": true,
-          "format": "table",
-          "refId": "snr"
-        },
-        {
-          "expr": "unleashed_client_data_rate_mbps{ap_name=~\"$ap_name\", ssid=~\"$ssid\", client_mac=~\"$client_mac\"}",
-          "instant": true,
-          "format": "table",
-          "refId": "rate"
-        },
-        {
-          "expr": "unleashed_client_assoc_time_seconds{ap_name=~\"$ap_name\", ssid=~\"$ssid\", client_mac=~\"$client_mac\"}",
-          "instant": true,
-          "format": "table",
-          "refId": "assoc"
-        },
-        {
-          "expr": "unleashed_client_rx_bytes{ap_name=~\"$ap_name\", ssid=~\"$ssid\", client_mac=~\"$client_mac\"}",
-          "instant": true,
-          "format": "table",
-          "refId": "rx"
-        },
-        {
-          "expr": "unleashed_client_tx_bytes{ap_name=~\"$ap_name\", ssid=~\"$ssid\", client_mac=~\"$client_mac\"}",
-          "instant": true,
-          "format": "table",
-          "refId": "tx"
+          "refId": "A"
         }
       ],
       "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "red"
+              },
+              {
+                "value": 60,
+                "color": "yellow"
+              },
+              {
+                "value": 80,
+                "color": "green"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Avg RSSI",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 5,
+        "x": 9,
+        "y": 2
+      },
+      "targets": [
+        {
+          "expr": "avg(unleashed_client_rssi_dbm)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dBm",
+          "thresholds": {
+            "steps": [
+              {
+                "value": -90,
+                "color": "red"
+              },
+              {
+                "value": -75,
+                "color": "yellow"
+              },
+              {
+                "value": -60,
+                "color": "green"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Weak Signal Clients",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 5,
+        "x": 14,
+        "y": 2
+      },
+      "targets": [
+        {
+          "expr": "count(unleashed_client_rssi_dbm < -70) or vector(0)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 1,
+                "color": "yellow"
+              },
+              {
+                "value": 5,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "High Retry Clients",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 5,
+        "x": 19,
+        "y": 2
+      },
+      "targets": [
+        {
+          "expr": "count(rate(unleashed_client_retries_total[5m]) / clamp_min(rate(unleashed_client_tx_pkts_total[5m]), 1) > 0.10) or vector(0)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 1,
+                "color": "yellow"
+              },
+              {
+                "value": 5,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 7
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**About the \"health\" metrics below:**\n\n- **Retry Rate** = `retries / tx_packets \u00d7 100` at the WiFi MAC layer. This is the standard WiFi-native packet-loss indicator \u2014 when >10%, the client is experiencing significant frame loss on the air. Green <2%, Yellow 2-10%, Red >10%.\n- **RSSI / SNR / Noise** come directly from the Ruckus AP (received-signal-strength attribute).\n- **Link Speed** is the negotiated PHY rate (Tx Rate from interval-stats).\n\n**Not available from Ruckus API:** End-to-end ICMP latency, jitter, true packet loss. These require a separate probe collector (e.g., `blackbox_exporter`) \u2014 deferred to a future change."
+      }
+    },
+    {
+      "id": 200,
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 11
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "## Problem Clients"
+      }
+    },
+    {
+      "id": 10,
+      "title": "Weak Signal (RSSI < -70 dBm)",
+      "type": "table",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 13
+      },
+      "targets": [
+        {
+          "expr": "unleashed_client_rssi_dbm and (unleashed_client_rssi_dbm < bool -70 == 1)",
+          "instant": true,
+          "format": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "All clients OK"
+        },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "Value #rssi"
+              "options": "Value"
             },
             "properties": [
               {
@@ -143,86 +421,10 @@
                 }
               }
             ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #snr"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "SNR (dB)"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #rate"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Data Rate (Mbps)"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #assoc"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Assoc Time"
-              },
-              {
-                "id": "unit",
-                "value": "s"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #rx"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Rx Bytes"
-              },
-              {
-                "id": "unit",
-                "value": "decbytes"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #tx"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Tx Bytes"
-              },
-              {
-                "id": "unit",
-                "value": "decbytes"
-              }
-            ]
           }
         ]
       },
       "transformations": [
-        {
-          "id": "merge",
-          "options": {}
-        },
         {
           "id": "organize",
           "options": {
@@ -233,48 +435,256 @@
               "instance": true
             },
             "renameByName": {
-              "client_mac": "Client MAC",
+              "hostname": "Hostname",
               "ap_name": "AP",
               "ssid": "SSID",
-              "radio_band": "Band"
+              "radio_band": "Band",
+              "client_mac": "MAC"
             }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "field": "RSSI (dBm)",
+                "desc": false
+              }
+            ]
           }
         }
       ]
     },
     {
-      "id": 2,
-      "title": "Clients per SSID",
-      "type": "piechart",
+      "id": 11,
+      "title": "High Retry Rate (>10%)",
+      "type": "table",
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 0,
-        "y": 10
+        "x": 8,
+        "y": 13
       },
       "targets": [
         {
-          "expr": "unleashed_clients_per_ssid",
-          "legendFormat": "{{ ssid }}",
+          "expr": "rate(unleashed_client_retries_total[5m]) / clamp_min(rate(unleashed_client_tx_pkts_total[5m]), 1) * 100 > 10",
           "instant": true,
+          "format": "table",
           "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "No high-retry clients"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Retry %"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 2,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 10,
+                      "color": "red"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "job": true,
+              "instance": true
+            },
+            "renameByName": {
+              "hostname": "Hostname",
+              "ap_name": "AP",
+              "ssid": "SSID",
+              "radio_band": "Band",
+              "client_mac": "MAC"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "field": "Retry %",
+                "desc": true
+              }
+            ]
+          }
         }
       ]
     },
     {
-      "id": 3,
-      "title": "Client RSSI Over Time",
-      "type": "timeseries",
+      "id": 12,
+      "title": "Low Link Rate (<30 Mbps)",
+      "type": "table",
       "gridPos": {
         "h": 8,
-        "w": 16,
-        "x": 8,
-        "y": 10
+        "w": 8,
+        "x": 16,
+        "y": 13
       },
       "targets": [
         {
-          "expr": "unleashed_client_rssi_dbm{ap_name=~\"$ap_name\", ssid=~\"$ssid\", client_mac=~\"$client_mac\"}",
-          "legendFormat": "{{ client_mac }} ({{ ssid }})",
+          "expr": "bottomk(10, unleashed_client_tx_rate_kbps / 1000)",
+          "instant": true,
+          "format": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Link Mbps"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "red"
+                    },
+                    {
+                      "value": 30,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 100,
+                      "color": "green"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "job": true,
+              "instance": true
+            },
+            "renameByName": {
+              "hostname": "Hostname",
+              "ap_name": "AP",
+              "ssid": "SSID",
+              "radio_band": "Band",
+              "client_mac": "MAC"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "field": "Link Mbps",
+                "desc": false
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 300,
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "## Per-Client Time Series (filter with template variables above)"
+      }
+    },
+    {
+      "id": 20,
+      "title": "Client RSSI",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 23
+      },
+      "targets": [
+        {
+          "expr": "unleashed_client_rssi_dbm{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}",
+          "legendFormat": "{{ hostname }} ({{ ap_name }})",
           "refId": "A"
         }
       ],
@@ -307,48 +717,120 @@
       }
     },
     {
-      "id": 4,
-      "title": "Client Data Rate Over Time",
+      "id": 21,
+      "title": "Client SNR",
       "type": "timeseries",
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 18
-      },
-      "targets": [
-        {
-          "expr": "unleashed_client_data_rate_mbps{ap_name=~\"$ap_name\", ssid=~\"$ssid\", client_mac=~\"$client_mac\"}",
-          "legendFormat": "{{ client_mac }} ({{ ssid }})",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "Mbps"
-        }
-      }
-    },
-    {
-      "id": 5,
-      "title": "Client SNR Over Time",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 8,
+        "h": 7,
         "w": 12,
         "x": 12,
-        "y": 18
+        "y": 23
       },
       "targets": [
         {
-          "expr": "unleashed_client_snr_db{ap_name=~\"$ap_name\", ssid=~\"$ssid\", client_mac=~\"$client_mac\"}",
-          "legendFormat": "{{ client_mac }} ({{ ssid }})",
+          "expr": "unleashed_client_snr_db{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}",
+          "legendFormat": "{{ hostname }} ({{ ap_name }})",
           "refId": "A"
         }
       ],
       "fieldConfig": {
         "defaults": {
           "unit": "dB"
+        }
+      }
+    },
+    {
+      "id": 22,
+      "title": "Client Link Speed (Mbps)",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "targets": [
+        {
+          "expr": "unleashed_client_tx_rate_kbps{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"} / 1000",
+          "legendFormat": "{{ hostname }} ({{ ap_name }})",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 1
+        }
+      }
+    },
+    {
+      "id": 23,
+      "title": "Client Retry Rate % (packet loss proxy)",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "targets": [
+        {
+          "expr": "rate(unleashed_client_retries_total{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}[5m]) / clamp_min(rate(unleashed_client_tx_pkts_total{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}[5m]), 1) * 100",
+          "legendFormat": "{{ hostname }} ({{ ap_name }})",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 2,
+                "color": "yellow"
+              },
+              {
+                "value": 10,
+                "color": "red"
+              }
+            ]
+          },
+          "custom": {
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 24,
+      "title": "Client Throughput (Rx+Tx bps)",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 37
+      },
+      "targets": [
+        {
+          "expr": "rate(unleashed_client_rx_bytes_total{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}[5m]) * 8 + rate(unleashed_client_tx_bytes_total{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}[5m]) * 8",
+          "legendFormat": "{{ hostname }} ({{ ap_name }})",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bps"
         }
       }
     }
