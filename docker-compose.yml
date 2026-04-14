@@ -23,6 +23,15 @@ services:
       - "9191:9191"
     restart: unless-stopped
 
+  blackbox-exporter:
+    image: prom/blackbox-exporter:latest
+    volumes:
+      - ./blackbox/blackbox.yml:/config/blackbox.yml:ro
+    command: --config.file=/config/blackbox.yml
+    ports:
+      - "9115:9115"
+    restart: unless-stopped
+
   prometheus:
     image: prom/prometheus:latest
     volumes:
@@ -39,6 +48,7 @@ services:
     depends_on:
       - snmp-exporter
       - unleashed-exporter
+      - blackbox-exporter
     restart: unless-stopped
 
   grafana:

@@ -34,3 +34,45 @@ scrape_configs:
     static_configs:
       - targets:
           - unleashed-exporter:9191
+
+  # WAN monitoring - ICMP ping probes
+  - job_name: blackbox-icmp
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /probe
+    params:
+      module: [icmp]
+    static_configs:
+      - targets:
+          - 10.91.1.254    # Gateway
+          - 8.8.8.8        # Google DNS
+          - 1.1.1.1        # Cloudflare DNS
+        labels:
+          probe_type: icmp
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__address__]
+        target_label: target
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # WAN monitoring - DNS resolution probe
+  - job_name: blackbox-dns
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    metrics_path: /probe
+    params:
+      module: [dns_resolution]
+    static_configs:
+      - targets:
+          - 8.8.8.8        # DNS server to query
+        labels:
+          probe_type: dns
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__address__]
+        target_label: target
+      - target_label: __address__
+        replacement: blackbox-exporter:9115

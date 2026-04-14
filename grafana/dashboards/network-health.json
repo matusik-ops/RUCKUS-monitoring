@@ -3483,18 +3483,325 @@
           }
         },
         {
-          "id": 274,
-          "title": "",
-          "type": "text",
+          "id": 277,
+          "title": "Internet",
+          "type": "stat",
           "gridPos": {
             "h": 5,
-            "w": 24,
+            "w": 4,
             "x": 0,
             "y": 151
           },
+          "targets": [
+            {
+              "expr": "max(probe_success{job=\"blackbox-icmp\", target=~\"8.8.8.8|1.1.1.1\"})",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
           "options": {
-            "mode": "markdown",
-            "content": "### WAN / Uplink Monitoring\n\nThe Ruckus API does **not** expose WAN/Internet reachability metrics. To monitor your WAN uplink:\n\n**Option 1 \u2014 Add blackbox_exporter** (recommended):\n```yaml\n# Add to docker-compose.yml\nblackbox-exporter:\n  image: prom/blackbox-exporter\n  ports: [\"9115:9115\"]\n```\nThen scrape ping targets (e.g., 8.8.8.8, gateway IP) from Prometheus.\n\n**Option 2 \u2014 Use AP Ethernet stats** (indirect): The master AP's `ifInOctets`/`ifOutOctets` on its Ethernet interface reflects WAN-side traffic. Seen in the *RF Environment* wired columns.\n\n**Currently we can see**:\n- Master AP uptime (above)\n- Aggregate WLAN throughput (SNMP)\n- Per-AP wired Rx/Tx (for troubleshooting local wired issues)\n\nTo add true WAN monitoring, deploy blackbox_exporter and add ping/HTTP probes to Prometheus targets."
+            "textMode": "value",
+            "graphMode": "none",
+            "colorMode": "background",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "0": {
+                      "text": "DOWN",
+                      "color": "red"
+                    },
+                    "1": {
+                      "text": "UP",
+                      "color": "green"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": 278,
+          "title": "Gateway",
+          "type": "stat",
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 4,
+            "y": 151
+          },
+          "targets": [
+            {
+              "expr": "probe_success{job=\"blackbox-icmp\", target=\"10.91.1.254\"}",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "options": {
+            "textMode": "value",
+            "graphMode": "none",
+            "colorMode": "background",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "0": {
+                      "text": "DOWN",
+                      "color": "red"
+                    },
+                    "1": {
+                      "text": "UP",
+                      "color": "green"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": 279,
+          "title": "DNS Resolution",
+          "type": "stat",
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 8,
+            "y": 151
+          },
+          "targets": [
+            {
+              "expr": "probe_success{job=\"blackbox-dns\"}",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "options": {
+            "textMode": "value",
+            "graphMode": "none",
+            "colorMode": "background",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "0": {
+                      "text": "FAIL",
+                      "color": "red"
+                    },
+                    "1": {
+                      "text": "OK",
+                      "color": "green"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": 280,
+          "title": "Gateway Latency (ms)",
+          "type": "stat",
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 12,
+            "y": 151
+          },
+          "targets": [
+            {
+              "expr": "probe_duration_seconds{job=\"blackbox-icmp\", target=\"10.91.1.254\"} * 1000",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "options": {
+            "textMode": "value",
+            "graphMode": "area",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "decimals": 1,
+              "thresholds": {
+                "steps": [
+                  {
+                    "value": 0,
+                    "color": "green"
+                  },
+                  {
+                    "value": 5,
+                    "color": "yellow"
+                  },
+                  {
+                    "value": 50,
+                    "color": "red"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": 281,
+          "title": "Internet Latency (ms)",
+          "type": "stat",
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 16,
+            "y": 151
+          },
+          "targets": [
+            {
+              "expr": "avg(probe_duration_seconds{job=\"blackbox-icmp\", target=~\"8.8.8.8|1.1.1.1\"}) * 1000",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "options": {
+            "textMode": "value",
+            "graphMode": "area",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "decimals": 1,
+              "thresholds": {
+                "steps": [
+                  {
+                    "value": 0,
+                    "color": "green"
+                  },
+                  {
+                    "value": 20,
+                    "color": "yellow"
+                  },
+                  {
+                    "value": 100,
+                    "color": "red"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": 282,
+          "title": "DNS Response (ms)",
+          "type": "stat",
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 20,
+            "y": 151
+          },
+          "targets": [
+            {
+              "expr": "probe_dns_lookup_time_seconds{job=\"blackbox-dns\"} * 1000",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "options": {
+            "textMode": "value",
+            "graphMode": "area",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "decimals": 1,
+              "thresholds": {
+                "steps": [
+                  {
+                    "value": 0,
+                    "color": "green"
+                  },
+                  {
+                    "value": 50,
+                    "color": "yellow"
+                  },
+                  {
+                    "value": 200,
+                    "color": "red"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": 283,
+          "title": "WAN Latency History",
+          "type": "timeseries",
+          "gridPos": {
+            "h": 7,
+            "w": 24,
+            "x": 0,
+            "y": 156
+          },
+          "targets": [
+            {
+              "expr": "probe_duration_seconds{job=\"blackbox-icmp\", target=\"10.91.1.254\"} * 1000",
+              "legendFormat": "Gateway (10.91.1.254)",
+              "refId": "A"
+            },
+            {
+              "expr": "probe_duration_seconds{job=\"blackbox-icmp\", target=\"8.8.8.8\"} * 1000",
+              "legendFormat": "Google DNS (8.8.8.8)",
+              "refId": "B"
+            },
+            {
+              "expr": "probe_duration_seconds{job=\"blackbox-icmp\", target=\"1.1.1.1\"} * 1000",
+              "legendFormat": "Cloudflare (1.1.1.1)",
+              "refId": "C"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "decimals": 1
+            }
           }
         }
       ]

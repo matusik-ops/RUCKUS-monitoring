@@ -396,8 +396,8 @@
       "type": "stat",
       "gridPos": {
         "h": 5,
-        "w": 4,
-        "x": 16,
+        "w": 3,
+        "x": 15,
         "y": 7
       },
       "targets": [
@@ -437,8 +437,8 @@
       "type": "stat",
       "gridPos": {
         "h": 5,
-        "w": 4,
-        "x": 20,
+        "w": 3,
+        "x": 18,
         "y": 7
       },
       "targets": [
@@ -1281,6 +1281,53 @@
       "fieldConfig": {
         "defaults": {
           "decimals": 1
+        }
+      }
+    },
+    {
+      "id": 509,
+      "title": "Internet",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 21,
+        "y": 7
+      },
+      "targets": [
+        {
+          "expr": "max(probe_success{job=\"blackbox-icmp\", target=~\"8.8.8.8|1.1.1.1\"})",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "none",
+        "colorMode": "background",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DOWN",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "UP",
+                  "color": "green"
+                }
+              }
+            }
+          ]
         }
       }
     }
