@@ -1013,6 +1013,11 @@
           "expr": "rate(ruckusUnleashedSystemStatsWLANTotalRxErrFrm[5m])",
           "legendFormat": "Rx Errors/s",
           "refId": "E"
+        },
+        {
+          "expr": "rate(ruckusUnleashedSystemStatsWLANTotalAssocFail[5m])",
+          "legendFormat": "Assoc Fails/s",
+          "refId": "F"
         }
       ]
     },
@@ -1115,6 +1120,169 @@
           "refId": "A"
         }
       ]
+    },
+    {
+      "id": 505,
+      "title": "Master Uptime",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 7
+      },
+      "targets": [
+        {
+          "expr": "sysUpTime / 100",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "textMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      }
+    },
+    {
+      "id": 506,
+      "title": "Auth'd / All Clients",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 7
+      },
+      "targets": [
+        {
+          "expr": "ruckusUnleashedSystemStatsNumSta",
+          "legendFormat": "Auth'd",
+          "instant": true,
+          "refId": "A"
+        },
+        {
+          "expr": "ruckusUnleashedSystemStatsAllNumSta",
+          "legendFormat": "All",
+          "instant": true,
+          "refId": "B"
+        }
+      ],
+      "options": {
+        "textMode": "value_and_name",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "blue"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 507,
+      "title": "Registered / Online APs",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 7
+      },
+      "targets": [
+        {
+          "expr": "ruckusUnleashedSystemStatsNumRegisteredAP",
+          "legendFormat": "Registered",
+          "instant": true,
+          "refId": "A"
+        },
+        {
+          "expr": "ruckusUnleashedSystemStatsNumAP",
+          "legendFormat": "Online",
+          "instant": true,
+          "refId": "B"
+        }
+      ],
+      "options": {
+        "textMode": "value_and_name",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "blue"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 508,
+      "title": "Exporter Polls/Errors",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 7
+      },
+      "targets": [
+        {
+          "expr": "rate(unleashed_exporter_polls_total[5m]) * 60",
+          "legendFormat": "Polls/min",
+          "instant": true,
+          "refId": "A"
+        },
+        {
+          "expr": "rate(unleashed_exporter_errors_total[5m]) * 60",
+          "legendFormat": "Errors/min",
+          "instant": true,
+          "refId": "B"
+        }
+      ],
+      "options": {
+        "textMode": "value_and_name",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 1
+        }
+      }
     }
   ]
 }

@@ -686,6 +686,16 @@
           "expr": "unleashed_client_rssi_dbm{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}",
           "legendFormat": "{{ hostname }} ({{ ap_name }})",
           "refId": "A"
+        },
+        {
+          "expr": "unleashed_client_min_rssi_dbm{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}",
+          "legendFormat": "{{ hostname }} ({{ ap_name }}) MIN",
+          "refId": "B"
+        },
+        {
+          "expr": "unleashed_client_max_rssi_dbm{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}",
+          "legendFormat": "{{ hostname }} ({{ ap_name }}) MAX",
+          "refId": "C"
         }
       ],
       "fieldConfig": {
