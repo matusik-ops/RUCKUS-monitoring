@@ -336,6 +336,30 @@
           "refId": "txbytes"
         },
         {
+          "expr": "rate(unleashed_client_rx_pkts_total{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\"}[1m])",
+          "instant": true,
+          "format": "table",
+          "refId": "rxpps"
+        },
+        {
+          "expr": "rate(unleashed_client_tx_pkts_total{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\"}[1m])",
+          "instant": true,
+          "format": "table",
+          "refId": "txpps"
+        },
+        {
+          "expr": "unleashed_client_tx_pkts_total{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\"}",
+          "instant": true,
+          "format": "table",
+          "refId": "txpkts"
+        },
+        {
+          "expr": "unleashed_client_rx_pkts_total{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\"}",
+          "instant": true,
+          "format": "table",
+          "refId": "rxpkts"
+        },
+        {
           "expr": "unleashed_client_retries_total{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\"}",
           "instant": true,
           "format": "table",
@@ -372,6 +396,10 @@
               "Time 10": true,
               "Time 11": true,
               "Time 12": true,
+              "Time 13": true,
+              "Time 14": true,
+              "Time 15": true,
+              "Time 16": true,
               "__name__": true,
               "job": true,
               "instance": true,
@@ -399,6 +427,10 @@
               "Value #txmbps": "Tx Mbps",
               "Value #rxbytes": "Total Rx",
               "Value #txbytes": "Total Tx",
+              "Value #rxpps": "Rx pkt/s",
+              "Value #txpps": "Tx pkt/s",
+              "Value #txpkts": "Total Tx pkts",
+              "Value #rxpkts": "Total Rx pkts",
               "Value #retries": "Retries",
               "Value #duration": "Connected For"
             }
@@ -533,6 +565,54 @@
               "ap_name 11": true,
               "hostname 11": true,
               "client_mac 11": true
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "ssid 12": true,
+              "radio_band 12": true,
+              "ap_name 12": true,
+              "hostname 12": true,
+              "client_mac 12": true
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "ssid 13": true,
+              "radio_band 13": true,
+              "ap_name 13": true,
+              "hostname 13": true,
+              "client_mac 13": true
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "ssid 14": true,
+              "radio_band 14": true,
+              "ap_name 14": true,
+              "hostname 14": true,
+              "client_mac 14": true
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "ssid 15": true,
+              "radio_band 15": true,
+              "ap_name 15": true,
+              "hostname 15": true,
+              "client_mac 15": true
             }
           }
         },
@@ -721,6 +801,62 @@
           {
             "matcher": {
               "id": "byName",
+              "options": "Rx pkt/s"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "pps"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Tx pkt/s"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "pps"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total Tx pkts"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total Rx pkts"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
               "options": "Device"
             },
             "properties": [
@@ -772,9 +908,19 @@
           "instant": true,
           "format": "table",
           "refId": "A"
+        },
+        {
+          "expr": "unleashed_client_rx_pkts_total + unleashed_client_tx_pkts_total",
+          "instant": true,
+          "format": "table",
+          "refId": "B"
         }
       ],
       "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
         {
           "id": "organize",
           "options": {
@@ -790,8 +936,25 @@
               "ap_name": "AP",
               "ssid": "SSID",
               "radio_band": "Band",
-              "Value": "Total Traffic"
+              "Value #A": "Total Traffic",
+              "Value #B": "Total Packets"
             }
+          }
+        },
+        {
+          "id": "filterByValue",
+          "options": {
+            "filters": [
+              {
+                "fieldName": "Total Traffic",
+                "config": {
+                  "id": "isNotNull",
+                  "options": {}
+                }
+              }
+            ],
+            "type": "include",
+            "match": "all"
           }
         },
         {
@@ -818,6 +981,18 @@
               {
                 "id": "unit",
                 "value": "decbytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total Packets"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
               }
             ]
           }
