@@ -4,12 +4,12 @@
 # The 'site' label is used in Grafana dashboards for filtering ($site variable)
 
 - targets:
-    - host.docker.internal:9090
+    - host.docker.internal:9091
   labels:
     site: sklad-01
 
 # Example: add more sites below
 # - targets:
-#     - 10.0.2.100:9090
+#     - 10.0.2.100:9091
 #   labels:
 #     site: sklad-02
