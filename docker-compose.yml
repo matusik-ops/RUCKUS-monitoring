@@ -39,10 +39,13 @@ services:
       - ./prometheus/targets.yml:/etc/prometheus/targets.yml:ro
       - ./prometheus/rules:/etc/prometheus/rules:ro
       - prometheus_data:/prometheus
+    environment:
+      - SITE_NAME=${SITE_NAME:-default}
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d}"
       - "--web.enable-lifecycle"
+      - "--enable-feature=expand-external-labels"
     ports:
       - "9090:9090"
     depends_on:

@@ -1,6 +1,8 @@
 global:
   scrape_interval: 30s
   evaluation_interval: 60s
+  external_labels:
+    site: "${SITE_NAME}"
 
 rule_files:
   - /etc/prometheus/rules/*.yml
