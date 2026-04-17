@@ -447,7 +447,8 @@
               "Time": true,
               "__name__": true,
               "job": true,
-              "instance": true
+              "instance": true,
+              "site": true
             },
             "renameByName": {
               "hostname": "Hostname",
@@ -550,7 +551,8 @@
               "Time": true,
               "__name__": true,
               "job": true,
-              "instance": true
+              "instance": true,
+              "site": true
             },
             "renameByName": {
               "hostname": "Hostname",
@@ -646,7 +648,8 @@
               "Time": true,
               "__name__": true,
               "job": true,
-              "instance": true
+              "instance": true,
+              "site": true
             },
             "renameByName": {
               "hostname": "Hostname",

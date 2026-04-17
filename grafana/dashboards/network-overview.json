@@ -844,6 +844,7 @@
               "__name__": true,
               "job": true,
               "instance": true,
+              "site": true,
               "client_mac": false
             },
             "renameByName": {
@@ -936,7 +937,8 @@
               "Time": true,
               "__name__": true,
               "job": true,
-              "instance": true
+              "instance": true,
+              "site": true
             },
             "renameByName": {
               "hostname": "Hostname",

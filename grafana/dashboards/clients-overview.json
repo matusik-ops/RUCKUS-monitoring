@@ -427,6 +427,7 @@
               "ip": true,
               "model_os": true,
               "radio_band": true,
+              "site": true,
               "ssid": true,
               "vlan": true
             },
@@ -459,7 +460,8 @@
               "radio_band 1": true,
               "ap_name 1": true,
               "hostname 1": true,
-              "client_mac 1": true
+              "client_mac 1": true,
+              "site 1": true
             }
           }
         },
@@ -471,7 +473,8 @@
               "radio_band 2": true,
               "ap_name 2": true,
               "hostname 2": true,
-              "client_mac 2": true
+              "client_mac 2": true,
+              "site 2": true
             }
           }
         },
@@ -483,7 +486,8 @@
               "radio_band 3": true,
               "ap_name 3": true,
               "hostname 3": true,
-              "client_mac 3": true
+              "client_mac 3": true,
+              "site 3": true
             }
           }
         },
@@ -495,7 +499,8 @@
               "radio_band 4": true,
               "ap_name 4": true,
               "hostname 4": true,
-              "client_mac 4": true
+              "client_mac 4": true,
+              "site 4": true
             }
           }
         },
@@ -507,7 +512,8 @@
               "radio_band 5": true,
               "ap_name 5": true,
               "hostname 5": true,
-              "client_mac 5": true
+              "client_mac 5": true,
+              "site 5": true
             }
           }
         },
@@ -519,7 +525,8 @@
               "radio_band 6": true,
               "ap_name 6": true,
               "hostname 6": true,
-              "client_mac 6": true
+              "client_mac 6": true,
+              "site 6": true
             }
           }
         },
@@ -531,7 +538,8 @@
               "radio_band 7": true,
               "ap_name 7": true,
               "hostname 7": true,
-              "client_mac 7": true
+              "client_mac 7": true,
+              "site 7": true
             }
           }
         },
@@ -543,7 +551,8 @@
               "radio_band 8": true,
               "ap_name 8": true,
               "hostname 8": true,
-              "client_mac 8": true
+              "client_mac 8": true,
+              "site 8": true
             }
           }
         },
@@ -555,7 +564,8 @@
               "radio_band 9": true,
               "ap_name 9": true,
               "hostname 9": true,
-              "client_mac 9": true
+              "client_mac 9": true,
+              "site 9": true
             }
           }
         },
@@ -567,7 +577,8 @@
               "radio_band 10": true,
               "ap_name 10": true,
               "hostname 10": true,
-              "client_mac 10": true
+              "client_mac 10": true,
+              "site 10": true
             }
           }
         },
@@ -579,7 +590,8 @@
               "radio_band 11": true,
               "ap_name 11": true,
               "hostname 11": true,
-              "client_mac 11": true
+              "client_mac 11": true,
+              "site 11": true
             }
           }
         },
@@ -591,7 +603,8 @@
               "radio_band 12": true,
               "ap_name 12": true,
               "hostname 12": true,
-              "client_mac 12": true
+              "client_mac 12": true,
+              "site 12": true
             }
           }
         },
@@ -603,7 +616,8 @@
               "radio_band 13": true,
               "ap_name 13": true,
               "hostname 13": true,
-              "client_mac 13": true
+              "client_mac 13": true,
+              "site 13": true
             }
           }
         },
@@ -615,7 +629,8 @@
               "radio_band 14": true,
               "ap_name 14": true,
               "hostname 14": true,
-              "client_mac 14": true
+              "client_mac 14": true,
+              "site 14": true
             }
           }
         },
@@ -627,7 +642,8 @@
               "radio_band 15": true,
               "ap_name 15": true,
               "hostname 15": true,
-              "client_mac 15": true
+              "client_mac 15": true,
+              "site 15": true
             }
           }
         },

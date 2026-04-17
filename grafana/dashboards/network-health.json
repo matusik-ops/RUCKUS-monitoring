@@ -1038,6 +1038,7 @@
                   "__name__": true,
                   "job": true,
                   "instance": true,
+                  "site": true,
                   "radio_band": true
                 },
                 "renameByName": {
@@ -1499,6 +1500,7 @@
                   "__name__": true,
                   "job": true,
                   "instance": true,
+                  "site": true,
                   "radio_band": true
                 },
                 "renameByName": {
@@ -2374,7 +2376,8 @@
                   "Time": true,
                   "__name__": true,
                   "job": true,
-                  "instance": true
+                  "instance": true,
+                  "site": true
                 },
                 "renameByName": {
                   "rogue_mac": "MAC",
@@ -2557,6 +2560,7 @@
                   "__name__": true,
                   "job": true,
                   "instance": true,
+                  "site": true,
                   "Value": true
                 },
                 "indexByName": {
@@ -2800,7 +2804,23 @@
                   "Time 15": true,
                   "__name__": true,
                   "job": true,
-                  "instance": true
+                  "instance": true,
+                  "site": true,
+                  "site 1": true,
+                  "site 2": true,
+                  "site 3": true,
+                  "site 4": true,
+                  "site 5": true,
+                  "site 6": true,
+                  "site 7": true,
+                  "site 8": true,
+                  "site 9": true,
+                  "site 10": true,
+                  "site 11": true,
+                  "site 12": true,
+                  "site 13": true,
+                  "site 14": true,
+                  "site 15": true
                 },
                 "indexByName": {
                   "ap_name": 0,
@@ -3294,6 +3314,13 @@
                   "__name__": true,
                   "job": true,
                   "instance": true,
+                  "site": true,
+                  "site 1": true,
+                  "site 2": true,
+                  "site 3": true,
+                  "site 4": true,
+                  "site 5": true,
+                  "site 6": true,
                   "state 1": true,
                   "state 2": true,
                   "state 3": true,
