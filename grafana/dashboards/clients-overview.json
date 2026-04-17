@@ -396,6 +396,14 @@
           }
         },
         {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "pattern": "^(?!site( \\d+)?$).*"
+            }
+          }
+        },
+        {
           "id": "organize",
           "options": {
             "excludeByName": {

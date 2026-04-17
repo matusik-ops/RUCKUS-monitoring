@@ -2784,6 +2784,14 @@
               }
             },
             {
+              "id": "filterFieldsByName",
+              "options": {
+                "include": {
+                  "pattern": "^(?!site( \\d+)?$).*"
+                }
+              }
+            },
+            {
               "id": "organize",
               "options": {
                 "excludeByName": {
@@ -3299,6 +3307,14 @@
               "options": {
                 "byField": "ssid",
                 "mode": "outer"
+              }
+            },
+            {
+              "id": "filterFieldsByName",
+              "options": {
+                "include": {
+                  "pattern": "^(?!site( \\d+)?$).*"
+                }
               }
             },
             {
