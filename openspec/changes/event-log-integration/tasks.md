@@ -1,29 +1,29 @@
 ## 1. API Spike — Discover Event Log Format
 
-- [ ] 1.1 Query the live AP with `<ajax-request action='getstat' comp='system'><syslog/></ajax-request>` and document the raw XML response schema (fields, event structure, timestamp format)
-- [ ] 1.2 If syslog query doesn't work, try alternative payloads: `<event/>`, `<log/>`, `comp='stamgr'` with `<event/>`, or explore the AP web UI's event page network requests to find the correct query
-- [ ] 1.3 Collect sample events for each target category (connect, disconnect, auth-fail, DFS radar, roam) by triggering them on the live AP, and save as test fixtures
+- [x] 1.1 Query the live AP with `<ajax-request action='getstat' comp='system'><syslog/></ajax-request>` and document the raw XML response schema — DONE: `comp='system'` returned empty; discovered `comp='eventd'` by reverse-engineering AP's JavaScript
+- [x] 1.2 Try alternative payloads and discover correct query — DONE: `<alarm/>` and `<xevent/>` under `comp='eventd'` return structured XML with event types: AP join, radio on/off, rogue detected, warm reboot, firmware upgrade
+- [x] 1.3 Collect sample events — DONE: documented available event types. Client connect/disconnect NOT available as discrete events (must derive from client list diffs)
 
 ## 2. Event Parsing and Classification
 
-- [ ] 2.1 Add `get_events()` method to `UnleashedClient` class that queries the event log API and returns a list of event dicts
-- [ ] 2.2 Implement event classifier function with regex patterns for: connect, disconnect, auth-fail, dfs-radar, roam, unclassified
-- [ ] 2.3 Add timestamp-based deduplication: track last-seen event timestamp, only process newer events on each poll
-- [ ] 2.4 Write mock tests for event parsing with the sample XML fixtures from task 1.3
+- [x] 2.1 Add `get_alarms()` and `get_xevents()` methods to `UnleashedClient` class that query `comp='eventd'` and return lists of event dicts
+- [x] 2.2 Implement event classification in `update_alarm_metrics()` and `update_xevent_metrics()` — classifies by alarm `name` field (AP Radio Off, AP Radio On, AP Has Joined, Rogue) and xevent `msg` field (MSG_AP_warm_reboot)
+- [x] 2.3 Add timestamp-based deduplication via `_last_alarm_time` and `_last_xevent_time` globals
+- [x] 2.4 Write mock tests for event parsing with sample XML fixtures
 
 ## 3. Prometheus Metrics
 
-- [ ] 3.1 Define counter metrics: `unleashed_event_total`, `unleashed_client_connect_total`, `unleashed_client_disconnect_total`, `unleashed_auth_fail_total`, `unleashed_dfs_radar_total`, `unleashed_roam_total`
-- [ ] 3.2 Implement `update_event_metrics()` function that classifies events and increments appropriate counters
-- [ ] 3.3 Integrate event collection into the main poll loop (call `get_events()` + `update_event_metrics()` each cycle)
-- [ ] 3.4 Write mock tests verifying counter increments for each event type
+- [x] 3.1 Define counter metrics: `unleashed_ap_radio_off_total`, `unleashed_ap_radio_on_total`, `unleashed_ap_join_event_total`, `unleashed_ap_reboot_event_total`, `unleashed_rogue_detected_event_total`
+- [x] 3.2 Implement `update_alarm_metrics()` and `update_xevent_metrics()` functions that classify events and increment counters
+- [x] 3.3 Integrate event collection into the main poll loop
+- [x] 3.4 Write mock tests verifying counter increments for each event type
 
 ## 4. Grafana Dashboard Panels
 
-- [ ] 4.1 Add "Events" row to Network Health dashboard with event rate timeline panel (`rate(unleashed_event_total[5m])` by event_type)
+- [x] 4.1 Add "Radio Off/On Events (DFS)" panel to Network Overview dashboard
 - [ ] 4.2 Add auth failure breakdown table to Network Health (client MAC, AP, SSID, failure count)
 - [ ] 4.3 Add DFS radar log panel to Network Health (AP name, channel, timestamp)
-- [ ] 4.4 Add roaming event count panel to Network Health (from_ap → to_ap pairs)
+- [ ] 4.4 Add roaming event count panel to Network Health (from_ap → to_ap pairs) — BLOCKED: roaming events not available in API
 - [ ] 4.5 Add auth failure count column to Client Health per-client table
 
 ## 5. Validation

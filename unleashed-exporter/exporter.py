@@ -324,6 +324,46 @@ rogue_count_by_channel = Gauge(
 
 
 # ---------------------------------------------------------------------------
+# Event / alarm metrics
+# ---------------------------------------------------------------------------
+EVENT_LABELS = ["ap_name"]
+
+ap_radio_off_total = Counter(
+    "unleashed_ap_radio_off_total",
+    "AP Radio Off events (DFS or admin)",
+    ["ap_name", "radio_band"],
+    registry=registry,
+)
+ap_radio_on_total = Counter(
+    "unleashed_ap_radio_on_total",
+    "AP Radio On events",
+    ["ap_name", "radio_band"],
+    registry=registry,
+)
+ap_join_event_total = Counter(
+    "unleashed_ap_join_event_total",
+    "AP join events (reboot/reconnect)",
+    ["ap_name"],
+    registry=registry,
+)
+ap_reboot_event_total = Counter(
+    "unleashed_ap_reboot_event_total",
+    "AP warm reboot events",
+    ["ap_name"],
+    registry=registry,
+)
+rogue_detected_event_total = Counter(
+    "unleashed_rogue_detected_event_total",
+    "Rogue AP detection events",
+    ["ap_name"],
+    registry=registry,
+)
+
+_last_alarm_time: float = 0.0
+_last_xevent_time: float = 0.0
+
+
+# ---------------------------------------------------------------------------
 # Unleashed _cmdstat.jsp client
 # ---------------------------------------------------------------------------
 class UnleashedClient:
@@ -505,6 +545,40 @@ class UnleashedClient:
             return entries
         except ET.ParseError as exc:
             log.error("Rogue XML parse error: %s", exc)
+            poll_errors.labels(type="parse_error").inc()
+            return None
+
+    def get_alarms(self) -> list[dict] | None:
+        """Fetch alarm/event entries via _cmdstat.jsp comp='eventd'."""
+        xml = self._cmdstat(
+            "<ajax-request action='getstat' comp='eventd' enable-gzip='0'>"
+            "<alarm/>"
+            "</ajax-request>"
+        )
+        if xml is None:
+            return None
+        try:
+            root = ET.fromstring(xml)
+            return [dict(el.attrib) for el in root.iter("alarm")]
+        except ET.ParseError as exc:
+            log.error("Alarm XML parse error: %s", exc)
+            poll_errors.labels(type="parse_error").inc()
+            return None
+
+    def get_xevents(self) -> list[dict] | None:
+        """Fetch xevent entries via _cmdstat.jsp comp='eventd'."""
+        xml = self._cmdstat(
+            "<ajax-request action='getstat' comp='eventd' enable-gzip='0'>"
+            "<xevent/>"
+            "</ajax-request>"
+        )
+        if xml is None:
+            return None
+        try:
+            root = ET.fromstring(xml)
+            return [dict(el.attrib) for el in root.iter("xevent")]
+        except ET.ParseError as exc:
+            log.error("Xevent XML parse error: %s", exc)
             poll_errors.labels(type="parse_error").inc()
             return None
 
@@ -1005,6 +1079,52 @@ def update_rogue_metrics(entries: list[dict]):
              len(unique_rogues), len(malicious_rogues), len(band_counts))
 
 
+def update_alarm_metrics(alarms: list[dict]):
+    """Process alarm entries and increment event counters."""
+    global _last_alarm_time
+    for alarm in alarms:
+        t = float(alarm.get("time", 0))
+        if t <= _last_alarm_time:
+            continue
+        name = alarm.get("name", "")
+        ap = alarm.get("ap-name", "unknown")
+        if name == "AP Radio Off":
+            band = alarm.get("radioindex", "").lower().replace(".", "")
+            if band in ("24g", "2.4g", "24G"):
+                band = "2.4g"
+            elif band in ("5g", "5G"):
+                band = "5g"
+            ap_radio_off_total.labels(ap_name=ap, radio_band=band).inc()
+        elif name == "AP Radio On":
+            band = alarm.get("radioindex", "").lower().replace(".", "")
+            if band in ("24g", "2.4g", "24G"):
+                band = "2.4g"
+            elif band in ("5g", "5G"):
+                band = "5g"
+            ap_radio_on_total.labels(ap_name=ap, radio_band=band).inc()
+        elif name == "AP Has Joined":
+            ap_join_event_total.labels(ap_name=ap).inc()
+        elif "Rogue" in name:
+            rogue_detected_event_total.labels(ap_name=ap).inc()
+        if t > _last_alarm_time:
+            _last_alarm_time = t
+
+
+def update_xevent_metrics(xevents: list[dict]):
+    """Process xevent entries and increment event counters."""
+    global _last_xevent_time
+    for ev in xevents:
+        t = float(ev.get("time", 0))
+        if t <= _last_xevent_time:
+            continue
+        msg = ev.get("msg", "")
+        ap = ev.get("ap-name", "unknown")
+        if msg == "MSG_AP_warm_reboot":
+            ap_reboot_event_total.labels(ap_name=ap).inc()
+        if t > _last_xevent_time:
+            _last_xevent_time = t
+
+
 # ---------------------------------------------------------------------------
 # Main loop
 # ---------------------------------------------------------------------------
@@ -1049,6 +1169,14 @@ def main():
         wlans = client.get_wlans()
         if wlans is not None:
             update_wlan_metrics(wlans)
+
+        alarms = client.get_alarms()
+        if alarms is not None:
+            update_alarm_metrics(alarms)
+
+        xevents = client.get_xevents()
+        if xevents is not None:
+            update_xevent_metrics(xevents)
 
         time.sleep(POLL_INTERVAL)
 
