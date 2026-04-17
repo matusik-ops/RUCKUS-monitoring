@@ -13,6 +13,10 @@ scrape_configs:
       match[]:
         - '{__name__=~"unleashed_.*"}'
         - '{__name__=~"snmp_.*"}'
+        - '{__name__=~"ruckusUnleashed.*"}'
+        - '{__name__=~"sysUpTime.*"}'
+        - '{__name__=~"if(In|Out).*"}'
+        - '{__name__=~"ifOperStatus.*"}'
         - '{__name__=~"probe_.*"}'
         - '{__name__="up"}'
     file_sd_configs:
