@@ -1,0 +1,15 @@
+# Federation targets - one entry per site Prometheus
+# Add new sites by appending entries below and reloading Master Prometheus
+#
+# The 'site' label is used in Grafana dashboards for filtering ($site variable)
+
+- targets:
+    - host.docker.internal:9090
+  labels:
+    site: sklad-01
+
+# Example: add more sites below
+# - targets:
+#     - 10.0.2.100:9090
+#   labels:
+#     site: sklad-02

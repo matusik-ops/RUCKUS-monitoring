@@ -15,9 +15,24 @@
   "templating": {
     "list": [
       {
+        "name": "site",
+        "label": "Site",
+        "type": "query",
+        "query": "label_values(unleashed_ap_num_sta, site)",
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "refresh": 2,
+        "multi": true,
+        "sort": 1
+      },
+      {
         "name": "ap_name",
         "type": "query",
-        "query": "label_values(unleashed_radio_num_sta, ap_name)",
+        "query": "label_values(unleashed_radio_num_sta{site=~\"$site\"}, ap_name)",
         "datasource": "Prometheus",
         "refresh": 2,
         "includeAll": true,
@@ -81,7 +96,7 @@
       },
       "targets": [
         {
-          "expr": "count(unleashed_client_rssi_dbm > -65) / clamp_min(count(unleashed_client_rssi_dbm), 1) * 100",
+          "expr": "count(unleashed_client_rssi_dbm{site=~\"$site\"} > -65) / clamp_min(count(unleashed_client_rssi_dbm{site=~\"$site\"}), 1) * 100",
           "instant": true,
           "refId": "A"
         }
@@ -122,7 +137,7 @@
       },
       "targets": [
         {
-          "expr": "ruckusUnleashedSystemStatsNumAP",
+          "expr": "ruckusUnleashedSystemStatsNumAP{site=~\"$site\"}",
           "instant": true,
           "refId": "A"
         }
@@ -170,7 +185,7 @@
       },
       "targets": [
         {
-          "expr": "unleashed_client_count",
+          "expr": "unleashed_client_count{site=~\"$site\"}",
           "instant": true,
           "refId": "A"
         }
@@ -210,7 +225,7 @@
       },
       "targets": [
         {
-          "expr": "avg(unleashed_client_rssi_dbm)",
+          "expr": "avg(unleashed_client_rssi_dbm{site=~\"$site\"})",
           "instant": true,
           "refId": "A"
         }
@@ -259,7 +274,7 @@
       },
       "targets": [
         {
-          "expr": "(count(unleashed_client_rssi_dbm < -75) or vector(0)) + (count(increase(unleashed_radio_airtime_busy[5m]) / clamp_min(increase(unleashed_radio_airtime_total[5m]), 1) > 0.5) or vector(0)) + (count(sum by (ap_name) (increase(unleashed_radio_auth_fail[5m])) / clamp_min(sum by (ap_name) (increase(unleashed_radio_auth_fail[5m]) + increase(unleashed_radio_auth_success[5m])), 1) > 0.5) or vector(0)) + (unleashed_rogue_malicious_count or vector(0))",
+          "expr": "(count(unleashed_client_rssi_dbm{site=~\"$site\"} < -75) or vector(0)) + (count(increase(unleashed_radio_airtime_busy{site=~\"$site\"}[5m]) / clamp_min(increase(unleashed_radio_airtime_total{site=~\"$site\"}[5m]), 1) > 0.5) or vector(0)) + (count(sum by (ap_name) (increase(unleashed_radio_auth_fail{site=~\"$site\"}[5m])) / clamp_min(sum by (ap_name) (increase(unleashed_radio_auth_fail{site=~\"$site\"}[5m]) + increase(unleashed_radio_auth_success{site=~\"$site\"}[5m])), 1) > 0.5) or vector(0)) + (unleashed_rogue_malicious_count{site=~\"$site\"} or vector(0))",
           "instant": true,
           "refId": "A"
         }
@@ -318,7 +333,7 @@
       },
       "targets": [
         {
-          "expr": "max_over_time(unleashed_client_count[$__range])",
+          "expr": "max_over_time(unleashed_client_count{site=~\"$site\"}[$__range])",
           "instant": true,
           "refId": "A"
         }
@@ -358,7 +373,7 @@
       },
       "targets": [
         {
-          "expr": "count(unleashed_client_rssi_dbm < -75) or vector(0)",
+          "expr": "count(unleashed_client_rssi_dbm{site=~\"$site\"} < -75) or vector(0)",
           "instant": true,
           "refId": "A"
         }
@@ -406,7 +421,7 @@
       },
       "targets": [
         {
-          "expr": "count(increase(unleashed_radio_airtime_busy[5m]) / clamp_min(increase(unleashed_radio_airtime_total[5m]), 1) > 0.5) or vector(0)",
+          "expr": "count(increase(unleashed_radio_airtime_busy{site=~\"$site\"}[5m]) / clamp_min(increase(unleashed_radio_airtime_total{site=~\"$site\"}[5m]), 1) > 0.5) or vector(0)",
           "instant": true,
           "refId": "A"
         }
@@ -454,7 +469,7 @@
       },
       "targets": [
         {
-          "expr": "unleashed_rogue_malicious_count or vector(0)",
+          "expr": "unleashed_rogue_malicious_count{site=~\"$site\"} or vector(0)",
           "instant": true,
           "refId": "A"
         }
@@ -498,7 +513,7 @@
       },
       "targets": [
         {
-          "expr": "rate(ruckusUnleashedSystemStatsWLANTotalTxBytes[5m]) * 8 + rate(ruckusUnleashedSystemStatsWLANTotalRxBytes[5m]) * 8",
+          "expr": "rate(ruckusUnleashedSystemStatsWLANTotalTxBytes{site=~\"$site\"}[5m]) * 8 + rate(ruckusUnleashedSystemStatsWLANTotalRxBytes{site=~\"$site\"}[5m]) * 8",
           "instant": true,
           "refId": "A"
         }
@@ -539,7 +554,7 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(unleashed_radio_tx_bytes_total{ap_name=\"AP01\"}[5m]) + rate(unleashed_radio_rx_bytes_total{ap_name=\"AP01\"}[5m])) * 8",
+          "expr": "sum(rate(unleashed_radio_tx_bytes_total{site=~\"$site\", ap_name=\"AP01\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\", ap_name=\"AP01\"}[5m])) * 8",
           "instant": true,
           "refId": "A"
         }
@@ -589,7 +604,7 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(unleashed_radio_tx_bytes_total{ap_name=\"AP02\"}[5m]) + rate(unleashed_radio_rx_bytes_total{ap_name=\"AP02\"}[5m])) * 8",
+          "expr": "sum(rate(unleashed_radio_tx_bytes_total{site=~\"$site\", ap_name=\"AP02\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\", ap_name=\"AP02\"}[5m])) * 8",
           "instant": true,
           "refId": "A"
         }
@@ -639,7 +654,7 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(unleashed_radio_tx_bytes_total{ap_name=\"AP05\"}[5m]) + rate(unleashed_radio_rx_bytes_total{ap_name=\"AP05\"}[5m])) * 8",
+          "expr": "sum(rate(unleashed_radio_tx_bytes_total{site=~\"$site\", ap_name=\"AP05\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\", ap_name=\"AP05\"}[5m])) * 8",
           "instant": true,
           "refId": "A"
         }
@@ -689,7 +704,7 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(unleashed_radio_tx_bytes_total{ap_name=\"AP06\"}[5m]) + rate(unleashed_radio_rx_bytes_total{ap_name=\"AP06\"}[5m])) * 8",
+          "expr": "sum(rate(unleashed_radio_tx_bytes_total{site=~\"$site\", ap_name=\"AP06\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\", ap_name=\"AP06\"}[5m])) * 8",
           "instant": true,
           "refId": "A"
         }
@@ -739,7 +754,7 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(unleashed_radio_tx_bytes_total{ap_name=\"AP08\"}[5m]) + rate(unleashed_radio_rx_bytes_total{ap_name=\"AP08\"}[5m])) * 8",
+          "expr": "sum(rate(unleashed_radio_tx_bytes_total{site=~\"$site\", ap_name=\"AP08\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\", ap_name=\"AP08\"}[5m])) * 8",
           "instant": true,
           "refId": "A"
         }
@@ -789,7 +804,7 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(unleashed_radio_tx_bytes_total{ap_name=\"AP09-sales\"}[5m]) + rate(unleashed_radio_rx_bytes_total{ap_name=\"AP09-sales\"}[5m])) * 8",
+          "expr": "sum(rate(unleashed_radio_tx_bytes_total{site=~\"$site\", ap_name=\"AP09-sales\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\", ap_name=\"AP09-sales\"}[5m])) * 8",
           "instant": true,
           "refId": "A"
         }
@@ -839,7 +854,7 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(unleashed_radio_tx_bytes_total{ap_name=\"AP10\"}[5m]) + rate(unleashed_radio_rx_bytes_total{ap_name=\"AP10\"}[5m])) * 8",
+          "expr": "sum(rate(unleashed_radio_tx_bytes_total{site=~\"$site\", ap_name=\"AP10\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\", ap_name=\"AP10\"}[5m])) * 8",
           "instant": true,
           "refId": "A"
         }
@@ -889,12 +904,12 @@
       },
       "targets": [
         {
-          "expr": "unleashed_client_count",
+          "expr": "unleashed_client_count{site=~\"$site\"}",
           "legendFormat": "Clients",
           "refId": "A"
         },
         {
-          "expr": "max_over_time(unleashed_client_count[$__range])",
+          "expr": "max_over_time(unleashed_client_count{site=~\"$site\"}[$__range])",
           "legendFormat": "Peak",
           "refId": "B"
         }
@@ -927,85 +942,85 @@
           },
           "targets": [
             {
-              "expr": "sum by (ap_name, radio_band) (unleashed_radio_channel{ap_name=~\"$ap_name\", radio_band=\"2.4g\"})",
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_channel{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"2.4g\"})",
               "instant": true,
               "format": "table",
               "refId": "channel"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (unleashed_radio_channelization{ap_name=~\"$ap_name\", radio_band=\"2.4g\"})",
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_channelization{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"2.4g\"})",
               "instant": true,
               "format": "table",
               "refId": "width"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (unleashed_radio_num_sta{ap_name=~\"$ap_name\", radio_band=\"2.4g\"})",
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_num_sta{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"2.4g\"})",
               "instant": true,
               "format": "table",
               "refId": "clients"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (unleashed_radio_avg_rssi{ap_name=~\"$ap_name\", radio_band=\"2.4g\"})",
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_avg_rssi{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"2.4g\"})",
               "instant": true,
               "format": "table",
               "refId": "rssi"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (unleashed_radio_noise_floor_dbm{ap_name=~\"$ap_name\", radio_band=\"2.4g\", channel!=\"0\"})",
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_noise_floor_dbm{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"2.4g\", channel!=\"0\"})",
               "instant": true,
               "format": "table",
               "refId": "noise"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (unleashed_radio_phy_err{ap_name=~\"$ap_name\", radio_band=\"2.4g\", channel!=\"0\"})",
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_phy_err{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"2.4g\", channel!=\"0\"})",
               "instant": true,
               "format": "table",
               "refId": "phyerr"
             },
             {
-              "expr": "avg by (ap_name) ((unleashed_client_rssi_dbm{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}) - (unleashed_client_noise_floor_dbm{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}))",
+              "expr": "avg by (ap_name) ((unleashed_client_rssi_dbm{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"2.4g\"}) - (unleashed_client_noise_floor_dbm{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"2.4g\"}))",
               "instant": true,
               "format": "table",
               "refId": "snr"
             },
             {
-              "expr": "clamp_max(sum by (ap_name, radio_band) (unleashed_radio_airtime_busy{ap_name=~\"$ap_name\", radio_band=\"2.4g\", channel!=\"0\"}) / clamp_min(sum by (ap_name, radio_band) (unleashed_radio_airtime_total{ap_name=~\"$ap_name\", radio_band=\"2.4g\", channel!=\"0\"}), 1) * 100, 100)",
+              "expr": "clamp_max(sum by (ap_name, radio_band) (unleashed_radio_airtime_busy{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"2.4g\", channel!=\"0\"}) / clamp_min(sum by (ap_name, radio_band) (unleashed_radio_airtime_total{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"2.4g\", channel!=\"0\"}), 1) * 100, 100)",
               "instant": true,
               "format": "table",
               "refId": "busy"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (rate(unleashed_radio_rx_bytes_total{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m])) * 8 / 1000000",
+              "expr": "sum by (ap_name, radio_band) (rate(unleashed_radio_rx_bytes_total{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m])) * 8 / 1000000",
               "instant": true,
               "format": "table",
               "refId": "rxpct"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (rate(unleashed_radio_tx_bytes_total{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m])) * 8 / 1000000",
+              "expr": "sum by (ap_name, radio_band) (rate(unleashed_radio_tx_bytes_total{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m])) * 8 / 1000000",
               "instant": true,
               "format": "table",
               "refId": "txpct"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_retries_total{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m]))",
+              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_retries_total{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m]))",
               "instant": true,
               "format": "table",
               "refId": "retries"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_tx_fail_total{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m]))",
+              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_tx_fail_total{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m]))",
               "instant": true,
               "format": "table",
               "refId": "txfail"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_fcs_error_total{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m]))",
+              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_fcs_error_total{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m]))",
               "instant": true,
               "format": "table",
               "refId": "fcs"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_auth_fail{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m])) / clamp_min(sum by (ap_name, radio_band) (increase(unleashed_radio_auth_fail{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m]) + increase(unleashed_radio_auth_success{ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m])), 1) * 100",
+              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_auth_fail{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m])) / clamp_min(sum by (ap_name, radio_band) (increase(unleashed_radio_auth_fail{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m]) + increase(unleashed_radio_auth_success{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"2.4g\"}[5m])), 1) * 100",
               "instant": true,
               "format": "table",
               "refId": "authfail"
@@ -1388,85 +1403,85 @@
           },
           "targets": [
             {
-              "expr": "sum by (ap_name, radio_band) (unleashed_radio_channel{ap_name=~\"$ap_name\", radio_band=\"5g\"})",
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_channel{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"5g\"})",
               "instant": true,
               "format": "table",
               "refId": "channel"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (unleashed_radio_channelization{ap_name=~\"$ap_name\", radio_band=\"5g\"})",
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_channelization{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"5g\"})",
               "instant": true,
               "format": "table",
               "refId": "width"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (unleashed_radio_num_sta{ap_name=~\"$ap_name\", radio_band=\"5g\"})",
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_num_sta{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"5g\"})",
               "instant": true,
               "format": "table",
               "refId": "clients"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (unleashed_radio_avg_rssi{ap_name=~\"$ap_name\", radio_band=\"5g\"})",
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_avg_rssi{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"5g\"})",
               "instant": true,
               "format": "table",
               "refId": "rssi"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (unleashed_radio_noise_floor_dbm{ap_name=~\"$ap_name\", radio_band=\"5g\", channel!=\"0\"})",
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_noise_floor_dbm{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"5g\", channel!=\"0\"})",
               "instant": true,
               "format": "table",
               "refId": "noise"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (unleashed_radio_phy_err{ap_name=~\"$ap_name\", radio_band=\"5g\", channel!=\"0\"})",
+              "expr": "sum by (ap_name, radio_band) (unleashed_radio_phy_err{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"5g\", channel!=\"0\"})",
               "instant": true,
               "format": "table",
               "refId": "phyerr"
             },
             {
-              "expr": "avg by (ap_name) ((unleashed_client_rssi_dbm{ap_name=~\"$ap_name\", radio_band=\"5g\"}) - (unleashed_client_noise_floor_dbm{ap_name=~\"$ap_name\", radio_band=\"5g\"}))",
+              "expr": "avg by (ap_name) ((unleashed_client_rssi_dbm{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"5g\"}) - (unleashed_client_noise_floor_dbm{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"5g\"}))",
               "instant": true,
               "format": "table",
               "refId": "snr"
             },
             {
-              "expr": "clamp_max(sum by (ap_name, radio_band) (unleashed_radio_airtime_busy{ap_name=~\"$ap_name\", radio_band=\"5g\", channel!=\"0\"}) / clamp_min(sum by (ap_name, radio_band) (unleashed_radio_airtime_total{ap_name=~\"$ap_name\", radio_band=\"5g\", channel!=\"0\"}), 1) * 100, 100)",
+              "expr": "clamp_max(sum by (ap_name, radio_band) (unleashed_radio_airtime_busy{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"5g\", channel!=\"0\"}) / clamp_min(sum by (ap_name, radio_band) (unleashed_radio_airtime_total{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"5g\", channel!=\"0\"}), 1) * 100, 100)",
               "instant": true,
               "format": "table",
               "refId": "busy"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (rate(unleashed_radio_rx_bytes_total{ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m])) * 8 / 1000000",
+              "expr": "sum by (ap_name, radio_band) (rate(unleashed_radio_rx_bytes_total{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m])) * 8 / 1000000",
               "instant": true,
               "format": "table",
               "refId": "rxpct"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (rate(unleashed_radio_tx_bytes_total{ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m])) * 8 / 1000000",
+              "expr": "sum by (ap_name, radio_band) (rate(unleashed_radio_tx_bytes_total{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m])) * 8 / 1000000",
               "instant": true,
               "format": "table",
               "refId": "txpct"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_retries_total{ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m]))",
+              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_retries_total{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m]))",
               "instant": true,
               "format": "table",
               "refId": "retries"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_tx_fail_total{ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m]))",
+              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_tx_fail_total{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m]))",
               "instant": true,
               "format": "table",
               "refId": "txfail"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_fcs_error_total{ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m]))",
+              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_fcs_error_total{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m]))",
               "instant": true,
               "format": "table",
               "refId": "fcs"
             },
             {
-              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_auth_fail{ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m])) / clamp_min(sum by (ap_name, radio_band) (increase(unleashed_radio_auth_fail{ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m]) + increase(unleashed_radio_auth_success{ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m])), 1) * 100",
+              "expr": "sum by (ap_name, radio_band) (increase(unleashed_radio_auth_fail{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m])) / clamp_min(sum by (ap_name, radio_band) (increase(unleashed_radio_auth_fail{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m]) + increase(unleashed_radio_auth_success{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=\"5g\"}[5m])), 1) * 100",
               "instant": true,
               "format": "table",
               "refId": "authfail"
@@ -1863,7 +1878,7 @@
           },
           "targets": [
             {
-              "expr": "avg by (channel) (unleashed_radio_airtime_busy{radio_band=\"2.4g\", channel!=\"0\"} / clamp_min(unleashed_radio_airtime_total{radio_band=\"2.4g\", channel!=\"0\"}, 1) * 100)",
+              "expr": "avg by (channel) (unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"2.4g\", channel!=\"0\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"2.4g\", channel!=\"0\"}, 1) * 100)",
               "legendFormat": "Ch {{ channel }}",
               "refId": "A"
             }
@@ -1888,7 +1903,7 @@
           },
           "targets": [
             {
-              "expr": "avg by (channel) (unleashed_radio_airtime_busy{radio_band=\"5g\", channel!=\"0\"} / clamp_min(unleashed_radio_airtime_total{radio_band=\"5g\", channel!=\"0\"}, 1) * 100)",
+              "expr": "avg by (channel) (unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"5g\", channel!=\"0\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"5g\", channel!=\"0\"}, 1) * 100)",
               "legendFormat": "Ch {{ channel }}",
               "refId": "A"
             }
@@ -1913,7 +1928,7 @@
           },
           "targets": [
             {
-              "expr": "sum (rate(unleashed_radio_tx_bytes_total[5m]) + rate(unleashed_radio_rx_bytes_total[5m])) * 8",
+              "expr": "sum (rate(unleashed_radio_tx_bytes_total{site=~\"$site\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\"}[5m])) * 8",
               "legendFormat": "Total",
               "refId": "A"
             }
@@ -1936,7 +1951,7 @@
           },
           "targets": [
             {
-              "expr": "sum by (ap_name) (rate(unleashed_radio_tx_bytes_total{ap_name=~\"$ap_name\"}[5m]) + rate(unleashed_radio_rx_bytes_total{ap_name=~\"$ap_name\"}[5m])) * 8",
+              "expr": "sum by (ap_name) (rate(unleashed_radio_tx_bytes_total{site=~\"$site\", ap_name=~\"$ap_name\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\", ap_name=~\"$ap_name\"}[5m])) * 8",
               "legendFormat": "{{ ap_name }}",
               "refId": "A"
             }
@@ -1959,7 +1974,7 @@
           },
           "targets": [
             {
-              "expr": "max by (ap_name, radio_band) (unleashed_radio_airtime_busy{ap_name=~\"$ap_name\", radio_band=~\"$radio_band\", channel!=\"0\"} / clamp_min(unleashed_radio_airtime_total{ap_name=~\"$ap_name\", radio_band=~\"$radio_band\", channel!=\"0\"}, 1) * 100)",
+              "expr": "max by (ap_name, radio_band) (unleashed_radio_airtime_busy{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=~\"$radio_band\", channel!=\"0\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=~\"$radio_band\", channel!=\"0\"}, 1) * 100)",
               "legendFormat": "{{ ap_name }} {{ radio_band }}",
               "refId": "A"
             }
@@ -1984,7 +1999,7 @@
           },
           "targets": [
             {
-              "expr": "sum by (ap_name, radio_band) (rate(unleashed_radio_rx_bytes_total{ap_name=~\"$ap_name\", radio_band=~\"$radio_band\"}[5m])) * 8 / 1000000",
+              "expr": "sum by (ap_name, radio_band) (rate(unleashed_radio_rx_bytes_total{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=~\"$radio_band\"}[5m])) * 8 / 1000000",
               "legendFormat": "{{ ap_name }} {{ radio_band }}",
               "refId": "A"
             }
@@ -2008,7 +2023,7 @@
           },
           "targets": [
             {
-              "expr": "sum by (ap_name, radio_band) (rate(unleashed_radio_tx_bytes_total{ap_name=~\"$ap_name\", radio_band=~\"$radio_band\"}[5m])) * 8 / 1000000",
+              "expr": "sum by (ap_name, radio_band) (rate(unleashed_radio_tx_bytes_total{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=~\"$radio_band\"}[5m])) * 8 / 1000000",
               "legendFormat": "{{ ap_name }} {{ radio_band }}",
               "refId": "A"
             }
@@ -2032,12 +2047,12 @@
           },
           "targets": [
             {
-              "expr": "rate(ruckusUnleashedSystemStatsWLANTotalTxBytes[5m]) * 8",
+              "expr": "rate(ruckusUnleashedSystemStatsWLANTotalTxBytes{site=~\"$site\"}[5m]) * 8",
               "legendFormat": "Tx",
               "refId": "A"
             },
             {
-              "expr": "rate(ruckusUnleashedSystemStatsWLANTotalRxBytes[5m]) * 8",
+              "expr": "rate(ruckusUnleashedSystemStatsWLANTotalRxBytes{site=~\"$site\"}[5m]) * 8",
               "legendFormat": "Rx",
               "refId": "B"
             }
@@ -2074,7 +2089,7 @@
           },
           "targets": [
             {
-              "expr": "unleashed_radio_channel{ap_name=~\"$ap_name\", radio_band=~\"$radio_band\"}",
+              "expr": "unleashed_radio_channel{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=~\"$radio_band\"}",
               "legendFormat": "{{ ap_name }} {{ radio_band }}",
               "refId": "A"
             }
@@ -2095,7 +2110,7 @@
           },
           "targets": [
             {
-              "expr": "unleashed_radio_tx_power{ap_name=~\"$ap_name\", radio_band=~\"$radio_band\"}",
+              "expr": "unleashed_radio_tx_power{site=~\"$site\", ap_name=~\"$ap_name\", radio_band=~\"$radio_band\"}",
               "legendFormat": "{{ ap_name }} {{ radio_band }}",
               "refId": "A"
             }
@@ -2130,7 +2145,7 @@
           },
           "targets": [
             {
-              "expr": "unleashed_rogue_count",
+              "expr": "unleashed_rogue_count{site=~\"$site\"}",
               "instant": true,
               "refId": "A"
             }
@@ -2170,7 +2185,7 @@
           },
           "targets": [
             {
-              "expr": "unleashed_rogue_malicious_count",
+              "expr": "unleashed_rogue_malicious_count{site=~\"$site\"}",
               "instant": true,
               "refId": "A"
             }
@@ -2214,7 +2229,7 @@
           },
           "targets": [
             {
-              "expr": "max(unleashed_rogue_rssi_dbm)",
+              "expr": "max(unleashed_rogue_rssi_dbm{site=~\"$site\"})",
               "instant": true,
               "refId": "A"
             }
@@ -2263,7 +2278,7 @@
           },
           "targets": [
             {
-              "expr": "unleashed_rogue_count_by_band",
+              "expr": "unleashed_rogue_count_by_band{site=~\"$site\"}",
               "instant": true,
               "refId": "A"
             }
@@ -2303,7 +2318,7 @@
           },
           "targets": [
             {
-              "expr": "unleashed_rogue_count_by_channel{radio_band=\"2.4g\"}",
+              "expr": "unleashed_rogue_count_by_channel{site=~\"$site\", radio_band=\"2.4g\"}",
               "legendFormat": "ch {{ channel }}",
               "refId": "A"
             }
@@ -2324,7 +2339,7 @@
           },
           "targets": [
             {
-              "expr": "unleashed_rogue_count_by_channel{radio_band=\"5g\"}",
+              "expr": "unleashed_rogue_count_by_channel{site=~\"$site\", radio_band=\"5g\"}",
               "legendFormat": "ch {{ channel }}",
               "refId": "A"
             }
@@ -2345,7 +2360,7 @@
           },
           "targets": [
             {
-              "expr": "unleashed_rogue_rssi_dbm",
+              "expr": "unleashed_rogue_rssi_dbm{site=~\"$site\"}",
               "instant": true,
               "format": "table",
               "refId": "A"
@@ -2527,7 +2542,7 @@
           },
           "targets": [
             {
-              "expr": "unleashed_ap_info",
+              "expr": "unleashed_ap_info{site=~\"$site\"}",
               "instant": true,
               "format": "table",
               "refId": "A"
@@ -2666,91 +2681,91 @@
           },
           "targets": [
             {
-              "expr": "unleashed_ap_state",
+              "expr": "unleashed_ap_state{site=~\"$site\"}",
               "instant": true,
               "format": "table",
               "refId": "state"
             },
             {
-              "expr": "unleashed_ap_cpu_util",
+              "expr": "unleashed_ap_cpu_util{site=~\"$site\"}",
               "instant": true,
               "format": "table",
               "refId": "cpu"
             },
             {
-              "expr": "unleashed_ap_mem_used_pct",
+              "expr": "unleashed_ap_mem_used_pct{site=~\"$site\"}",
               "instant": true,
               "format": "table",
               "refId": "mem"
             },
             {
-              "expr": "unleashed_ap_uptime_seconds",
+              "expr": "unleashed_ap_uptime_seconds{site=~\"$site\"}",
               "instant": true,
               "format": "table",
               "refId": "uptime"
             },
             {
-              "expr": "unleashed_ap_connected_time_seconds",
+              "expr": "unleashed_ap_connected_time_seconds{site=~\"$site\"}",
               "instant": true,
               "format": "table",
               "refId": "conntime"
             },
             {
-              "expr": "unleashed_ap_num_sta",
+              "expr": "unleashed_ap_num_sta{site=~\"$site\"}",
               "instant": true,
               "format": "table",
               "refId": "clients"
             },
             {
-              "expr": "unleashed_ap_num_vap",
+              "expr": "unleashed_ap_num_vap{site=~\"$site\"}",
               "instant": true,
               "format": "table",
               "refId": "vaps"
             },
             {
-              "expr": "unleashed_ap_temperature",
+              "expr": "unleashed_ap_temperature{site=~\"$site\"}",
               "instant": true,
               "format": "table",
               "refId": "temp"
             },
             {
-              "expr": "unleashed_ap_join_counter",
+              "expr": "unleashed_ap_join_counter{site=~\"$site\"}",
               "instant": true,
               "format": "table",
               "refId": "joins"
             },
             {
-              "expr": "unleashed_ap_kernel_panics_total",
+              "expr": "unleashed_ap_kernel_panics_total{site=~\"$site\"}",
               "instant": true,
               "format": "table",
               "refId": "kpanic"
             },
             {
-              "expr": "unleashed_ap_total_reboots",
+              "expr": "unleashed_ap_total_reboots{site=~\"$site\"}",
               "instant": true,
               "format": "table",
               "refId": "totboot"
             },
             {
-              "expr": "unleashed_ap_crashfile_flag",
+              "expr": "unleashed_ap_crashfile_flag{site=~\"$site\"}",
               "instant": true,
               "format": "table",
               "refId": "crash"
             },
             {
-              "expr": "rate(unleashed_ap_lan_rx_bytes_total[5m]) * 8",
+              "expr": "rate(unleashed_ap_lan_rx_bytes_total{site=~\"$site\"}[5m]) * 8",
               "instant": true,
               "format": "table",
               "refId": "lan_rx"
             },
             {
-              "expr": "rate(unleashed_ap_lan_tx_bytes_total[5m]) * 8",
+              "expr": "rate(unleashed_ap_lan_tx_bytes_total{site=~\"$site\"}[5m]) * 8",
               "instant": true,
               "format": "table",
               "refId": "lan_tx"
             },
             {
-              "expr": "increase(unleashed_ap_lan_dropped_total[5m])",
+              "expr": "increase(unleashed_ap_lan_dropped_total{site=~\"$site\"}[5m])",
               "instant": true,
               "format": "table",
               "refId": "lan_drop"
@@ -3167,7 +3182,7 @@
       },
       "targets": [
         {
-          "expr": "count(unleashed_ap_info{role=\"master\"}) or vector(0)",
+          "expr": "count(unleashed_ap_info{site=~\"$site\", role=\"master\"}) or vector(0)",
           "instant": true,
           "refId": "A"
         }
@@ -3222,37 +3237,37 @@
           },
           "targets": [
             {
-              "expr": "unleashed_wlan_num_sta",
+              "expr": "unleashed_wlan_num_sta{site=~\"$site\"}",
               "instant": true,
               "format": "table",
               "refId": "sta"
             },
             {
-              "expr": "rate(unleashed_wlan_tx_bytes_total[5m]) * 8",
+              "expr": "rate(unleashed_wlan_tx_bytes_total{site=~\"$site\"}[5m]) * 8",
               "instant": true,
               "format": "table",
               "refId": "tx"
             },
             {
-              "expr": "rate(unleashed_wlan_rx_bytes_total[5m]) * 8",
+              "expr": "rate(unleashed_wlan_rx_bytes_total{site=~\"$site\"}[5m]) * 8",
               "instant": true,
               "format": "table",
               "refId": "rx"
             },
             {
-              "expr": "unleashed_wlan_auth_success_total",
+              "expr": "unleashed_wlan_auth_success_total{site=~\"$site\"}",
               "instant": true,
               "format": "table",
               "refId": "auths"
             },
             {
-              "expr": "unleashed_wlan_auth_fail_total",
+              "expr": "unleashed_wlan_auth_fail_total{site=~\"$site\"}",
               "instant": true,
               "format": "table",
               "refId": "authf"
             },
             {
-              "expr": "unleashed_wlan_assoc_fail_total",
+              "expr": "unleashed_wlan_assoc_fail_total{site=~\"$site\"}",
               "instant": true,
               "format": "table",
               "refId": "assocf"
@@ -3435,7 +3450,7 @@
           },
           "targets": [
             {
-              "expr": "changes(unleashed_ap_state[1h])",
+              "expr": "changes(unleashed_ap_state{site=~\"$site\"}[1h])",
               "legendFormat": "{{ ap_name }}",
               "refId": "A"
             }
@@ -3462,12 +3477,12 @@
           },
           "targets": [
             {
-              "expr": "changes(unleashed_radio_channel{radio_band=\"5g\"}[1h])",
+              "expr": "changes(unleashed_radio_channel{site=~\"$site\", radio_band=\"5g\"}[1h])",
               "legendFormat": "{{ ap_name }} 5g",
               "refId": "A"
             },
             {
-              "expr": "changes(unleashed_radio_channel{radio_band=\"2.4g\"}[1h])",
+              "expr": "changes(unleashed_radio_channel{site=~\"$site\", radio_band=\"2.4g\"}[1h])",
               "legendFormat": "{{ ap_name }} 2.4g",
               "refId": "B"
             }
@@ -3494,7 +3509,7 @@
           },
           "targets": [
             {
-              "expr": "max(probe_success{job=\"blackbox-icmp\", target=~\"8.8.8.8|1.1.1.1\"})",
+              "expr": "max(probe_success{site=~\"$site\", job=\"blackbox-icmp\", target=~\"8.8.8.8|1.1.1.1\"})",
               "instant": true,
               "refId": "A"
             }
@@ -3541,7 +3556,7 @@
           },
           "targets": [
             {
-              "expr": "probe_success{job=\"blackbox-icmp\", target=\"10.91.1.254\"}",
+              "expr": "probe_success{site=~\"$site\", job=\"blackbox-icmp\", target=\"10.91.1.254\"}",
               "instant": true,
               "refId": "A"
             }
@@ -3588,7 +3603,7 @@
           },
           "targets": [
             {
-              "expr": "probe_success{job=\"blackbox-dns\"}",
+              "expr": "probe_success{site=~\"$site\", job=\"blackbox-dns\"}",
               "instant": true,
               "refId": "A"
             }
@@ -3635,7 +3650,7 @@
           },
           "targets": [
             {
-              "expr": "probe_duration_seconds{job=\"blackbox-icmp\", target=\"10.91.1.254\"} * 1000",
+              "expr": "probe_duration_seconds{site=~\"$site\", job=\"blackbox-icmp\", target=\"10.91.1.254\"} * 1000",
               "instant": true,
               "refId": "A"
             }
@@ -3684,7 +3699,7 @@
           },
           "targets": [
             {
-              "expr": "avg(probe_duration_seconds{job=\"blackbox-icmp\", target=~\"8.8.8.8|1.1.1.1\"}) * 1000",
+              "expr": "avg(probe_duration_seconds{site=~\"$site\", job=\"blackbox-icmp\", target=~\"8.8.8.8|1.1.1.1\"}) * 1000",
               "instant": true,
               "refId": "A"
             }
@@ -3733,7 +3748,7 @@
           },
           "targets": [
             {
-              "expr": "probe_dns_lookup_time_seconds{job=\"blackbox-dns\"} * 1000",
+              "expr": "probe_dns_lookup_time_seconds{site=~\"$site\", job=\"blackbox-dns\"} * 1000",
               "instant": true,
               "refId": "A"
             }
@@ -3782,17 +3797,17 @@
           },
           "targets": [
             {
-              "expr": "probe_duration_seconds{job=\"blackbox-icmp\", target=\"10.91.1.254\"} * 1000",
+              "expr": "probe_duration_seconds{site=~\"$site\", job=\"blackbox-icmp\", target=\"10.91.1.254\"} * 1000",
               "legendFormat": "Gateway (10.91.1.254)",
               "refId": "A"
             },
             {
-              "expr": "probe_duration_seconds{job=\"blackbox-icmp\", target=\"8.8.8.8\"} * 1000",
+              "expr": "probe_duration_seconds{site=~\"$site\", job=\"blackbox-icmp\", target=\"8.8.8.8\"} * 1000",
               "legendFormat": "Google DNS (8.8.8.8)",
               "refId": "B"
             },
             {
-              "expr": "probe_duration_seconds{job=\"blackbox-icmp\", target=\"1.1.1.1\"} * 1000",
+              "expr": "probe_duration_seconds{site=~\"$site\", job=\"blackbox-icmp\", target=\"1.1.1.1\"} * 1000",
               "legendFormat": "Cloudflare (1.1.1.1)",
               "refId": "C"
             }
@@ -3818,7 +3833,7 @@
       },
       "targets": [
         {
-          "expr": "avg by (channel) (unleashed_radio_airtime_busy{radio_band=\"2.4g\", channel!=\"0\"} / clamp_min(unleashed_radio_airtime_total{radio_band=\"2.4g\", channel!=\"0\"}, 1) * 100)",
+          "expr": "avg by (channel) (unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"2.4g\", channel!=\"0\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"2.4g\", channel!=\"0\"}, 1) * 100)",
           "legendFormat": "Ch {{ channel }}",
           "instant": true,
           "refId": "A"
@@ -3870,7 +3885,7 @@
       },
       "targets": [
         {
-          "expr": "avg by (channel) (unleashed_radio_airtime_busy{radio_band=\"5g\", channel!=\"0\"} / clamp_min(unleashed_radio_airtime_total{radio_band=\"5g\", channel!=\"0\"}, 1) * 100)",
+          "expr": "avg by (channel) (unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"5g\", channel!=\"0\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"5g\", channel!=\"0\"}, 1) * 100)",
           "legendFormat": "Ch {{ channel }}",
           "instant": true,
           "refId": "A"

@@ -15,9 +15,24 @@
   "templating": {
     "list": [
       {
+        "name": "site",
+        "label": "Site",
+        "type": "query",
+        "query": "label_values(unleashed_ap_num_sta, site)",
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "refresh": 2,
+        "multi": true,
+        "sort": 1
+      },
+      {
         "name": "ap_name",
         "type": "query",
-        "query": "label_values(unleashed_client_rssi_dbm, ap_name)",
+        "query": "label_values(unleashed_client_rssi_dbm{site=~\"$site\"}, ap_name)",
         "datasource": "Prometheus",
         "refresh": 2,
         "includeAll": true,
@@ -30,7 +45,7 @@
       {
         "name": "ssid",
         "type": "query",
-        "query": "label_values(unleashed_client_rssi_dbm{ap_name=~\"$ap_name\"}, ssid)",
+        "query": "label_values(unleashed_client_rssi_dbm{site=~\"$site\", ap_name=~\"$ap_name\"}, ssid)",
         "datasource": "Prometheus",
         "refresh": 2,
         "includeAll": true,
@@ -69,7 +84,7 @@
       {
         "name": "hostname",
         "type": "query",
-        "query": "label_values(unleashed_client_rssi_dbm{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\"}, hostname)",
+        "query": "label_values(unleashed_client_rssi_dbm{site=~\"$site\", ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\"}, hostname)",
         "datasource": "Prometheus",
         "refresh": 2,
         "includeAll": true,
@@ -82,7 +97,7 @@
       {
         "name": "client_mac",
         "type": "query",
-        "query": "label_values(unleashed_client_rssi_dbm{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\"}, client_mac)",
+        "query": "label_values(unleashed_client_rssi_dbm{site=~\"$site\", ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\"}, client_mac)",
         "datasource": "Prometheus",
         "refresh": 2,
         "includeAll": true,
@@ -122,7 +137,7 @@
       },
       "targets": [
         {
-          "expr": "count(unleashed_client_rssi_dbm)",
+          "expr": "count(unleashed_client_rssi_dbm{site=~\"$site\"})",
           "instant": true,
           "refId": "A"
         }
@@ -161,7 +176,7 @@
       },
       "targets": [
         {
-          "expr": "count(unleashed_client_rssi_dbm > -65) / clamp_min(count(unleashed_client_rssi_dbm), 1) * 100",
+          "expr": "count(unleashed_client_rssi_dbm{site=~\"$site\"} > -65) / clamp_min(count(unleashed_client_rssi_dbm{site=~\"$site\"}), 1) * 100",
           "instant": true,
           "refId": "A"
         }
@@ -202,7 +217,7 @@
       },
       "targets": [
         {
-          "expr": "avg(unleashed_client_rssi_dbm)",
+          "expr": "avg(unleashed_client_rssi_dbm{site=~\"$site\"})",
           "instant": true,
           "refId": "A"
         }
@@ -250,7 +265,7 @@
       },
       "targets": [
         {
-          "expr": "count(unleashed_client_rssi_dbm < -70) or vector(0)",
+          "expr": "count(unleashed_client_rssi_dbm{site=~\"$site\"} < -70) or vector(0)",
           "instant": true,
           "refId": "A"
         }
@@ -297,7 +312,7 @@
       },
       "targets": [
         {
-          "expr": "count(rate(unleashed_client_retries_total[5m]) / clamp_min(rate(unleashed_client_tx_pkts_total[5m]), 1) > 0.10) or vector(0)",
+          "expr": "count(rate(unleashed_client_retries_total{site=~\"$site\"}[5m]) / clamp_min(rate(unleashed_client_tx_pkts_total{site=~\"$site\"}[5m]), 1) > 0.10) or vector(0)",
           "instant": true,
           "refId": "A"
         }
@@ -374,7 +389,7 @@
       },
       "targets": [
         {
-          "expr": "unleashed_client_rssi_dbm and (unleashed_client_rssi_dbm < bool -70 == 1)",
+          "expr": "unleashed_client_rssi_dbm{site=~\"$site\"} and (unleashed_client_rssi_dbm{site=~\"$site\"} < bool -70 == 1)",
           "instant": true,
           "format": "table",
           "refId": "A"
@@ -469,7 +484,7 @@
       },
       "targets": [
         {
-          "expr": "rate(unleashed_client_retries_total[5m]) / clamp_min(rate(unleashed_client_tx_pkts_total[5m]), 1) * 100 > 10",
+          "expr": "rate(unleashed_client_retries_total{site=~\"$site\"}[5m]) / clamp_min(rate(unleashed_client_tx_pkts_total{site=~\"$site\"}[5m]), 1) * 100 > 10",
           "instant": true,
           "format": "table",
           "refId": "A"
@@ -572,7 +587,7 @@
       },
       "targets": [
         {
-          "expr": "bottomk(10, unleashed_client_tx_rate_kbps / 1000)",
+          "expr": "bottomk(10, unleashed_client_tx_rate_kbps{site=~\"$site\"} / 1000)",
           "instant": true,
           "format": "table",
           "refId": "A"
@@ -683,17 +698,17 @@
       },
       "targets": [
         {
-          "expr": "unleashed_client_rssi_dbm{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}",
+          "expr": "unleashed_client_rssi_dbm{site=~\"$site\", ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}",
           "legendFormat": "{{ hostname }} ({{ ap_name }})",
           "refId": "A"
         },
         {
-          "expr": "unleashed_client_min_rssi_dbm{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}",
+          "expr": "unleashed_client_min_rssi_dbm{site=~\"$site\", ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}",
           "legendFormat": "{{ hostname }} ({{ ap_name }}) MIN",
           "refId": "B"
         },
         {
-          "expr": "unleashed_client_max_rssi_dbm{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}",
+          "expr": "unleashed_client_max_rssi_dbm{site=~\"$site\", ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}",
           "legendFormat": "{{ hostname }} ({{ ap_name }}) MAX",
           "refId": "C"
         }
@@ -738,7 +753,7 @@
       },
       "targets": [
         {
-          "expr": "unleashed_client_snr_db{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}",
+          "expr": "unleashed_client_snr_db{site=~\"$site\", ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}",
           "legendFormat": "{{ hostname }} ({{ ap_name }})",
           "refId": "A"
         }
@@ -761,7 +776,7 @@
       },
       "targets": [
         {
-          "expr": "unleashed_client_tx_rate_kbps{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"} / 1000",
+          "expr": "unleashed_client_tx_rate_kbps{site=~\"$site\", ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"} / 1000",
           "legendFormat": "{{ hostname }} ({{ ap_name }})",
           "refId": "A"
         }
@@ -785,7 +800,7 @@
       },
       "targets": [
         {
-          "expr": "rate(unleashed_client_retries_total{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}[5m]) / clamp_min(rate(unleashed_client_tx_pkts_total{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}[5m]), 1) * 100",
+          "expr": "rate(unleashed_client_retries_total{site=~\"$site\", ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}[5m]) / clamp_min(rate(unleashed_client_tx_pkts_total{site=~\"$site\", ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}[5m]), 1) * 100",
           "legendFormat": "{{ hostname }} ({{ ap_name }})",
           "refId": "A"
         }
@@ -833,7 +848,7 @@
       },
       "targets": [
         {
-          "expr": "rate(unleashed_client_rx_bytes_total{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}[5m]) * 8 + rate(unleashed_client_tx_bytes_total{ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}[5m]) * 8",
+          "expr": "rate(unleashed_client_rx_bytes_total{site=~\"$site\", ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}[5m]) * 8 + rate(unleashed_client_tx_bytes_total{site=~\"$site\", ap_name=~\"$ap_name\", ssid=~\"$ssid\", radio_band=~\"$radio_band\", hostname=~\"$hostname\", client_mac=~\"$client_mac\"}[5m]) * 8",
           "legendFormat": "{{ hostname }} ({{ ap_name }})",
           "refId": "A"
         }

@@ -1,0 +1,21 @@
+global:
+  scrape_interval: 30s
+  evaluation_interval: 60s
+
+scrape_configs:
+  # Federation - scrape /federate from site-level Prometheus members
+  - job_name: federation
+    scrape_interval: 30s
+    scrape_timeout: 25s
+    honor_labels: true
+    metrics_path: /federate
+    params:
+      match[]:
+        - '{__name__=~"unleashed_.*"}'
+        - '{__name__=~"snmp_.*"}'
+        - '{__name__=~"probe_.*"}'
+        - '{__name__="up"}'
+    file_sd_configs:
+      - files:
+          - /etc/prometheus/federation-targets.yml
+        refresh_interval: 30s

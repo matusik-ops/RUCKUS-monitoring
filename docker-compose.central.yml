@@ -1,0 +1,45 @@
+# Ruckus Monitoring - Central Federation Server
+# Master Prometheus + Grafana for cross-site monitoring
+#
+# Usage: docker compose -f docker-compose.central.yml -p ruckus-central up -d
+# Ports: Prometheus :9190, Grafana :3100
+
+name: ruckus-central
+
+services:
+  prometheus-master:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus/prometheus.central.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/federation-targets.yml:/etc/prometheus/federation-targets.yml:ro
+      - prometheus_master_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d}"
+      - "--web.enable-lifecycle"
+    ports:
+      - "9190:9090"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  grafana-central:
+    image: grafana/grafana:latest
+    volumes:
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/provisioning/alerting:/etc/grafana/provisioning/alerting:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ./central/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - grafana_central_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/network-overview.json
+    ports:
+      - "3100:3000"
+    depends_on:
+      - prometheus-master
+    restart: unless-stopped
+
+volumes:
+  prometheus_master_data:
+  grafana_central_data:
