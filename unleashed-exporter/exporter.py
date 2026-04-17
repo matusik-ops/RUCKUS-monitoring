@@ -591,8 +591,15 @@ def _detect_device_groups(stations: list[dict]) -> dict[str, str]:
     return mac_to_device
 
 
+_client_earliest_assoc: dict[str, float] = {}
+
+
 def _clear_client_metrics(known_labels: set[tuple]):
     """Remove metrics for clients no longer present."""
+    known_macs = {lbl[0] for lbl in known_labels}
+    for mac in list(_client_earliest_assoc):
+        if mac not in known_macs:
+            del _client_earliest_assoc[mac]
     for gauge in _CLIENT_GAUGES:
         stale = set(gauge._metrics.keys()) - known_labels
         for key in stale:
@@ -669,7 +676,11 @@ def update_metrics(stations: list[dict]):
 
         assoc = sta.get("first-assoc")
         if assoc is not None:
-            client_assoc_time.labels(*labels).set(float(assoc))
+            assoc_val = float(assoc)
+            prev = _client_earliest_assoc.get(mac)
+            if prev is None or assoc_val < prev:
+                _client_earliest_assoc[mac] = assoc_val
+            client_assoc_time.labels(*labels).set(_client_earliest_assoc[mac])
 
         retries = sta.get("total-retries")
         if retries is not None:
