@@ -47,7 +47,7 @@ services:
       - "--web.enable-lifecycle"
       - "--enable-feature=expand-external-labels"
     ports:
-      - "${PROMETHEUS_PORT:-9090}:9090"
+      - "9091:9090"
     depends_on:
       - snmp-exporter
       - unleashed-exporter
