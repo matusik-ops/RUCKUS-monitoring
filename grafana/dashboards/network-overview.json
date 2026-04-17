@@ -683,6 +683,105 @@
       }
     },
     {
+      "id": 252,
+      "title": "DFS / Radio Event History",
+      "type": "table",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 30
+      },
+      "targets": [
+        {
+          "expr": "unleashed_alarm_radio_event{site=~\"$site\"}",
+          "instant": true,
+          "format": "table",
+          "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "job": true,
+              "instance": true,
+              "site": true,
+              "event_id": true
+            },
+            "renameByName": {
+              "ap_name": "AP",
+              "radio_band": "Band",
+              "event_type": "Event",
+              "Value": "Timestamp"
+            },
+            "indexByName": {
+              "ap_name": 0,
+              "radio_band": 1,
+              "event_type": 2,
+              "Value": 3
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "field": "Timestamp",
+                "desc": true
+              }
+            ]
+          }
+        }
+      ],
+      "fieldConfig": {
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Timestamp"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeFromNow"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Event"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "off": { "text": "Radio OFF", "color": "red" },
+                      "on": { "text": "Radio ON", "color": "green" }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "id": 11,
       "title": "Airtime Busy % (2.4GHz)",
       "type": "bargauge",
@@ -690,7 +789,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 30
+        "y": 38
       },
       "targets": [
         {
@@ -742,7 +841,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 30
+        "y": 38
       },
       "targets": [
         {
@@ -794,7 +893,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 30
+        "y": 38
       },
       "targets": [
         {
@@ -846,7 +945,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 46
       },
       "options": {
         "mode": "markdown",
@@ -861,7 +960,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 40
+        "y": 48
       },
       "targets": [
         {
@@ -958,7 +1057,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 40
+        "y": 48
       },
       "targets": [
         {
@@ -1051,7 +1150,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 48
+        "y": 56
       },
       "options": {
         "mode": "markdown",
@@ -1066,7 +1165,7 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 50
+        "y": 58
       },
       "targets": [
         {
@@ -1084,7 +1183,7 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 50
+        "y": 58
       },
       "targets": [
         {
@@ -1127,7 +1226,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 50
+        "y": 58
       },
       "targets": [
         {
@@ -1155,7 +1254,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 57
+        "y": 65
       },
       "options": {
         "mode": "markdown",
@@ -1170,7 +1269,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 59
+        "y": 67
       },
       "targets": [
         {
@@ -1189,7 +1288,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 59
+        "y": 67
       },
       "targets": [
         {
@@ -1208,7 +1307,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 59
+        "y": 67
       },
       "targets": [
         {

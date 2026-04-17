@@ -359,6 +359,19 @@ rogue_detected_event_total = Counter(
     registry=registry,
 )
 
+alarm_radio_event = Gauge(
+    "unleashed_alarm_radio_event",
+    "Historical Radio Off/On events from AP alarm log (value=unix timestamp)",
+    ["ap_name", "radio_band", "event_type", "event_id"],
+    registry=registry,
+)
+alarm_ap_event = Gauge(
+    "unleashed_alarm_ap_event",
+    "Historical AP events from alarm log (value=unix timestamp)",
+    ["ap_name", "event_type", "reason", "event_id"],
+    registry=registry,
+)
+
 _last_alarm_time: float = 0.0
 _last_xevent_time: float = 0.0
 
@@ -1079,28 +1092,50 @@ def update_rogue_metrics(entries: list[dict]):
              len(unique_rogues), len(malicious_rogues), len(band_counts))
 
 
+def _normalize_band(raw: str) -> str:
+    b = raw.lower().replace(".", "")
+    if b in ("24g", "24G"):
+        return "2.4g"
+    elif b in ("5g", "5G"):
+        return "5g"
+    return b
+
+
 def update_alarm_metrics(alarms: list[dict]):
-    """Process alarm entries and increment event counters."""
+    """Process alarm entries: populate history gauges and increment counters."""
     global _last_alarm_time
+
+    # Clear previous history gauges and repopulate from full alarm list
+    alarm_radio_event._metrics.clear()
+    alarm_ap_event._metrics.clear()
+
     for alarm in alarms:
         t = float(alarm.get("time", 0))
-        if t <= _last_alarm_time:
-            continue
         name = alarm.get("name", "")
         ap = alarm.get("ap-name", "unknown")
+        eid = alarm.get("id", "0")
+
+        # History gauges — always set from full alarm list
+        if name in ("AP Radio Off", "AP Radio On"):
+            band = _normalize_band(alarm.get("radioindex", ""))
+            etype = "off" if "Off" in name else "on"
+            alarm_radio_event.labels(
+                ap_name=ap, radio_band=band, event_type=etype, event_id=eid
+            ).set(t)
+        elif name == "AP Has Joined":
+            reason = alarm.get("reason", "")
+            alarm_ap_event.labels(
+                ap_name=ap, event_type="join", reason=reason, event_id=eid
+            ).set(t)
+
+        # Counters — only increment for new events
+        if t <= _last_alarm_time:
+            continue
         if name == "AP Radio Off":
-            band = alarm.get("radioindex", "").lower().replace(".", "")
-            if band in ("24g", "2.4g", "24G"):
-                band = "2.4g"
-            elif band in ("5g", "5G"):
-                band = "5g"
+            band = _normalize_band(alarm.get("radioindex", ""))
             ap_radio_off_total.labels(ap_name=ap, radio_band=band).inc()
         elif name == "AP Radio On":
-            band = alarm.get("radioindex", "").lower().replace(".", "")
-            if band in ("24g", "2.4g", "24G"):
-                band = "2.4g"
-            elif band in ("5g", "5G"):
-                band = "5g"
+            band = _normalize_band(alarm.get("radioindex", ""))
             ap_radio_on_total.labels(ap_name=ap, radio_band=band).inc()
         elif name == "AP Has Joined":
             ap_join_event_total.labels(ap_name=ap).inc()
