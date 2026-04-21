@@ -2477,6 +2477,18 @@
               "instant": true,
               "format": "table",
               "refId": "lan_drop"
+            },
+            {
+              "expr": "unleashed_ap_app_reboots_total{site=~\"$site\"}",
+              "instant": true,
+              "format": "table",
+              "refId": "appreboots"
+            },
+            {
+              "expr": "unleashed_ap_powercycle_reboots_total{site=~\"$site\"}",
+              "instant": true,
+              "format": "table",
+              "refId": "pwreboots"
             }
           ],
           "transformations": [
@@ -2568,7 +2580,9 @@
                   "Value #joins": "Rejoin Count",
                   "Value #kpanic": "Kernel Panics",
                   "Value #totboot": "Total Boots",
-                  "Value #crash": "Crashfile?"
+                  "Value #crash": "Crashfile?",
+                  "Value #appreboots": "App Reboots",
+                  "Value #pwreboots": "Power Reboots"
                 }
               }
             },

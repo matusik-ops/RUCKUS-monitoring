@@ -782,6 +782,138 @@
       }
     },
     {
+      "id": 258,
+      "title": "Retries per AP (2.4GHz)",
+      "type": "bargauge",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 38
+      },
+      "targets": [
+        {
+          "expr": "unleashed_radio_retries_total{site=~\"$site\", radio_band=\"2.4g\"}",
+          "legendFormat": "{{ ap_name }}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 100000,
+                "color": "yellow"
+              },
+              {
+                "value": 1000000,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 259,
+      "title": "Retries per AP (5GHz)",
+      "type": "bargauge",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 38
+      },
+      "targets": [
+        {
+          "expr": "unleashed_radio_retries_total{site=~\"$site\", radio_band=\"5g\"}",
+          "legendFormat": "{{ ap_name }}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 100000,
+                "color": "yellow"
+              },
+              {
+                "value": 1000000,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 260,
+      "title": "Tx Failures per AP",
+      "type": "bargauge",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 38
+      },
+      "targets": [
+        {
+          "expr": "sum by (ap_name) (unleashed_radio_tx_fail_total{site=~\"$site\"})",
+          "legendFormat": "{{ ap_name }}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 10000,
+                "color": "yellow"
+              },
+              {
+                "value": 100000,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
       "id": 11,
       "title": "Airtime Busy % (2.4GHz)",
       "type": "bargauge",
