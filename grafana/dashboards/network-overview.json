@@ -897,7 +897,7 @@
       },
       "targets": [
         {
-          "expr": "unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"2.4g\"} + unleashed_radio_auth_success{site=~\"$site\", radio_band=\"2.4g\"}, 1) * 100 > 0",
+          "expr": "unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"2.4g\"} + unleashed_radio_auth_success{site=~\"$site\", radio_band=\"2.4g\"}, 1) * 100",
           "legendFormat": "{{ ap_name }}",
           "instant": true,
           "refId": "A"
@@ -943,7 +943,7 @@
       },
       "targets": [
         {
-          "expr": "unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"5g\"} / clamp_min(unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"5g\"} + unleashed_radio_auth_success{site=~\"$site\", radio_band=\"5g\"}, 1) * 100 > 0",
+          "expr": "unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"5g\"} / clamp_min(unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"5g\"} + unleashed_radio_auth_success{site=~\"$site\", radio_band=\"5g\"}, 1) * 100",
           "legendFormat": "{{ ap_name }}",
           "instant": true,
           "refId": "A"
