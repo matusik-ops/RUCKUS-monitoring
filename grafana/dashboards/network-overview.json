@@ -978,80 +978,6 @@
       }
     },
     {
-      "id": 254,
-      "title": "Auth Failures per Hour (2.4GHz)",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 54
-      },
-      "targets": [
-        {
-          "expr": "increase(unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"2.4g\"}[1h])",
-          "legendFormat": "{{ ap_name }}",
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "tooltip": {
-          "mode": "multi"
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "decimals": 0,
-          "custom": {
-            "drawStyle": "bars",
-            "barAlignment": 0,
-            "fillOpacity": 80,
-            "stacking": {
-              "mode": "normal"
-            }
-          }
-        }
-      }
-    },
-    {
-      "id": 255,
-      "title": "Auth Failures per Hour (5GHz)",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 54
-      },
-      "targets": [
-        {
-          "expr": "increase(unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"5g\"}[1h])",
-          "legendFormat": "{{ ap_name }}",
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "tooltip": {
-          "mode": "multi"
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "decimals": 0,
-          "custom": {
-            "drawStyle": "bars",
-            "barAlignment": 0,
-            "fillOpacity": 80,
-            "stacking": {
-              "mode": "normal"
-            }
-          }
-        }
-      }
-    },
-    {
       "id": 300,
       "title": "",
       "type": "text",
@@ -1361,6 +1287,54 @@
       }
     },
     {
+      "id": 256,
+      "title": "Auth Failures per AP (2.4GHz)",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 65
+      },
+      "targets": [
+        {
+          "expr": "increase(unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"2.4g\"}[1h])",
+          "legendFormat": "{{ ap_name }}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "id": 257,
+      "title": "Auth Failures per AP (5GHz)",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 65
+      },
+      "targets": [
+        {
+          "expr": "increase(unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"5g\"}[1h])",
+          "legendFormat": "{{ ap_name }}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0
+        }
+      }
+    },
+    {
       "id": 500,
       "title": "",
       "type": "text",
@@ -1368,7 +1342,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 65
+        "y": 72
       },
       "options": {
         "mode": "markdown",
@@ -1383,7 +1357,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 67
+        "y": 74
       },
       "targets": [
         {
@@ -1402,7 +1376,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 67
+        "y": 74
       },
       "targets": [
         {
@@ -1421,7 +1395,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 67
+        "y": 74
       },
       "targets": [
         {
