@@ -215,6 +215,7 @@
               "__name__": true,
               "job": true,
               "instance": true,
+              "site": true,
               "Value": true
             },
             "renameByName": {
@@ -968,6 +969,7 @@
               "__name__": true,
               "job": true,
               "instance": true,
+              "site": true,
               "client_mac": true
             },
             "renameByName": {
