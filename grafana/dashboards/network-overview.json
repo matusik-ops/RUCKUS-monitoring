@@ -515,7 +515,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (ap_name) (rate(unleashed_radio_tx_bytes_total{site=~\"$site\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\"}[5m])) * 8 > 0",
+          "expr": "sum by (ap_name) (rate(unleashed_radio_tx_bytes_total{site=~\"$site\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\"}[5m])) * 8",
           "legendFormat": "{{ ap_name }}",
           "instant": true,
           "refId": "A"
@@ -565,7 +565,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (ap_name) (unleashed_radio_num_sta{site=~\"$site\"}) > 0",
+          "expr": "sum by (ap_name) (unleashed_radio_num_sta{site=~\"$site\"})",
           "legendFormat": "{{ ap_name }}",
           "instant": true,
           "refId": "A"
@@ -614,7 +614,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (ap_name) (rate(unleashed_radio_tx_pkts_total{site=~\"$site\"}[5m]) + rate(unleashed_radio_rx_pkts_total{site=~\"$site\"}[5m])) > 0",
+          "expr": "sum by (ap_name) (rate(unleashed_radio_tx_pkts_total{site=~\"$site\"}[5m]) + rate(unleashed_radio_rx_pkts_total{site=~\"$site\"}[5m]))",
           "legendFormat": "{{ ap_name }}",
           "instant": true,
           "refId": "A"
