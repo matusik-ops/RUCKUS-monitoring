@@ -887,7 +887,7 @@
     },
     {
       "id": 13,
-      "title": "Auth Fail Rate % (per AP)",
+      "title": "Auth Fail Rate % 2.4GHz",
       "type": "bargauge",
       "gridPos": {
         "h": 8,
@@ -897,7 +897,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (ap_name) (unleashed_radio_auth_fail{site=~\"$site\"}) / clamp_min(sum by (ap_name) (unleashed_radio_auth_fail{site=~\"$site\"} + unleashed_radio_auth_success{site=~\"$site\"}), 1) * 100 > 0",
+          "expr": "unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"2.4g\"} + unleashed_radio_auth_success{site=~\"$site\", radio_band=\"2.4g\"}, 1) * 100 > 0",
           "legendFormat": "{{ ap_name }}",
           "instant": true,
           "refId": "A"
@@ -927,13 +927,53 @@
                 "color": "red"
               }
             ]
-          },
-          "links": [
-            {
-              "title": "Radio Health",
-              "url": "/d/ruckus-radio-health?var-ap_name=${__field.labels.ap_name}"
-            }
-          ]
+          }
+        }
+      }
+    },
+    {
+      "id": 253,
+      "title": "Auth Fail Rate % 5GHz",
+      "type": "bargauge",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 46
+      },
+      "targets": [
+        {
+          "expr": "unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"5g\"} / clamp_min(unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"5g\"} + unleashed_radio_auth_success{site=~\"$site\", radio_band=\"5g\"}, 1) * 100 > 0",
+          "legendFormat": "{{ ap_name }}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 5,
+                "color": "yellow"
+              },
+              {
+                "value": 20,
+                "color": "red"
+              }
+            ]
+          }
         }
       }
     },
