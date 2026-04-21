@@ -554,7 +554,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (ap_name) (rate(unleashed_radio_tx_bytes_total{site=~\"$site\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\"}[5m])) * 8 > 0",
+          "expr": "sum by (ap_name) (rate(unleashed_radio_tx_bytes_total{site=~\"$site\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\"}[5m])) * 8",
           "legendFormat": "{{ ap_name }}",
           "instant": true,
           "refId": "A"
