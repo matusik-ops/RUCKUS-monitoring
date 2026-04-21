@@ -544,17 +544,18 @@
     },
     {
       "id": 217,
-      "title": "AP01 Throughput",
-      "type": "stat",
+      "title": "Throughput per AP",
+      "type": "bargauge",
       "gridPos": {
-        "h": 4,
-        "w": 4,
+        "h": 6,
+        "w": 24,
         "x": 0,
         "y": 24
       },
       "targets": [
         {
-          "expr": "sum(rate(unleashed_radio_tx_bytes_total{site=~\"$site\", ap_name=\"AP01\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\", ap_name=\"AP01\"}[5m])) * 8",
+          "expr": "sum by (ap_name) (rate(unleashed_radio_tx_bytes_total{site=~\"$site\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\"}[5m])) * 8 > 0",
+          "legendFormat": "{{ ap_name }}",
           "instant": true,
           "refId": "A"
         }
@@ -569,55 +570,9 @@
           ]
         }
       },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bps",
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "blue"
-              },
-              {
-                "value": 10000000,
-                "color": "yellow"
-              },
-              {
-                "value": 100000000,
-                "color": "green"
-              }
-            ]
-          },
-          "decimals": 2
-        }
-      }
-    },
-    {
-      "id": 218,
-      "title": "AP02 Throughput",
-      "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 4,
-        "y": 24
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(unleashed_radio_tx_bytes_total{site=~\"$site\", ap_name=\"AP02\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\", ap_name=\"AP02\"}[5m])) * 8",
-          "instant": true,
-          "refId": "A"
-        }
-      ],
       "options": {
-        "textMode": "value",
-        "graphMode": "area",
-        "colorMode": "value",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
+        "orientation": "horizontal",
+        "displayMode": "gradient"
       },
       "fieldConfig": {
         "defaults": {
@@ -626,7 +581,7 @@
             "steps": [
               {
                 "value": 0,
-                "color": "blue"
+                "color": "green"
               },
               {
                 "value": 10000000,
@@ -634,261 +589,10 @@
               },
               {
                 "value": 100000000,
-                "color": "green"
+                "color": "red"
               }
             ]
-          },
-          "decimals": 2
-        }
-      }
-    },
-    {
-      "id": 219,
-      "title": "AP05 Throughput",
-      "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 8,
-        "y": 24
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(unleashed_radio_tx_bytes_total{site=~\"$site\", ap_name=\"AP05\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\", ap_name=\"AP05\"}[5m])) * 8",
-          "instant": true,
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "textMode": "value",
-        "graphMode": "area",
-        "colorMode": "value",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bps",
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "blue"
-              },
-              {
-                "value": 10000000,
-                "color": "yellow"
-              },
-              {
-                "value": 100000000,
-                "color": "green"
-              }
-            ]
-          },
-          "decimals": 2
-        }
-      }
-    },
-    {
-      "id": 220,
-      "title": "AP06 Throughput",
-      "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 3,
-        "x": 12,
-        "y": 24
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(unleashed_radio_tx_bytes_total{site=~\"$site\", ap_name=\"AP06\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\", ap_name=\"AP06\"}[5m])) * 8",
-          "instant": true,
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "textMode": "value",
-        "graphMode": "area",
-        "colorMode": "value",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bps",
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "blue"
-              },
-              {
-                "value": 10000000,
-                "color": "yellow"
-              },
-              {
-                "value": 100000000,
-                "color": "green"
-              }
-            ]
-          },
-          "decimals": 2
-        }
-      }
-    },
-    {
-      "id": 221,
-      "title": "AP08 Throughput",
-      "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 3,
-        "x": 15,
-        "y": 24
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(unleashed_radio_tx_bytes_total{site=~\"$site\", ap_name=\"AP08\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\", ap_name=\"AP08\"}[5m])) * 8",
-          "instant": true,
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "textMode": "value",
-        "graphMode": "area",
-        "colorMode": "value",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bps",
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "blue"
-              },
-              {
-                "value": 10000000,
-                "color": "yellow"
-              },
-              {
-                "value": 100000000,
-                "color": "green"
-              }
-            ]
-          },
-          "decimals": 2
-        }
-      }
-    },
-    {
-      "id": 222,
-      "title": "AP09-sales Throughput",
-      "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 3,
-        "x": 18,
-        "y": 24
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(unleashed_radio_tx_bytes_total{site=~\"$site\", ap_name=\"AP09-sales\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\", ap_name=\"AP09-sales\"}[5m])) * 8",
-          "instant": true,
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "textMode": "value",
-        "graphMode": "area",
-        "colorMode": "value",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bps",
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "blue"
-              },
-              {
-                "value": 10000000,
-                "color": "yellow"
-              },
-              {
-                "value": 100000000,
-                "color": "green"
-              }
-            ]
-          },
-          "decimals": 2
-        }
-      }
-    },
-    {
-      "id": 223,
-      "title": "AP10 Throughput",
-      "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 3,
-        "x": 21,
-        "y": 24
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(unleashed_radio_tx_bytes_total{site=~\"$site\", ap_name=\"AP10\"}[5m]) + rate(unleashed_radio_rx_bytes_total{site=~\"$site\", ap_name=\"AP10\"}[5m])) * 8",
-          "instant": true,
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "textMode": "value",
-        "graphMode": "area",
-        "colorMode": "value",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bps",
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "blue"
-              },
-              {
-                "value": 10000000,
-                "color": "yellow"
-              },
-              {
-                "value": 100000000,
-                "color": "green"
-              }
-            ]
-          },
-          "decimals": 2
+          }
         }
       }
     },
