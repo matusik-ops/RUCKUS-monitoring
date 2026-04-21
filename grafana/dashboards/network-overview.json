@@ -979,92 +979,74 @@
     },
     {
       "id": 254,
-      "title": "Auth Failures Last Hour (2.4GHz)",
-      "type": "bargauge",
+      "title": "Auth Failures per Hour (2.4GHz)",
+      "type": "timeseries",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 12,
         "x": 0,
         "y": 54
       },
       "targets": [
         {
-          "expr": "increase(unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"2.4g\"}[1h]) > 0",
+          "expr": "increase(unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"2.4g\"}[1h])",
           "legendFormat": "{{ ap_name }}",
-          "instant": true,
           "refId": "A"
         }
       ],
       "options": {
-        "orientation": "horizontal",
-        "displayMode": "gradient"
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "fieldConfig": {
         "defaults": {
           "unit": "short",
           "decimals": 0,
-          "noValue": "0 failures",
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 5,
-                "color": "yellow"
-              },
-              {
-                "value": 50,
-                "color": "red"
-              }
-            ]
+          "custom": {
+            "drawStyle": "bars",
+            "barAlignment": 0,
+            "fillOpacity": 80,
+            "stacking": {
+              "mode": "normal"
+            }
           }
         }
       }
     },
     {
       "id": 255,
-      "title": "Auth Failures Last Hour (5GHz)",
-      "type": "bargauge",
+      "title": "Auth Failures per Hour (5GHz)",
+      "type": "timeseries",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 12,
+        "x": 12,
         "y": 54
       },
       "targets": [
         {
-          "expr": "increase(unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"5g\"}[1h]) > 0",
+          "expr": "increase(unleashed_radio_auth_fail{site=~\"$site\", radio_band=\"5g\"}[1h])",
           "legendFormat": "{{ ap_name }}",
-          "instant": true,
           "refId": "A"
         }
       ],
       "options": {
-        "orientation": "horizontal",
-        "displayMode": "gradient"
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "fieldConfig": {
         "defaults": {
           "unit": "short",
           "decimals": 0,
-          "noValue": "0 failures",
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 5,
-                "color": "yellow"
-              },
-              {
-                "value": 50,
-                "color": "red"
-              }
-            ]
+          "custom": {
+            "drawStyle": "bars",
+            "barAlignment": 0,
+            "fillOpacity": 80,
+            "stacking": {
+              "mode": "normal"
+            }
           }
         }
       }
