@@ -916,7 +916,7 @@
     {
       "id": 11,
       "title": "Airtime Breakdown % (2.4GHz)",
-      "type": "barchart",
+      "type": "table",
       "gridPos": {
         "h": 10,
         "w": 12,
@@ -926,49 +926,108 @@
       "targets": [
         {
           "expr": "unleashed_radio_airtime_tx{site=~\"$site\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"2.4g\"}, 1) * 100",
-          "legendFormat": "{{ ap_name }} Tx",
           "instant": true,
+          "format": "table",
           "refId": "tx"
         },
         {
           "expr": "unleashed_radio_airtime_rx{site=~\"$site\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"2.4g\"}, 1) * 100",
-          "legendFormat": "{{ ap_name }} Rx",
           "instant": true,
+          "format": "table",
           "refId": "rx"
         },
         {
           "expr": "unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"2.4g\"}, 1) * 100",
-          "legendFormat": "{{ ap_name }} Interference",
           "instant": true,
+          "format": "table",
           "refId": "busy"
+        },
+        {
+          "expr": "(unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"2.4g\"} + unleashed_radio_airtime_tx{site=~\"$site\", radio_band=\"2.4g\"} + unleashed_radio_airtime_rx{site=~\"$site\", radio_band=\"2.4g\"}) / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"2.4g\"}, 1) * 100",
+          "instant": true,
+          "format": "table",
+          "refId": "total"
         }
       ],
-      "options": {
-        "orientation": "horizontal",
-        "stacking": "normal",
-        "showValue": "always",
-        "barWidth": 0.8,
-        "groupWidth": 0.7
-      },
+      "transformations": [
+        {
+          "id": "merge"
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "job": true,
+              "instance": true,
+              "site": true,
+              "radio_band": true,
+              "channel": true
+            },
+            "renameByName": {
+              "ap_name": "AP",
+              "Value #tx": "Tx %",
+              "Value #rx": "Rx %",
+              "Value #busy": "Interference %",
+              "Value #total": "Total %"
+            },
+            "indexByName": {
+              "ap_name": 0,
+              "Value #tx": 1,
+              "Value #rx": 2,
+              "Value #busy": 3,
+              "Value #total": 4
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [{ "field": "Total %", "desc": true }]
+          }
+        }
+      ],
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "min": 0,
-          "max": 100,
           "decimals": 1
         },
         "overrides": [
           {
-            "matcher": { "id": "byRegexp", "options": "Tx$" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
+            "matcher": { "id": "byName", "options": "Tx %" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "type": "gauge", "mode": "basic" } },
+              { "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } },
+              { "id": "max", "value": 100 }
+            ]
           },
           {
-            "matcher": { "id": "byRegexp", "options": "Rx$" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }]
+            "matcher": { "id": "byName", "options": "Rx %" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "type": "gauge", "mode": "basic" } },
+              { "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } },
+              { "id": "max", "value": 100 }
+            ]
           },
           {
-            "matcher": { "id": "byRegexp", "options": "Interference$" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
+            "matcher": { "id": "byName", "options": "Interference %" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "type": "gauge", "mode": "basic" } },
+              { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } },
+              { "id": "max", "value": 100 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Total %" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
+              { "id": "thresholds", "value": { "steps": [
+                { "value": 0, "color": "green" },
+                { "value": 40, "color": "yellow" },
+                { "value": 70, "color": "red" }
+              ]}}
+            ]
           }
         ]
       }
@@ -976,7 +1035,7 @@
     {
       "id": 12,
       "title": "Airtime Breakdown % (5GHz)",
-      "type": "barchart",
+      "type": "table",
       "gridPos": {
         "h": 10,
         "w": 12,
@@ -986,49 +1045,108 @@
       "targets": [
         {
           "expr": "unleashed_radio_airtime_tx{site=~\"$site\", radio_band=\"5g\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"5g\"}, 1) * 100",
-          "legendFormat": "{{ ap_name }} Tx",
           "instant": true,
+          "format": "table",
           "refId": "tx"
         },
         {
           "expr": "unleashed_radio_airtime_rx{site=~\"$site\", radio_band=\"5g\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"5g\"}, 1) * 100",
-          "legendFormat": "{{ ap_name }} Rx",
           "instant": true,
+          "format": "table",
           "refId": "rx"
         },
         {
           "expr": "unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"5g\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"5g\"}, 1) * 100",
-          "legendFormat": "{{ ap_name }} Interference",
           "instant": true,
+          "format": "table",
           "refId": "busy"
+        },
+        {
+          "expr": "(unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"5g\"} + unleashed_radio_airtime_tx{site=~\"$site\", radio_band=\"5g\"} + unleashed_radio_airtime_rx{site=~\"$site\", radio_band=\"5g\"}) / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"5g\"}, 1) * 100",
+          "instant": true,
+          "format": "table",
+          "refId": "total"
         }
       ],
-      "options": {
-        "orientation": "horizontal",
-        "stacking": "normal",
-        "showValue": "always",
-        "barWidth": 0.8,
-        "groupWidth": 0.7
-      },
+      "transformations": [
+        {
+          "id": "merge"
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "job": true,
+              "instance": true,
+              "site": true,
+              "radio_band": true,
+              "channel": true
+            },
+            "renameByName": {
+              "ap_name": "AP",
+              "Value #tx": "Tx %",
+              "Value #rx": "Rx %",
+              "Value #busy": "Interference %",
+              "Value #total": "Total %"
+            },
+            "indexByName": {
+              "ap_name": 0,
+              "Value #tx": 1,
+              "Value #rx": 2,
+              "Value #busy": 3,
+              "Value #total": 4
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [{ "field": "Total %", "desc": true }]
+          }
+        }
+      ],
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "min": 0,
-          "max": 100,
           "decimals": 1
         },
         "overrides": [
           {
-            "matcher": { "id": "byRegexp", "options": "Tx$" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
+            "matcher": { "id": "byName", "options": "Tx %" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "type": "gauge", "mode": "basic" } },
+              { "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } },
+              { "id": "max", "value": 100 }
+            ]
           },
           {
-            "matcher": { "id": "byRegexp", "options": "Rx$" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }]
+            "matcher": { "id": "byName", "options": "Rx %" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "type": "gauge", "mode": "basic" } },
+              { "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } },
+              { "id": "max", "value": 100 }
+            ]
           },
           {
-            "matcher": { "id": "byRegexp", "options": "Interference$" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
+            "matcher": { "id": "byName", "options": "Interference %" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "type": "gauge", "mode": "basic" } },
+              { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } },
+              { "id": "max", "value": 100 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Total %" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
+              { "id": "thresholds", "value": { "steps": [
+                { "value": 0, "color": "green" },
+                { "value": 40, "color": "yellow" },
+                { "value": 70, "color": "red" }
+              ]}}
+            ]
           }
         ]
       }
