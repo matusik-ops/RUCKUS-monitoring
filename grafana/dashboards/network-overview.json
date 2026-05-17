@@ -59,7 +59,7 @@
       },
       "targets": [
         {
-          "expr": "(count(unleashed_client_rssi_dbm{site=~\"$site\"} < -70) or vector(0)) + (count(sum by (ap_name) (unleashed_radio_auth_fail{site=~\"$site\"}) / clamp_min(sum by (ap_name) (unleashed_radio_auth_fail{site=~\"$site\"} + unleashed_radio_auth_success{site=~\"$site\"}), 1) > 0.05) or vector(0)) + (count(unleashed_radio_airtime_busy{site=~\"$site\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\"}, 1) > 0.4) or vector(0))",
+          "expr": "(count(unleashed_client_rssi_dbm{site=~\"$site\"} < -70) or vector(0)) + (count(sum by (ap_name) (unleashed_radio_auth_fail{site=~\"$site\"}) / clamp_min(sum by (ap_name) (unleashed_radio_auth_fail{site=~\"$site\"} + unleashed_radio_auth_success{site=~\"$site\"}), 1) > 0.05) or vector(0)) + (count((unleashed_radio_airtime_busy{site=~\"$site\"} + unleashed_radio_airtime_tx{site=~\"$site\"} + unleashed_radio_airtime_rx{site=~\"$site\"}) / clamp_min(unleashed_radio_airtime_total{site=~\"$site\"}, 1) > 0.4) or vector(0))",
           "instant": true,
           "refId": "A"
         }
@@ -915,7 +915,7 @@
     },
     {
       "id": 11,
-      "title": "Airtime Busy % (2.4GHz)",
+      "title": "Airtime Usage % (2.4GHz)",
       "type": "bargauge",
       "gridPos": {
         "h": 8,
@@ -925,7 +925,7 @@
       },
       "targets": [
         {
-          "expr": "clamp_max(unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"2.4g\"}, 1) * 100, 100)",
+          "expr": "clamp_max((unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"2.4g\"} + unleashed_radio_airtime_tx{site=~\"$site\", radio_band=\"2.4g\"} + unleashed_radio_airtime_rx{site=~\"$site\", radio_band=\"2.4g\"}) / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"2.4g\"}, 1) * 100, 100)",
           "legendFormat": "{{ ap_name }}",
           "instant": true,
           "refId": "A"
@@ -967,7 +967,7 @@
     },
     {
       "id": 12,
-      "title": "Airtime Busy % (5GHz)",
+      "title": "Airtime Usage % (5GHz)",
       "type": "bargauge",
       "gridPos": {
         "h": 8,
@@ -977,7 +977,7 @@
       },
       "targets": [
         {
-          "expr": "clamp_max(unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"5g\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"5g\"}, 1) * 100, 100)",
+          "expr": "clamp_max((unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"5g\"} + unleashed_radio_airtime_tx{site=~\"$site\", radio_band=\"5g\"} + unleashed_radio_airtime_rx{site=~\"$site\", radio_band=\"5g\"}) / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"5g\"}, 1) * 100, 100)",
           "legendFormat": "{{ ap_name }}",
           "instant": true,
           "refId": "A"
