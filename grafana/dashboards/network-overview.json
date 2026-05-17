@@ -1029,10 +1029,10 @@
             "properties": [
               { "id": "custom.cellOptions", "value": { "type": "color-background" } },
               { "id": "thresholds", "value": { "steps": [
-                { "value": 0, "color": "transparent" },
-                { "value": 2, "color": "orange" },
-                { "value": 10, "color": "red" },
-                { "value": 30, "color": "dark-red" }
+                { "value": 0, "color": "green" },
+                { "value": 10, "color": "yellow" },
+                { "value": 20, "color": "orange" },
+                { "value": 30, "color": "red" }
               ]}}
             ]
           },
@@ -1160,10 +1160,10 @@
             "properties": [
               { "id": "custom.cellOptions", "value": { "type": "color-background" } },
               { "id": "thresholds", "value": { "steps": [
-                { "value": 0, "color": "transparent" },
-                { "value": 2, "color": "orange" },
-                { "value": 10, "color": "red" },
-                { "value": 30, "color": "dark-red" }
+                { "value": 0, "color": "green" },
+                { "value": 10, "color": "yellow" },
+                { "value": 20, "color": "orange" },
+                { "value": 30, "color": "red" }
               ]}}
             ]
           },
