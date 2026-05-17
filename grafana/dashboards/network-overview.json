@@ -931,25 +931,25 @@
       },
       "targets": [
         {
-          "expr": "unleashed_radio_airtime_tx{site=~\"$site\", radio_band=\"2.4g\"}",
+          "expr": "unleashed_radio_airtime_tx{site=~\"$site\", radio_band=\"2.4g\"} / 10",
           "instant": true,
           "format": "table",
           "refId": "tx"
         },
         {
-          "expr": "unleashed_radio_airtime_rx{site=~\"$site\", radio_band=\"2.4g\"}",
+          "expr": "unleashed_radio_airtime_rx{site=~\"$site\", radio_band=\"2.4g\"} / 10",
           "instant": true,
           "format": "table",
           "refId": "rx"
         },
         {
-          "expr": "unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"2.4g\"}",
+          "expr": "unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"2.4g\"} / 10",
           "instant": true,
           "format": "table",
           "refId": "busy"
         },
         {
-          "expr": "unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"2.4g\"}",
+          "expr": "unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"2.4g\"} / 10",
           "instant": true,
           "format": "table",
           "refId": "total"
@@ -997,8 +997,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
-          "decimals": 0
+          "decimals": 1
         }
       }
     },
@@ -1014,25 +1013,25 @@
       },
       "targets": [
         {
-          "expr": "unleashed_radio_airtime_tx{site=~\"$site\", radio_band=\"5g\"}",
+          "expr": "unleashed_radio_airtime_tx{site=~\"$site\", radio_band=\"5g\"} / 10",
           "instant": true,
           "format": "table",
           "refId": "tx"
         },
         {
-          "expr": "unleashed_radio_airtime_rx{site=~\"$site\", radio_band=\"5g\"}",
+          "expr": "unleashed_radio_airtime_rx{site=~\"$site\", radio_band=\"5g\"} / 10",
           "instant": true,
           "format": "table",
           "refId": "rx"
         },
         {
-          "expr": "unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"5g\"}",
+          "expr": "unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"5g\"} / 10",
           "instant": true,
           "format": "table",
           "refId": "busy"
         },
         {
-          "expr": "unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"5g\"}",
+          "expr": "unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"5g\"} / 10",
           "instant": true,
           "format": "table",
           "refId": "total"
@@ -1080,8 +1079,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
-          "decimals": 0
+          "decimals": 1
         }
       }
     },
