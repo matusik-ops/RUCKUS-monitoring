@@ -924,7 +924,7 @@
       "title": "Airtime Breakdown (2.4GHz)",
       "type": "table",
       "gridPos": {
-        "h": 10,
+        "h": 12,
         "w": 12,
         "x": 0,
         "y": 46
@@ -1001,53 +1001,154 @@
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "Tx" },
+            "matcher": {
+              "id": "byName",
+              "options": "Tx"
+            },
             "properties": [
-              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
-              { "id": "thresholds", "value": { "steps": [
-                { "value": 0, "color": "green" },
-                { "value": 30, "color": "yellow" },
-                { "value": 50, "color": "orange" },
-                { "value": 70, "color": "red" }
-              ]}}
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 30,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 50,
+                      "color": "orange"
+                    },
+                    {
+                      "value": 70,
+                      "color": "red"
+                    }
+                  ]
+                }
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Rx" },
+            "matcher": {
+              "id": "byName",
+              "options": "Rx"
+            },
             "properties": [
-              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
-              { "id": "thresholds", "value": { "steps": [
-                { "value": 0, "color": "green" },
-                { "value": 20, "color": "yellow" },
-                { "value": 30, "color": "red" }
-              ]}}
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 20,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 30,
+                      "color": "red"
+                    }
+                  ]
+                }
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Interference" },
+            "matcher": {
+              "id": "byName",
+              "options": "Interference"
+            },
             "properties": [
-              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
-              { "id": "thresholds", "value": { "steps": [
-                { "value": 0, "color": "green" },
-                { "value": 10, "color": "yellow" },
-                { "value": 20, "color": "orange" },
-                { "value": 30, "color": "red" }
-              ]}}
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 10,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 20,
+                      "color": "orange"
+                    },
+                    {
+                      "value": 30,
+                      "color": "red"
+                    }
+                  ]
+                }
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Total" },
+            "matcher": {
+              "id": "byName",
+              "options": "Total"
+            },
             "properties": [
-              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
-              { "id": "thresholds", "value": { "steps": [
-                { "value": 0, "color": "green" },
-                { "value": 50, "color": "yellow" },
-                { "value": 70, "color": "orange" },
-                { "value": 90, "color": "red" }
-              ]}}
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 50,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 70,
+                      "color": "orange"
+                    },
+                    {
+                      "value": 90,
+                      "color": "red"
+                    }
+                  ]
+                }
+              }
             ]
           }
         ]
+      },
+      "options": {
+        "cellHeight": "lg",
+        "showHeader": true
       }
     },
     {
@@ -1055,7 +1156,7 @@
       "title": "Airtime Breakdown (5GHz)",
       "type": "table",
       "gridPos": {
-        "h": 10,
+        "h": 12,
         "w": 12,
         "x": 12,
         "y": 46
@@ -1132,53 +1233,154 @@
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "Tx" },
+            "matcher": {
+              "id": "byName",
+              "options": "Tx"
+            },
             "properties": [
-              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
-              { "id": "thresholds", "value": { "steps": [
-                { "value": 0, "color": "green" },
-                { "value": 30, "color": "yellow" },
-                { "value": 50, "color": "orange" },
-                { "value": 70, "color": "red" }
-              ]}}
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 30,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 50,
+                      "color": "orange"
+                    },
+                    {
+                      "value": 70,
+                      "color": "red"
+                    }
+                  ]
+                }
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Rx" },
+            "matcher": {
+              "id": "byName",
+              "options": "Rx"
+            },
             "properties": [
-              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
-              { "id": "thresholds", "value": { "steps": [
-                { "value": 0, "color": "green" },
-                { "value": 20, "color": "yellow" },
-                { "value": 30, "color": "red" }
-              ]}}
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 20,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 30,
+                      "color": "red"
+                    }
+                  ]
+                }
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Interference" },
+            "matcher": {
+              "id": "byName",
+              "options": "Interference"
+            },
             "properties": [
-              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
-              { "id": "thresholds", "value": { "steps": [
-                { "value": 0, "color": "green" },
-                { "value": 10, "color": "yellow" },
-                { "value": 20, "color": "orange" },
-                { "value": 30, "color": "red" }
-              ]}}
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 10,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 20,
+                      "color": "orange"
+                    },
+                    {
+                      "value": 30,
+                      "color": "red"
+                    }
+                  ]
+                }
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Total" },
+            "matcher": {
+              "id": "byName",
+              "options": "Total"
+            },
             "properties": [
-              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
-              { "id": "thresholds", "value": { "steps": [
-                { "value": 0, "color": "green" },
-                { "value": 50, "color": "yellow" },
-                { "value": 70, "color": "orange" },
-                { "value": 90, "color": "red" }
-              ]}}
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 50,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 70,
+                      "color": "orange"
+                    },
+                    {
+                      "value": 90,
+                      "color": "red"
+                    }
+                  ]
+                }
+              }
             ]
           }
         ]
+      },
+      "options": {
+        "cellHeight": "lg",
+        "showHeader": true
       }
     },
     {
