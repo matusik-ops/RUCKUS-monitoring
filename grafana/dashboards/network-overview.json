@@ -915,106 +915,122 @@
     },
     {
       "id": 11,
-      "title": "Airtime Usage % (2.4GHz)",
-      "type": "bargauge",
+      "title": "Airtime Breakdown % (2.4GHz)",
+      "type": "barchart",
       "gridPos": {
-        "h": 8,
-        "w": 8,
+        "h": 10,
+        "w": 12,
         "x": 0,
         "y": 38
       },
       "targets": [
         {
-          "expr": "clamp_max((unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"2.4g\"} + unleashed_radio_airtime_tx{site=~\"$site\", radio_band=\"2.4g\"} + unleashed_radio_airtime_rx{site=~\"$site\", radio_band=\"2.4g\"}) / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"2.4g\"}, 1) * 100, 100)",
-          "legendFormat": "{{ ap_name }}",
+          "expr": "unleashed_radio_airtime_tx{site=~\"$site\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"2.4g\"}, 1) * 100",
+          "legendFormat": "{{ ap_name }} Tx",
           "instant": true,
-          "refId": "A"
+          "refId": "tx"
+        },
+        {
+          "expr": "unleashed_radio_airtime_rx{site=~\"$site\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"2.4g\"}, 1) * 100",
+          "legendFormat": "{{ ap_name }} Rx",
+          "instant": true,
+          "refId": "rx"
+        },
+        {
+          "expr": "unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"2.4g\"}, 1) * 100",
+          "legendFormat": "{{ ap_name }} Interference",
+          "instant": true,
+          "refId": "busy"
         }
       ],
       "options": {
         "orientation": "horizontal",
-        "displayMode": "gradient"
+        "stacking": "normal",
+        "showValue": "always",
+        "barWidth": 0.8,
+        "groupWidth": 0.7
       },
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
           "min": 0,
           "max": 100,
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 20,
-                "color": "yellow"
-              },
-              {
-                "value": 40,
-                "color": "red"
-              }
-            ]
+          "decimals": 1
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byRegexp", "options": "Tx$" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
           },
-          "links": [
-            {
-              "title": "Radio Health",
-              "url": "/d/ruckus-radio-health?var-ap_name=${__field.labels.ap_name}&var-radio_band=2.4g"
-            }
-          ]
-        }
+          {
+            "matcher": { "id": "byRegexp", "options": "Rx$" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byRegexp", "options": "Interference$" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
+          }
+        ]
       }
     },
     {
       "id": 12,
-      "title": "Airtime Usage % (5GHz)",
-      "type": "bargauge",
+      "title": "Airtime Breakdown % (5GHz)",
+      "type": "barchart",
       "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 8,
+        "h": 10,
+        "w": 12,
+        "x": 12,
         "y": 38
       },
       "targets": [
         {
-          "expr": "clamp_max((unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"5g\"} + unleashed_radio_airtime_tx{site=~\"$site\", radio_band=\"5g\"} + unleashed_radio_airtime_rx{site=~\"$site\", radio_band=\"5g\"}) / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"5g\"}, 1) * 100, 100)",
-          "legendFormat": "{{ ap_name }}",
+          "expr": "unleashed_radio_airtime_tx{site=~\"$site\", radio_band=\"5g\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"5g\"}, 1) * 100",
+          "legendFormat": "{{ ap_name }} Tx",
           "instant": true,
-          "refId": "A"
+          "refId": "tx"
+        },
+        {
+          "expr": "unleashed_radio_airtime_rx{site=~\"$site\", radio_band=\"5g\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"5g\"}, 1) * 100",
+          "legendFormat": "{{ ap_name }} Rx",
+          "instant": true,
+          "refId": "rx"
+        },
+        {
+          "expr": "unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"5g\"} / clamp_min(unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"5g\"}, 1) * 100",
+          "legendFormat": "{{ ap_name }} Interference",
+          "instant": true,
+          "refId": "busy"
         }
       ],
       "options": {
         "orientation": "horizontal",
-        "displayMode": "gradient"
+        "stacking": "normal",
+        "showValue": "always",
+        "barWidth": 0.8,
+        "groupWidth": 0.7
       },
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
           "min": 0,
           "max": 100,
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 20,
-                "color": "yellow"
-              },
-              {
-                "value": 40,
-                "color": "red"
-              }
-            ]
+          "decimals": 1
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byRegexp", "options": "Tx$" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
           },
-          "links": [
-            {
-              "title": "Radio Health",
-              "url": "/d/ruckus-radio-health?var-ap_name=${__field.labels.ap_name}&var-radio_band=5g"
-            }
-          ]
-        }
+          {
+            "matcher": { "id": "byRegexp", "options": "Rx$" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byRegexp", "options": "Interference$" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
+          }
+        ]
       }
     },
     {
