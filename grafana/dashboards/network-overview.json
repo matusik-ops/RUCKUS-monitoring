@@ -998,7 +998,56 @@
       "fieldConfig": {
         "defaults": {
           "decimals": 1
-        }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Tx" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
+              { "id": "thresholds", "value": { "steps": [
+                { "value": 0, "color": "transparent" },
+                { "value": 5, "color": "green" },
+                { "value": 20, "color": "yellow" },
+                { "value": 40, "color": "red" }
+              ]}}
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Rx" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
+              { "id": "thresholds", "value": { "steps": [
+                { "value": 0, "color": "transparent" },
+                { "value": 5, "color": "blue" },
+                { "value": 20, "color": "semi-dark-blue" },
+                { "value": 40, "color": "dark-blue" }
+              ]}}
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Interference" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
+              { "id": "thresholds", "value": { "steps": [
+                { "value": 0, "color": "transparent" },
+                { "value": 2, "color": "orange" },
+                { "value": 10, "color": "red" },
+                { "value": 30, "color": "dark-red" }
+              ]}}
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Total" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
+              { "id": "thresholds", "value": { "steps": [
+                { "value": 0, "color": "green" },
+                { "value": 30, "color": "yellow" },
+                { "value": 60, "color": "red" }
+              ]}}
+            ]
+          }
+        ]
       }
     },
     {
@@ -1080,7 +1129,56 @@
       "fieldConfig": {
         "defaults": {
           "decimals": 1
-        }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Tx" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
+              { "id": "thresholds", "value": { "steps": [
+                { "value": 0, "color": "transparent" },
+                { "value": 5, "color": "green" },
+                { "value": 20, "color": "yellow" },
+                { "value": 40, "color": "red" }
+              ]}}
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Rx" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
+              { "id": "thresholds", "value": { "steps": [
+                { "value": 0, "color": "transparent" },
+                { "value": 5, "color": "blue" },
+                { "value": 20, "color": "semi-dark-blue" },
+                { "value": 40, "color": "dark-blue" }
+              ]}}
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Interference" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
+              { "id": "thresholds", "value": { "steps": [
+                { "value": 0, "color": "transparent" },
+                { "value": 2, "color": "orange" },
+                { "value": 10, "color": "red" },
+                { "value": 30, "color": "dark-red" }
+              ]}}
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Total" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
+              { "id": "thresholds", "value": { "steps": [
+                { "value": 0, "color": "green" },
+                { "value": 30, "color": "yellow" },
+                { "value": 60, "color": "red" }
+              ]}}
+            ]
+          }
+        ]
       }
     },
     {
