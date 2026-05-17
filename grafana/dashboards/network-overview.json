@@ -764,8 +764,14 @@
                   {
                     "type": "value",
                     "options": {
-                      "off": { "text": "Radio OFF", "color": "red" },
-                      "on": { "text": "Radio ON", "color": "green" }
+                      "off": {
+                        "text": "Radio OFF",
+                        "color": "red"
+                      },
+                      "on": {
+                        "text": "Radio ON",
+                        "color": "green"
+                      }
                     }
                   }
                 ]
@@ -921,7 +927,7 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 38
+        "y": 46
       },
       "targets": [
         {
@@ -984,7 +990,12 @@
         {
           "id": "sortBy",
           "options": {
-            "sort": [{ "field": "Total %", "desc": true }]
+            "sort": [
+              {
+                "field": "Total %",
+                "desc": true
+              }
+            ]
           }
         }
       ],
@@ -995,38 +1006,114 @@
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "Tx %" },
+            "matcher": {
+              "id": "byName",
+              "options": "Tx %"
+            },
             "properties": [
-              { "id": "custom.cellOptions", "value": { "type": "gauge", "mode": "basic" } },
-              { "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } },
-              { "id": "max", "value": 100 }
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "max",
+                "value": 100
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Rx %" },
+            "matcher": {
+              "id": "byName",
+              "options": "Rx %"
+            },
             "properties": [
-              { "id": "custom.cellOptions", "value": { "type": "gauge", "mode": "basic" } },
-              { "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } },
-              { "id": "max", "value": 100 }
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "max",
+                "value": 100
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Interference %" },
+            "matcher": {
+              "id": "byName",
+              "options": "Interference %"
+            },
             "properties": [
-              { "id": "custom.cellOptions", "value": { "type": "gauge", "mode": "basic" } },
-              { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } },
-              { "id": "max", "value": 100 }
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "max",
+                "value": 100
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Total %" },
+            "matcher": {
+              "id": "byName",
+              "options": "Total %"
+            },
             "properties": [
-              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
-              { "id": "thresholds", "value": { "steps": [
-                { "value": 0, "color": "green" },
-                { "value": 40, "color": "yellow" },
-                { "value": 70, "color": "red" }
-              ]}}
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 40,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 70,
+                      "color": "red"
+                    }
+                  ]
+                }
+              }
             ]
           }
         ]
@@ -1040,7 +1127,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 38
+        "y": 46
       },
       "targets": [
         {
@@ -1103,7 +1190,12 @@
         {
           "id": "sortBy",
           "options": {
-            "sort": [{ "field": "Total %", "desc": true }]
+            "sort": [
+              {
+                "field": "Total %",
+                "desc": true
+              }
+            ]
           }
         }
       ],
@@ -1114,38 +1206,114 @@
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "Tx %" },
+            "matcher": {
+              "id": "byName",
+              "options": "Tx %"
+            },
             "properties": [
-              { "id": "custom.cellOptions", "value": { "type": "gauge", "mode": "basic" } },
-              { "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } },
-              { "id": "max", "value": 100 }
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "max",
+                "value": 100
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Rx %" },
+            "matcher": {
+              "id": "byName",
+              "options": "Rx %"
+            },
             "properties": [
-              { "id": "custom.cellOptions", "value": { "type": "gauge", "mode": "basic" } },
-              { "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } },
-              { "id": "max", "value": 100 }
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "max",
+                "value": 100
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Interference %" },
+            "matcher": {
+              "id": "byName",
+              "options": "Interference %"
+            },
             "properties": [
-              { "id": "custom.cellOptions", "value": { "type": "gauge", "mode": "basic" } },
-              { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } },
-              { "id": "max", "value": 100 }
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "max",
+                "value": 100
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Total %" },
+            "matcher": {
+              "id": "byName",
+              "options": "Total %"
+            },
             "properties": [
-              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
-              { "id": "thresholds", "value": { "steps": [
-                { "value": 0, "color": "green" },
-                { "value": 40, "color": "yellow" },
-                { "value": 70, "color": "red" }
-              ]}}
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 40,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 70,
+                      "color": "red"
+                    }
+                  ]
+                }
+              }
             ]
           }
         ]
@@ -1158,8 +1326,8 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 16,
-        "y": 38
+        "x": 0,
+        "y": 56
       },
       "targets": [
         {
@@ -1204,8 +1372,8 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 16,
-        "y": 46
+        "x": 8,
+        "y": 56
       },
       "targets": [
         {
@@ -1251,7 +1419,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 46
+        "y": 64
       },
       "options": {
         "mode": "markdown",
@@ -1266,7 +1434,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 48
+        "y": 66
       },
       "targets": [
         {
@@ -1363,7 +1531,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 48
+        "y": 66
       },
       "targets": [
         {
@@ -1456,7 +1624,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 56
+        "y": 74
       },
       "options": {
         "mode": "markdown",
@@ -1471,7 +1639,7 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 58
+        "y": 76
       },
       "targets": [
         {
@@ -1489,7 +1657,7 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 58
+        "y": 76
       },
       "targets": [
         {
@@ -1532,7 +1700,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 58
+        "y": 76
       },
       "targets": [
         {
@@ -1560,7 +1728,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 65
+        "y": 83
       },
       "targets": [
         {
@@ -1584,7 +1752,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 65
+        "y": 83
       },
       "targets": [
         {
@@ -1608,7 +1776,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 72
+        "y": 90
       },
       "options": {
         "mode": "markdown",
@@ -1623,7 +1791,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 74
+        "y": 92
       },
       "targets": [
         {
@@ -1642,7 +1810,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 74
+        "y": 92
       },
       "targets": [
         {
@@ -1661,7 +1829,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 74
+        "y": 92
       },
       "targets": [
         {
