@@ -957,33 +957,29 @@
       ],
       "transformations": [
         {
-          "id": "merge"
+          "id": "joinByField",
+          "options": {
+            "byField": "ap_name",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "pattern": "^(ap_name|Value).*"
+            }
+          }
         },
         {
           "id": "organize",
           "options": {
-            "excludeByName": {
-              "Time": true,
-              "__name__": true,
-              "job": true,
-              "instance": true,
-              "site": true,
-              "radio_band": true,
-              "channel": true
-            },
             "renameByName": {
               "ap_name": "AP",
               "Value #tx": "Tx",
               "Value #rx": "Rx",
               "Value #busy": "Interference",
               "Value #total": "Total"
-            },
-            "indexByName": {
-              "ap_name": 0,
-              "Value #tx": 1,
-              "Value #rx": 2,
-              "Value #busy": 3,
-              "Value #total": 4
             }
           }
         },
@@ -1044,33 +1040,29 @@
       ],
       "transformations": [
         {
-          "id": "merge"
+          "id": "joinByField",
+          "options": {
+            "byField": "ap_name",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "pattern": "^(ap_name|Value).*"
+            }
+          }
         },
         {
           "id": "organize",
           "options": {
-            "excludeByName": {
-              "Time": true,
-              "__name__": true,
-              "job": true,
-              "instance": true,
-              "site": true,
-              "radio_band": true,
-              "channel": true
-            },
             "renameByName": {
               "ap_name": "AP",
               "Value #tx": "Tx",
               "Value #rx": "Rx",
               "Value #busy": "Interference",
               "Value #total": "Total"
-            },
-            "indexByName": {
-              "ap_name": 0,
-              "Value #tx": 1,
-              "Value #rx": 2,
-              "Value #busy": 3,
-              "Value #total": 4
             }
           }
         },
