@@ -1041,8 +1041,9 @@
               { "id": "custom.cellOptions", "value": { "type": "color-background" } },
               { "id": "thresholds", "value": { "steps": [
                 { "value": 0, "color": "green" },
-                { "value": 30, "color": "yellow" },
-                { "value": 60, "color": "red" }
+                { "value": 50, "color": "yellow" },
+                { "value": 70, "color": "orange" },
+                { "value": 90, "color": "red" }
               ]}}
             ]
           }
@@ -1171,8 +1172,9 @@
               { "id": "custom.cellOptions", "value": { "type": "color-background" } },
               { "id": "thresholds", "value": { "steps": [
                 { "value": 0, "color": "green" },
-                { "value": 30, "color": "yellow" },
-                { "value": 60, "color": "red" }
+                { "value": 50, "color": "yellow" },
+                { "value": 70, "color": "orange" },
+                { "value": 90, "color": "red" }
               ]}}
             ]
           }
