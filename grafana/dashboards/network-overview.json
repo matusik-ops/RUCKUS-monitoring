@@ -694,7 +694,7 @@
       },
       "targets": [
         {
-          "expr": "unleashed_alarm_radio_event{site=~\"$site\"}",
+          "expr": "unleashed_alarm_radio_event{site=~\"$site\"} * 1000",
           "instant": true,
           "format": "table",
           "refId": "A"
