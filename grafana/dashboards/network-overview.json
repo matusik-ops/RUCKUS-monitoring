@@ -931,28 +931,34 @@
       },
       "targets": [
         {
-          "expr": "unleashed_radio_airtime_tx{site=~\"$site\", radio_band=\"2.4g\"} / 10",
+          "expr": "unleashed_radio_airtime_tx{site=~\"$site\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_rf_samples{site=~\"$site\", radio_band=\"2.4g\"}, 1)",
           "instant": true,
           "format": "table",
           "refId": "tx"
         },
         {
-          "expr": "unleashed_radio_airtime_rx{site=~\"$site\", radio_band=\"2.4g\"} / 10",
+          "expr": "unleashed_radio_airtime_rx{site=~\"$site\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_rf_samples{site=~\"$site\", radio_band=\"2.4g\"}, 1)",
           "instant": true,
           "format": "table",
           "refId": "rx"
         },
         {
-          "expr": "unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"2.4g\"} / 10",
+          "expr": "unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_rf_samples{site=~\"$site\", radio_band=\"2.4g\"}, 1)",
           "instant": true,
           "format": "table",
           "refId": "busy"
         },
         {
-          "expr": "unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"2.4g\"} / 10",
+          "expr": "unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_rf_samples{site=~\"$site\", radio_band=\"2.4g\"}, 1)",
           "instant": true,
           "format": "table",
           "refId": "total"
+        },
+        {
+          "expr": "100 - unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"2.4g\"} / clamp_min(unleashed_radio_rf_samples{site=~\"$site\", radio_band=\"2.4g\"}, 1)",
+          "instant": true,
+          "format": "table",
+          "refId": "idle"
         }
       ],
       "transformations": [
@@ -979,7 +985,8 @@
               "Value #tx": "Tx",
               "Value #rx": "Rx",
               "Value #busy": "Interference",
-              "Value #total": "Total"
+              "Value #total": "Total",
+              "Value #idle": "IDLE"
             }
           }
         },
@@ -1138,6 +1145,43 @@
                     {
                       "value": 90,
                       "color": "red"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "IDLE"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "red"
+                    },
+                    {
+                      "value": 30,
+                      "color": "orange"
+                    },
+                    {
+                      "value": 50,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 70,
+                      "color": "green"
                     }
                   ]
                 }
@@ -1163,28 +1207,34 @@
       },
       "targets": [
         {
-          "expr": "unleashed_radio_airtime_tx{site=~\"$site\", radio_band=\"5g\"} / 10",
+          "expr": "unleashed_radio_airtime_tx{site=~\"$site\", radio_band=\"5g\"} / clamp_min(unleashed_radio_rf_samples{site=~\"$site\", radio_band=\"5g\"}, 1)",
           "instant": true,
           "format": "table",
           "refId": "tx"
         },
         {
-          "expr": "unleashed_radio_airtime_rx{site=~\"$site\", radio_band=\"5g\"} / 10",
+          "expr": "unleashed_radio_airtime_rx{site=~\"$site\", radio_band=\"5g\"} / clamp_min(unleashed_radio_rf_samples{site=~\"$site\", radio_band=\"5g\"}, 1)",
           "instant": true,
           "format": "table",
           "refId": "rx"
         },
         {
-          "expr": "unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"5g\"} / 10",
+          "expr": "unleashed_radio_airtime_busy{site=~\"$site\", radio_band=\"5g\"} / clamp_min(unleashed_radio_rf_samples{site=~\"$site\", radio_band=\"5g\"}, 1)",
           "instant": true,
           "format": "table",
           "refId": "busy"
         },
         {
-          "expr": "unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"5g\"} / 10",
+          "expr": "unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"5g\"} / clamp_min(unleashed_radio_rf_samples{site=~\"$site\", radio_band=\"5g\"}, 1)",
           "instant": true,
           "format": "table",
           "refId": "total"
+        },
+        {
+          "expr": "100 - unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"5g\"} / clamp_min(unleashed_radio_rf_samples{site=~\"$site\", radio_band=\"5g\"}, 1)",
+          "instant": true,
+          "format": "table",
+          "refId": "idle"
         }
       ],
       "transformations": [
@@ -1211,7 +1261,8 @@
               "Value #tx": "Tx",
               "Value #rx": "Rx",
               "Value #busy": "Interference",
-              "Value #total": "Total"
+              "Value #total": "Total",
+              "Value #idle": "IDLE"
             }
           }
         },
@@ -1370,6 +1421,43 @@
                     {
                       "value": 90,
                       "color": "red"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "IDLE"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "red"
+                    },
+                    {
+                      "value": 30,
+                      "color": "orange"
+                    },
+                    {
+                      "value": 50,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 70,
+                      "color": "green"
                     }
                   ]
                 }

@@ -194,6 +194,7 @@ radio_airtime_total = Gauge("unleashed_radio_airtime_total", "Radio airtime tota
 radio_airtime_busy = Gauge("unleashed_radio_airtime_busy", "Radio airtime busy (interference/other)", RADIO_LABELS, registry=registry)
 radio_airtime_rx = Gauge("unleashed_radio_airtime_rx", "Radio airtime Rx", RADIO_LABELS, registry=registry)
 radio_airtime_tx = Gauge("unleashed_radio_airtime_tx", "Radio airtime Tx", RADIO_LABELS, registry=registry)
+radio_rf_samples = Gauge("unleashed_radio_rf_samples", "Radio RF measurement sample count", RADIO_LABELS, registry=registry)
 radio_num_sta = Gauge("unleashed_radio_num_sta", "Clients per radio", RADIO_LABELS, registry=registry)
 radio_avg_rssi = Gauge("unleashed_radio_avg_rssi", "Average client RSSI per radio", RADIO_LABELS, registry=registry)
 radio_tx_bytes = Gauge("unleashed_radio_tx_bytes_total", "Radio total Tx bytes", RADIO_LABELS, registry=registry)
@@ -279,7 +280,7 @@ _WLAN_GAUGES = [
 ]
 
 _RADIO_GAUGES = [
-    radio_airtime_total, radio_airtime_busy, radio_airtime_rx, radio_airtime_tx,
+    radio_airtime_total, radio_airtime_busy, radio_airtime_rx, radio_airtime_tx, radio_rf_samples,
     radio_num_sta, radio_avg_rssi, radio_tx_bytes, radio_rx_bytes,
     radio_tx_pkts, radio_rx_pkts, radio_tx_fail, radio_retries, radio_fcs_err,
     radio_auth_fail, radio_auth_success, radio_assoc_fail, radio_assoc_success,
@@ -965,6 +966,7 @@ def update_radio_metrics(aps: list[dict]):
             _set_radio_gauge(radio_airtime_busy, labels, radio.get("airtime-busy"))
             _set_radio_gauge(radio_airtime_rx, labels, radio.get("airtime-rx"))
             _set_radio_gauge(radio_airtime_tx, labels, radio.get("airtime-tx"))
+            _set_radio_gauge(radio_rf_samples, labels, radio.get("rf-samples"))
             _set_radio_gauge(radio_num_sta, labels, radio.get("num-sta"))
             _set_radio_gauge(radio_avg_rssi, labels, radio.get("avg-rssi"))
             _set_radio_gauge(radio_tx_bytes, labels, radio.get("radio-total-tx-bytes"))
