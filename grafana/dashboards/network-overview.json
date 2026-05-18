@@ -988,8 +988,8 @@
           "options": {
             "sort": [
               {
-                "field": "Total",
-                "desc": true
+                "field": "AP",
+                "desc": false
               }
             ]
           }
@@ -1220,8 +1220,8 @@
           "options": {
             "sort": [
               {
-                "field": "Total",
-                "desc": true
+                "field": "AP",
+                "desc": false
               }
             ]
           }
