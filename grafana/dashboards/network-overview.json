@@ -953,6 +953,12 @@
           "instant": true,
           "format": "table",
           "refId": "total"
+        },
+        {
+          "expr": "(clamp_min(unleashed_radio_rf_samples{site=~\"$site\", radio_band=\"2.4g\"}, 1) * 100 - unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"2.4g\"}) / clamp_min(unleashed_radio_rf_samples{site=~\"$site\", radio_band=\"2.4g\"}, 1)",
+          "instant": true,
+          "format": "table",
+          "refId": "idle"
         }
       ],
       "transformations": [
@@ -993,19 +999,6 @@
                 "desc": false
               }
             ]
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "IDLE",
-            "mode": "binary",
-            "binary": {
-              "left": "100",
-              "operator": "-",
-              "right": "Total"
-            },
-            "replaceFields": false
           }
         }
       ],
@@ -1236,6 +1229,12 @@
           "instant": true,
           "format": "table",
           "refId": "total"
+        },
+        {
+          "expr": "(clamp_min(unleashed_radio_rf_samples{site=~\"$site\", radio_band=\"5g\"}, 1) * 100 - unleashed_radio_airtime_total{site=~\"$site\", radio_band=\"5g\"}) / clamp_min(unleashed_radio_rf_samples{site=~\"$site\", radio_band=\"5g\"}, 1)",
+          "instant": true,
+          "format": "table",
+          "refId": "idle"
         }
       ],
       "transformations": [
@@ -1276,19 +1275,6 @@
                 "desc": false
               }
             ]
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "IDLE",
-            "mode": "binary",
-            "binary": {
-              "left": "100",
-              "operator": "-",
-              "right": "Total"
-            },
-            "replaceFields": false
           }
         }
       ],
