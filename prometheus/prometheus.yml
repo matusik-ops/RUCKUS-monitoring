@@ -1,5 +1,5 @@
 global:
-  scrape_interval: 30s
+  scrape_interval: 15s
   evaluation_interval: 60s
   external_labels:
     site: "${SITE_NAME}"
@@ -10,8 +10,8 @@ rule_files:
 scrape_configs:
   # SNMP Exporter - scrapes Ruckus R720 APs via SNMP
   - job_name: snmp
-    scrape_interval: 60s
-    scrape_timeout: 55s
+    scrape_interval: 15s
+    scrape_timeout: 10s
     file_sd_configs:
       - files:
           - /etc/prometheus/targets.yml
@@ -32,7 +32,7 @@ scrape_configs:
 
   # Unleashed REST API Exporter - per-client metrics
   - job_name: unleashed
-    scrape_interval: 30s
+    scrape_interval: 15s
     static_configs:
       - targets:
           - unleashed-exporter:9191
